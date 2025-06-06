@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../constants/colors.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import 'grade_import.dart';
@@ -75,15 +76,39 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(_getAppBarTitle()),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.notifications),
-                onPressed: () => _showNotifications(context),
-              ),
-             
-            ],
+  title: Text(_getAppBarTitle()),
+  actions: [
+      Padding(
+      padding: const EdgeInsets.only(right: 12.0),
+      child: Container(
+        width: 40, // Taille réduite du cercle
+        height: 40,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: AppColors.primary, // Bordure en primary
+            width: 2,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.07),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: IconButton(
+          icon: const Icon(Icons.notifications, color: Colors.black87, size: 20),
+          onPressed: () => _showNotifications(context),
+          splashRadius: 22, // Pour éviter que le splash soit trop grand
+          padding: EdgeInsets.zero, // Pour centrer l'icône
+          constraints: const BoxConstraints(),
+        ),
+      ),
+    ),
+  ],
+),
           body: IndexedStack(
             index: _currentIndex,
             children: _children,
