@@ -6,6 +6,7 @@ class TeacherCard extends StatefulWidget {
   final String email;
   final String profileImageUrl;
   final int subjectCount;
+  final int classCount;
 
   const TeacherCard({
     super.key,
@@ -13,6 +14,7 @@ class TeacherCard extends StatefulWidget {
     required this.email,
     required this.profileImageUrl,
     required this.subjectCount,
+    required this.classCount,
   });
 
   @override
@@ -49,6 +51,30 @@ class _TeacherCardState extends State<TeacherCard>
     });
   }
 
+  Widget _infoBadge({required IconData icon, required String label}) {
+    return Container(
+      margin: const EdgeInsets.only(left: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -81,7 +107,7 @@ class _TeacherCardState extends State<TeacherCard>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ligne avec photo + nom + bouton
+              // Ligne avec photo + nom + badges + bouton
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -118,19 +144,38 @@ class _TeacherCardState extends State<TeacherCard>
                       ),
                     ],
                   ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      widget.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                  const SizedBox(width: 8),
+                  // Labels devant chaque badge
+                  Row(
+                    children: [
+                      const Text(
+                        "Matières:",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                      _infoBadge(
+                        icon: Icons.book,
+                        label: '${widget.subjectCount}',
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        "Classes:",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      _infoBadge(
+                        icon: Icons.class_,
+                        label: '${widget.classCount}',
+                      ),
+                    ],
                   ),
+                  const Spacer(), // <-- Ajouté pour pousser l'icône à droite
                   IconButton(
                     icon: AnimatedRotation(
                       turns: _expanded ? 0.0 : 0.5,
@@ -159,23 +204,6 @@ class _TeacherCardState extends State<TeacherCard>
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Text(
-                        '${widget.subjectCount} matière(s) dispensée(s)',
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
                     ),
                   ],
                 ),

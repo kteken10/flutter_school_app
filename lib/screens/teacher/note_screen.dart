@@ -11,6 +11,7 @@ import '../../ui/add_icons.dart';
 import '../../ui/grade_entry_dialog.dart';
 import '../../ui/student_card.dart';
 import '../../ui/tab_filter.dart';
+import '../../ui/search_zone.dart'; // <-- Ajout de l'import
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
@@ -22,6 +23,7 @@ class NoteScreen extends StatefulWidget {
 class _NoteScreenState extends State<NoteScreen> {
   final DatabaseService _dbService = DatabaseService();
   int selectedTab = 0;
+  final TextEditingController _searchController = TextEditingController(); // <-- Ajout du contrôleur
 
   void _onAddNote() {
     showDialog(
@@ -86,7 +88,20 @@ class _NoteScreenState extends State<NoteScreen> {
               email: user.email,
               profileImageUrl: user.photoUrl ?? 'https://www.example.com/default-profile-image.png',
               subjectCount: 3,
+              classCount: 5,
             ),
+          
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16), // Ajout du margin horizontal
+              child: SearchZone(
+                controller: _searchController,
+                hintText: "Rechercher un étudiant...",
+                showSearchIcon: true,
+             
+              ),
+            ),
+            // ...existing code...
+            SizedBox(height: 10), // Espace entre la recherche et les onglets
             AcademicTabFilter(
               tabs: ['Sessions', 'Classes', 'Matières'],
               onTabSelected: (index) {
