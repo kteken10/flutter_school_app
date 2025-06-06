@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
+import 'package:schoop_app/constants/colors.dart';
 
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
@@ -9,7 +11,7 @@ import 'notification.dart';
 import 'profile_screen.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
-  const TeacherHomeScreen({Key? key}) : super(key: key);
+  const TeacherHomeScreen({super.key});
 
   @override
   State<TeacherHomeScreen> createState() => _TeacherHomeScreenState();
@@ -29,8 +31,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       ProfileScreen(),
     ];
   }
-
-  
 
   void _showNotifications(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -58,16 +58,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         }
 
         return Scaffold(
-        
           body: IndexedStack(
             index: _currentIndex,
             children: _children,
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
+          bottomNavigationBar: SalomonBottomBar(
             currentIndex: _currentIndex,
-            selectedItemColor: Theme.of(context).primaryColor,
-            unselectedItemColor: Colors.grey,
             onTap: (index) {
               if (index == 2) {
                 _showNotifications(context);
@@ -76,19 +72,29 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               setState(() => _currentIndex = index);
             },
             items: [
-              const BottomNavigationBarItem(
-                  icon: Icon(Icons.grading), label: 'Notes'),
-              const BottomNavigationBarItem(
-                  icon: Icon(Icons.upload), label: 'Importer'),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.notifications, ),
-                label: 'Notifications',
+              SalomonBottomBarItem(
+                icon: const Icon(Icons.grading),
+                title: const Text('Notes'),
+                selectedColor: AppColors.secondary,
+                unselectedColor: Colors.grey,
               ),
-            BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.person, ),
-                label: 'Profile',
+              SalomonBottomBarItem(
+                icon: const Icon(Icons.upload),
+                title: const Text('Importer'),
+                selectedColor: AppColors.secondary,
+                unselectedColor: Colors.grey,
+              ),
+              SalomonBottomBarItem(
+                icon: const Icon(Icons.notifications),
+                title: const Text('Notifications'),
+               selectedColor: AppColors.secondary,
+                unselectedColor: Colors.grey,
+              ),
+              SalomonBottomBarItem(
+                icon: const Icon(Icons.person),
+                title: const Text('Profile'),
+              selectedColor: AppColors.secondary,
+                unselectedColor: Colors.grey,
               ),
             ],
           ),

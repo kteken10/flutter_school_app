@@ -101,10 +101,7 @@ class AuthWrapper extends StatelessWidget {
             return TeacherHomeScreen();
           case UserRole.student:
             return StudentHomeScreen();
-          default:
-            
-            return LoginScreen();
-        }
+          }
       },
     );
   }

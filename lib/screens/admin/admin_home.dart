@@ -6,6 +6,8 @@ import '../../services/auth_service.dart';
 // import 'system_settings.dart';
 
 class AdminHomeScreen extends StatelessWidget {
+  const AdminHomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
