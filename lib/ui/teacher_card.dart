@@ -23,6 +23,7 @@ class _TeacherCardState extends State<TeacherCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  bool _expanded = true;
 
   @override
   void initState() {
@@ -40,6 +41,12 @@ class _TeacherCardState extends State<TeacherCard>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _toggleExpanded() {
+    setState(() {
+      _expanded = !_expanded;
+    });
   }
 
   @override
@@ -74,7 +81,7 @@ class _TeacherCardState extends State<TeacherCard>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ligne avec photo + nom
+              // Ligne avec photo + nom + bouton
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -124,39 +131,60 @@ class _TeacherCardState extends State<TeacherCard>
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const Icon(Icons.email, size: 14, color: Colors.white70),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      widget.email,
-                      style: const TextStyle(
-                          fontSize: 13, color: Colors.white70),
-                      overflow: TextOverflow.ellipsis,
+                  IconButton(
+                    icon: AnimatedRotation(
+                      turns: _expanded ? 0.0 : 0.5,
+                      duration: const Duration(milliseconds: 300),
+                      child: const Icon(Icons.expand_less, color: Colors.white),
                     ),
+                    onPressed: _toggleExpanded,
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
+              AnimatedCrossFade(
+                firstChild: const SizedBox.shrink(),
+                secondChild: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Icon(Icons.email, size: 14, color: Colors.white70),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            widget.email,
+                            style: const TextStyle(
+                                fontSize: 13, color: Colors.white70),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Text(
+                        '${widget.subjectCount} matière(s) dispensée(s)',
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  '${widget.subjectCount} matière(s) dispensée(s)',
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
+                crossFadeState: _expanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
+                duration: const Duration(milliseconds: 350),
+                firstCurve: Curves.easeInOut,
+                secondCurve: Curves.easeInOut,
               ),
             ],
           ),
