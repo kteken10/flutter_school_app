@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import 'package:schoop_app/constants/colors.dart';
 
+import '../../constants/colors.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import 'grade_import.dart';
@@ -45,12 +45,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     return StreamBuilder<UserModel?>(
       stream: authService.currentUser,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
+      
         if (!snapshot.hasData || snapshot.data == null) {
           return const Scaffold(
             body: Center(child: Text('Utilisateur non connecté')),
@@ -81,19 +76,19 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               SalomonBottomBarItem(
                 icon: const Icon(Icons.upload),
                 title: const Text('Importer'),
-                selectedColor: AppColors.secondary,
+               selectedColor: AppColors.secondary,
                 unselectedColor: Colors.grey,
               ),
               SalomonBottomBarItem(
                 icon: const Icon(Icons.notifications),
                 title: const Text('Notifications'),
-               selectedColor: AppColors.secondary,
+                selectedColor: AppColors.secondary,
                 unselectedColor: Colors.grey,
               ),
               SalomonBottomBarItem(
                 icon: const Icon(Icons.person),
                 title: const Text('Profile'),
-              selectedColor: AppColors.secondary,
+                 selectedColor: AppColors.secondary,
                 unselectedColor: Colors.grey,
               ),
             ],

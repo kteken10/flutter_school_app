@@ -1,38 +1,41 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Couleur principale (bleu académique, confiance et sérieux)
-  static const Color primary = Color(0xFF1E3A8A); // Bleu foncé profond
+  // Couleur principale (violet académique - sérieux et créativité)
+  static const Color primary = Color(0xFF5A3D80); // Violet foncé profond
 
-  // Couleur secondaire (bleu clair pour éléments interactifs)
-  static const Color secondary = Color(0xFF3B82F6); // Bleu vif
+  // Couleur secondaire (violet plus clair pour éléments interactifs)
+  static const Color secondary = Color(0xFF7E57C2); // Violet moyen
 
-  // Couleur tertiaire (gris foncé pour textes secondaires)
-  static const Color tertiary = Color(0xFF374151); // Gris ardoise foncé
+  // Couleur tertiaire (bleu-gris foncé pour textes secondaires)
+  static const Color tertiary = Color(0xFF37474F); // Bleu-gris foncé
 
-  // Couleur quaternaire (gris clair pour fonds et zones neutres)
-  static const Color quaternary = Color(0xFFF3F4F6); // Gris clair
+  // Couleur quaternaire (gris très clair pour fonds)
+  static const Color quaternary = Color(0xFFF5F5F7); // Gris clair légèrement bleuté
 
   // Blanc pur pour les fonds clairs
   static const Color white = Color(0xFFFFFFFF);
 
   // Couleurs utilitaires
 
-  // Couleur d’alerte (rouge doux, pas trop agressif)
-  static const Color alert = Color(0xFFEF4444); // Rouge doux
+  // Couleur d'alerte (rouge vineux plus doux)
+  static const Color alert = Color(0xFFC62828); // Rouge foncé atténué
 
-  // Couleur pour les bordures ou séparateurs
-  static const Color borderGray = Color(0xFFD1D5DB); // Gris clair
+  // Couleur pour bordures
+  static const Color borderGray = Color(0xFFE0E0E0); // Gris très clair
 
   // Couleur de texte principal
-  static const Color textPrimary = Color(0xFF111827); // Presque noir
+  static const Color textPrimary = Color(0xFF212121); // Gris très foncé
 
   // Couleur de texte secondaire
-  static const Color textSecondary = Color(0xFF6B7280); // Gris moyen
+  static const Color textSecondary = Color(0xFF757575); // Gris moyen
 
   // Fond de container clair
-  static const Color containerBackground = Color(0xFFF9FAFB); // Très clair
+  static const Color containerBackground = Color(0xFFFAFAFA); 
 
-  // Couleur accentuée (pour boutons ou accents)
-  static const Color accent = Color(0xFF2563EB); // Bleu moyen vif
+  // Couleur accentuée (violet vibrant mais professionnel)
+  static const Color accent = Color(0xFF673AB7); // Violet moyen intense
+
+  // Option: Couleur complémentaire or/ambre pour accents (optionnel)
+  static const Color complementary = Color(0xFFD4A017); // Or académique
 }

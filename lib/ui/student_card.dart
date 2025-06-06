@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../constants/colors.dart';
+
 class StudentCard extends StatelessWidget {
   final String studentName;
   final String studentPhotoUrl;
@@ -47,7 +49,7 @@ class StudentCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Colors.blue,
+                    color: AppColors.primary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -71,7 +73,7 @@ class StudentCard extends StatelessWidget {
                         child: Text(
                           subjectNames[index],
                           style: const TextStyle(
-                            color: Colors.blue,
+                          color: AppColors.primary,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
@@ -87,7 +89,7 @@ class StudentCard extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           IconButton(
-            icon: const Icon(Icons.arrow_forward_ios, color: Colors.blue, size: 18),
+            icon: const Icon(Icons.arrow_forward_ios,color: AppColors.primary, size: 18),
             onPressed: onProfileTap,
             tooltip: "Voir le profil",
           ),

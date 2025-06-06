@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../constants/colors.dart';
 import '../../models/subject.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
 
 import '../../ui/teacher_card.dart';
+import '../../ui/teacher_card_deco.dart';
 import '../../ui/add_icons.dart';
 import '../../ui/grade_entry_dialog.dart';
 import '../../ui/student_card.dart';
 import '../../ui/tab_filter.dart';
-import '../../ui/search_zone.dart'; // <-- Ajout de l'import
+import '../../ui/search_zone.dart';
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
@@ -23,7 +25,7 @@ class NoteScreen extends StatefulWidget {
 class _NoteScreenState extends State<NoteScreen> {
   final DatabaseService _dbService = DatabaseService();
   int selectedTab = 0;
-  final TextEditingController _searchController = TextEditingController(); // <-- Ajout du contrôleur
+  final TextEditingController _searchController = TextEditingController();
 
   void _onAddNote() {
     showDialog(
@@ -70,7 +72,7 @@ class _NoteScreenState extends State<NoteScreen> {
               child: Row(
                 children: [
                   Text(
-                    "Hi From ${user.fullName}",
+                    "Hi,${user.fullName}",
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -83,6 +85,9 @@ class _NoteScreenState extends State<NoteScreen> {
                 ],
               ),
             ),
+            // Carte décorative
+            const TeacherCardDeco(),
+            // Carte d'information de l'enseignant
             TeacherCard(
               name: user.fullName,
               email: user.email,
@@ -90,25 +95,21 @@ class _NoteScreenState extends State<NoteScreen> {
               subjectCount: 3,
               classCount: 5,
             ),
-          
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16), // Ajout du margin horizontal
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SearchZone(
                 controller: _searchController,
                 hintText: "Rechercher un étudiant...",
                 showSearchIcon: true,
-             
               ),
             ),
-            // ...existing code...
-            SizedBox(height: 10), // Espace entre la recherche et les onglets
+            const SizedBox(height: 10),
             AcademicTabFilter(
               tabs: ['Sessions', 'Classes', 'Matières'],
               onTabSelected: (index) {
                 // Laisse vide si tu ne veux pas filtrer la liste
               },
             ),
-            // Titre avant la liste des étudiants
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
               child: Row(
@@ -118,7 +119,7 @@ class _NoteScreenState extends State<NoteScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.blue,
+                      color: AppColors.primary,
                     ),
                   ),
                 ],

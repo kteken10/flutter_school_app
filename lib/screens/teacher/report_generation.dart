@@ -46,7 +46,16 @@ class _ReportGenerationScreenState extends State<ReportGenerationScreen> {
           StreamBuilder<List<AcademicSession>>(
             stream: databaseService.getSessions(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return LinearProgressIndicator();
+              if (!snapshot.hasData) {
+                return DropdownButtonFormField<String>(
+                  items: const [],
+                  onChanged: null,
+                  decoration: InputDecoration(
+                    labelText: 'Session académique',
+                    border: OutlineInputBorder(),
+                  ),
+                );
+              }
               return DropdownButtonFormField<String>(
                 value: _selectedSessionId,
                 items: snapshot.data!.map((session) {
@@ -67,7 +76,16 @@ class _ReportGenerationScreenState extends State<ReportGenerationScreen> {
           StreamBuilder<List<Subject>>(
             stream: databaseService.getSubjects(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return LinearProgressIndicator();
+              if (!snapshot.hasData) {
+                return DropdownButtonFormField<String>(
+                  items: const [],
+                  onChanged: null,
+                  decoration: InputDecoration(
+                    labelText: 'Matière',
+                    border: OutlineInputBorder(),
+                  ),
+                );
+              }
               return DropdownButtonFormField<String>(
                 value: _selectedSubjectId,
                 items: snapshot.data!.map((subject) {
@@ -86,9 +104,7 @@ class _ReportGenerationScreenState extends State<ReportGenerationScreen> {
           ),
           SizedBox(height: 32),
           ElevatedButton.icon(
-            icon: _isGenerating
-                ? CircularProgressIndicator(color: Colors.white)
-                : Icon(Icons.picture_as_pdf),
+            icon: Icon(Icons.picture_as_pdf),
             label: Text(_isGenerating ? 'Génération...' : 'Générer le PV'),
             onPressed: _canGenerate() ? _generateReport : null,
             style: ElevatedButton.styleFrom(
@@ -106,12 +122,12 @@ class _ReportGenerationScreenState extends State<ReportGenerationScreen> {
 
   Future<void> _generateReport() async {
     setState(() => _isGenerating = true);
-    
+
     // Simuler la génération du PV
     await Future.delayed(Duration(seconds: 2));
-    
+
     setState(() => _isGenerating = false);
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('PV généré avec succès!'),
