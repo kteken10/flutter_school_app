@@ -93,4 +93,19 @@ Stream<List<Grade>> getAllGrades() {
           snapshot.docs.map((doc) => Grade.fromMap(doc.data())).toList());
 }
 
+// 🔽 Ajoute ceci dans ta classe DatabaseService
+Future<UserModel?> getUserById(String userId) async {
+  try {
+    final doc = await _firestore.collection('users').doc(userId).get();
+    if (doc.exists) {
+      return UserModel.fromMap(doc.data()!);
+    }
+    return null;
+  } catch (e) {
+    print('Erreur lors de la récupération de l\'utilisateur: $e');
+    return null;
+  }
+}
+
+
 }
