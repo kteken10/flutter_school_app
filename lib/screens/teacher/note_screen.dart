@@ -86,15 +86,18 @@ class _NoteScreenState extends State<NoteScreen> {
               ),
             ),
             // Carte décorative
-            const TeacherCardDeco(),
-            // Carte d'information de l'enseignant
-            TeacherCard(
+          
+        const TeacherCardDeco(),
+                    TeacherCard(
               name: user.fullName,
               email: user.email,
               profileImageUrl: user.photoUrl ?? 'https://www.example.com/default-profile-image.png',
               subjectCount: 3,
               classCount: 5,
+              subjects: ['Mathématiques', 'Physique', 'SVT'], // À remplacer par la vraie liste
+              classes: ['6e A', '5e B', '4e C', '3e D', 'Terminale S'], // À remplacer par la vraie liste
             ),
+              
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SearchZone(

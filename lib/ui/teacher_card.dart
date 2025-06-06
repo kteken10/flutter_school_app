@@ -7,6 +7,8 @@ class TeacherCard extends StatefulWidget {
   final String profileImageUrl;
   final int subjectCount;
   final int classCount;
+  final List<String> subjects;
+  final List<String> classes;
 
   const TeacherCard({
     super.key,
@@ -15,6 +17,8 @@ class TeacherCard extends StatefulWidget {
     required this.profileImageUrl,
     required this.subjectCount,
     required this.classCount,
+    required this.subjects,
+    required this.classes,
   });
 
   @override
@@ -25,7 +29,6 @@ class _TeacherCardState extends State<TeacherCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  bool _expanded = true;
 
   @override
   void initState() {
@@ -34,7 +37,7 @@ class _TeacherCardState extends State<TeacherCard>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.25).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -45,55 +48,76 @@ class _TeacherCardState extends State<TeacherCard>
     super.dispose();
   }
 
-  void _toggleExpanded() {
-    setState(() {
-      _expanded = !_expanded;
-    });
-  }
-
-  Widget _infoBadge({required IconData icon, required String label}) {
+  Widget _infoBadge({required String label}) {
     return Container(
-      margin: const EdgeInsets.only(left: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      margin: const EdgeInsets.only(left: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.85),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(
-        children: [
-          const SizedBox(width: 3),
-          Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-            ),
-          ),
-        ],
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+          fontSize: 10,
+        ),
       ),
     );
+  }
+
+  List<Widget> _compactChips(List<String> items) {
+    final display = items.length > 3 ? items.sublist(0, 3) : items;
+    final chips = display
+        .map((e) => Chip(
+              label: Text(
+                e,
+                style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 10),
+              ),
+              backgroundColor: Colors.white.withOpacity(0.85),
+              visualDensity: VisualDensity.compact,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: EdgeInsets.zero,
+            ))
+        .toList();
+    if (items.length > 3) {
+      chips.add(const Chip(
+        label: Text("...", style: TextStyle(color: AppColors.primary, fontSize: 10)),
+        backgroundColor: Colors.white,
+        visualDensity: VisualDensity.compact,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: EdgeInsets.zero,
+      ));
+    }
+    return chips;
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      constraints: const BoxConstraints(
+        maxHeight: 165,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -107,112 +131,102 @@ class _TeacherCardState extends State<TeacherCard>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ligne avec photo + nom + badges + bouton
+              // Ligne avec photo + nom + badges
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 24,
-                        backgroundImage: NetworkImage(widget.profileImageUrl),
-                        backgroundColor: Colors.white,
-                      ),
-                      Positioned(
-                        bottom: 2,
-                        right: 2,
-                        child: ScaleTransition(
-                          scale: _scaleAnimation,
-                          child: Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: Colors.green,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.green.withOpacity(0.6),
-                                  blurRadius: 4,
-                                  spreadRadius: 1,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 8),
-                  // Labels devant chaque badge
-                  Row(
-                    children: [
-                      const Text(
-                        "Matières:",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      _infoBadge(
-                        icon: Icons.book,
-                        label: '${widget.subjectCount}',
-                      ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        "Classes:",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      _infoBadge(
-                        icon: Icons.class_,
-                        label: '${widget.classCount}',
-                      ),
-                    ],
-                  ),
-                  const Spacer(), // <-- Ajouté pour pousser l'icône à droite
-                  IconButton(
-                    icon: AnimatedRotation(
-                      turns: _expanded ? 0.0 : 0.5,
-                      duration: const Duration(milliseconds: 300),
-                      child: const Icon(Icons.expand_less, color: Colors.white),
-                    ),
-                    onPressed: _toggleExpanded,
-                  ),
-                ],
-              ),
-              AnimatedCrossFade(
-                firstChild: const SizedBox.shrink(),
-                secondChild: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    Row(
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.email, size: 14, color: Colors.white70),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            widget.email,
-                            style: const TextStyle(
-                                fontSize: 13, color: Colors.white70),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        Row(
+                          children: [
+                            const Text(
+                              "Matières:",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            _infoBadge(label: '${widget.subjectCount}'),
+                            const SizedBox(width: 4),
+                            const Text(
+                              "Classes:",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            _infoBadge(label: '${widget.classCount}'),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-                crossFadeState: _expanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                duration: const Duration(milliseconds: 350),
-                firstCurve: Curves.easeInOut,
-                secondCurve: Curves.easeInOut,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  const Icon(Icons.email, size: 12, color: Colors.white70),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      widget.email,
+                      style: const TextStyle(fontSize: 11, color: Colors.white70),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              // Affichage sur la même ligne du label et des matières
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Matières enseignées :",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Wrap(
+                      spacing: 4,
+                      runSpacing: -8,
+                      children: _compactChips(widget.subjects),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              // Affichage sur la même ligne du label et des classes
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Classes de l’enseignant :",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Wrap(
+                      spacing: 4,
+                      runSpacing: -8,
+                      children: _compactChips(widget.classes),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

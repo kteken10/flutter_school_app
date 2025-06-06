@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:schoop_app/constants/colors.dart';
 
 class AcademicTabFilter extends StatefulWidget {
   final List<String> tabs;
@@ -44,7 +45,7 @@ class _AcademicTabFilterState extends State<AcademicTabFilter> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   width: 1,
-                  color: isSelected ? Colors.blue : Colors.grey.shade300,
+                  color: isSelected ? AppColors.primary : Colors.grey.shade300,
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -62,7 +63,7 @@ class _AcademicTabFilterState extends State<AcademicTabFilter> {
                   Text(
                     widget.tabs[index],
                     style: TextStyle(
-                      color: isSelected ? Colors.blue : Colors.grey[700],
+                      color: isSelected ? AppColors.primary : Colors.grey[700],
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -77,7 +78,7 @@ class _AcademicTabFilterState extends State<AcademicTabFilter> {
   }
 
   Icon getAcademicIcon(String tab, bool isSelected) {
-    Color iconColor = isSelected ? Colors.blue : Colors.grey[700]!;
+    Color iconColor = isSelected ? AppColors.primary : Colors.grey[700]!;
 
     switch (tab.toLowerCase()) {
       case 'sessions':
