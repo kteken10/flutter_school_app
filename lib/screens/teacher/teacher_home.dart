@@ -24,7 +24,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   void initState() {
     super.initState();
     _children = [
-      const NoteScreen(),       // affichera aussi la TeacherCard
+      const NoteScreen(),       
       GradeImportScreen(),
     
       ProfileScreen(),
@@ -52,17 +52,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     );
   }
 
-  void _handlePopupSelection(String value, BuildContext context, AuthService authService) {
-    switch (value) {
-      case 'settings':
-        break;
-      case 'help':
-        break;
-      case 'logout':
-        authService.signOut();
-        break;
-    }
-  }
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -91,14 +81,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 icon: const Icon(Icons.notifications),
                 onPressed: () => _showNotifications(context),
               ),
-              PopupMenuButton<String>(
-                onSelected: (value) => _handlePopupSelection(value, context, authService),
-                itemBuilder: (BuildContext context) => const [
-                  PopupMenuItem(value: 'settings', child: Text('Paramètres')),
-                  PopupMenuItem(value: 'help', child: Text('Aide')),
-                  PopupMenuItem(value: 'logout', child: Text('Déconnexion')),
-                ],
-              ),
+             
             ],
           ),
           body: IndexedStack(
