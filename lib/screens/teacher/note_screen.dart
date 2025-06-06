@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../models/grade.dart';
+import '../../models/subject.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
 
 import '../../ui/teacher_card.dart';
-import '../../ui/card_note.dart';
 import '../../ui/add_icons.dart';
-import '../../ui/grade_entry_dialog.dart'; // <-- Ajoute cet import
+import '../../ui/grade_entry_dialog.dart';
+import '../../ui/student_card.dart';
+import '../../ui/tab_filter.dart';
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
@@ -20,10 +21,7 @@ class NoteScreen extends StatefulWidget {
 
 class _NoteScreenState extends State<NoteScreen> {
   final DatabaseService _dbService = DatabaseService();
-
-  Future<UserModel?> getStudentById(String studentId) async {
-    return await _dbService.getUserById(studentId);
-  }
+  int selectedTab = 0;
 
   void _onAddNote() {
     showDialog(
@@ -36,7 +34,14 @@ class _NoteScreenState extends State<NoteScreen> {
     );
   }
 
-  
+  // Récupère les matières pour un étudiant donné
+  Future<List<String>> getSubjectsForStudent(String studentId) async {
+    final grades = await _dbService.getStudentGrades(studentId).first;
+    final subjectIds = grades.map((g) => g.subjectId).toSet().toList();
+    final futures = subjectIds.map((id) => _dbService.getSubjectById(id));
+    final subjects = await Future.wait(futures);
+    return subjects.whereType<Subject>().map((s) => s.name).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,13 +62,14 @@ class _NoteScreenState extends State<NoteScreen> {
 
         return Column(
           children: [
+            // Affiche le nom de l'enseignant en entête
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
               child: Row(
                 children: [
-                  const Text(
-                    "Notes",
-                    style: TextStyle(
+                  Text(
+                    "Hi From ${user.fullName}",
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -75,41 +81,59 @@ class _NoteScreenState extends State<NoteScreen> {
                 ],
               ),
             ),
-            // TeacherCard(
-            //   name: user.fullName,
-            //   email: user.email,
-            //   profileImageUrl: user.photoUrl ?? 'https://www.example.com/default-profile-image.png',
-            //   subjectCount: 3,
-            // ),
+            TeacherCard(
+              name: user.fullName,
+              email: user.email,
+              profileImageUrl: user.photoUrl ?? 'https://www.example.com/default-profile-image.png',
+              subjectCount: 3,
+            ),
+            AcademicTabFilter(
+              tabs: ['Sessions', 'Classes', 'Matières'],
+              onTabSelected: (index) {
+                // Laisse vide si tu ne veux pas filtrer la liste
+              },
+            ),
+            // Titre avant la liste des étudiants
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
+              child: Row(
+                children: [
+                  const Text(
+                    "Mes étudiants",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
-              child: StreamBuilder<List<Grade>>(
-                stream: _dbService.getAllGrades(),
+              child: StreamBuilder<List<UserModel>>(
+                stream: _dbService.getStudents(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  final grades = snapshot.data!;
-                  if (grades.isEmpty) {
-                    return const Center(child: Text('Aucune note enregistrée.'));
+                  final students = snapshot.data!;
+                  if (students.isEmpty) {
+                    return const Center(child: Text('Aucun étudiant trouvé.'));
                   }
 
                   return ListView.builder(
-                    itemCount: grades.length,
+                    itemCount: students.length,
                     itemBuilder: (context, index) {
-                      final grade = grades[index];
-                      return FutureBuilder<UserModel?>(
-                        future: getStudentById(grade.studentId),
-                        builder: (context, studentSnapshot) {
-                          if (!studentSnapshot.hasData) {
-                            return const SizedBox(height: 80);
-                          }
-                          final student = studentSnapshot.data!;
-                          return CardNote(
+                      final student = students[index];
+                      return FutureBuilder<List<String>>(
+                        future: getSubjectsForStudent(student.id),
+                        builder: (context, subjectSnapshot) {
+                          final subjectNames = subjectSnapshot.data ?? [];
+                          return StudentCard(
                             studentName: student.fullName,
-                            studentClass: student.className ?? 'Classe',
                             studentPhotoUrl: student.photoUrl ?? 'https://www.example.com/default-profile-image.png',
-                            note: grade.value,
+                            subjectNames: subjectNames,
                             onProfileTap: () {
                               // Action pour voir le détail du profil
                             },

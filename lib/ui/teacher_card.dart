@@ -64,8 +64,8 @@ class _TeacherCardState extends State<TeacherCard>
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primary,
-                AppColors.primary.withOpacity(0.6)
+                AppColors.secondary,
+                AppColors.secondary.withOpacity(0.6)
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,

@@ -27,16 +27,16 @@ void main() async {
 
   // --- AJOUT TEMPORAIRE D'UNE MATIÈRE ---
   final db = DatabaseService();
-  final subjectName = "Mathématiques";
+  final subjectName = "ANGLAIS";
   final subjects = await db.getSubjects().first;
   final exists = subjects.any((s) => s.name == subjectName);
   if (!exists) {
     final subject = Subject(
       id: subjectName.toLowerCase(),
       name: subjectName,
-      code: 'MATH101', // Remplacez par le code approprié
-      department: 'Sciences', // Remplacez par le département approprié
-      credit: 3, // Remplacez par le nombre de crédits approprié
+      code: 'ANGLAIS102', // Remplacez par le code approprié
+      department: 'LANGUE', // Remplacez par le département approprié
+      credit: 2, // Remplacez par le nombre de crédits approprié
     );
     await db.addSubject(subject);
     print('Matière ajoutée : $subjectName');

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
-
 class CardNote extends StatelessWidget {
   final String studentName;
   final String studentClass;
   final String studentPhotoUrl;
   final double note;
+  final String subjectName; // <-- Ajoute ce champ
   final VoidCallback? onProfileTap;
 
   const CardNote({
@@ -14,6 +14,7 @@ class CardNote extends StatelessWidget {
     required this.studentClass,
     required this.studentPhotoUrl,
     required this.note,
+    required this.subjectName, // <-- Ajoute ce champ
     this.onProfileTap,
   });
 
@@ -35,14 +36,12 @@ class CardNote extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Photo de l'étudiant
           CircleAvatar(
             radius: 24,
             backgroundImage: NetworkImage(studentPhotoUrl),
             backgroundColor: Colors.grey[200],
           ),
           const SizedBox(width: 14),
-          // Infos principales
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,11 +66,20 @@ class CardNote extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  subjectName, // <-- Affiche la matière ici
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.blueGrey,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
           const SizedBox(width: 10),
-          // Note de l'étudiant
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
@@ -88,7 +96,6 @@ class CardNote extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          // Icône profil/détail
           IconButton(
             icon: const Icon(Icons.arrow_forward_ios, color: AppColors.primary, size: 22),
             onPressed: onProfileTap,
