@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../constants/colors.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import 'grade_import.dart';
 import 'note_screen.dart';
+import 'notification.dart';
 import 'profile_screen.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
@@ -25,24 +25,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     _children = [
       const NoteScreen(),
       GradeImportScreen(),
+      NotificationScreen(),
       ProfileScreen(),
     ];
   }
 
-  String _getAppBarTitle() {
-    switch (_currentIndex) {
-      case 0:
-        return 'Notes';
-      case 1:
-        return 'Importer';
-      case 2:
-        return 'Notifications';
-      case 3:
-        return 'Profil';
-      default:
-        return '';
-    }
-  }
+  
 
   void _showNotifications(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -94,15 +82,14 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   icon: Icon(Icons.upload), label: 'Importer'),
               BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.notifications,
-                  color: _currentIndex == 2
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey,
-                ),
+                  Icons.notifications, ),
                 label: 'Notifications',
               ),
-              const BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: 'Profil'),
+            BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.person, ),
+                label: 'Profile',
+              ),
             ],
           ),
         );

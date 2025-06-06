@@ -42,6 +42,10 @@ class DatabaseService {
         snapshot.docs.map((doc) => AcademicSession.fromMap(doc.data())).toList());
   }
 
+  Future<void> addSession(AcademicSession session) async {
+    await _firestore.collection('sessions').doc(session.id).set(session.toMap());
+  }
+
   // Rapports/PV
   Future<void> addReport(Report report) async {
     await _firestore.collection('reports').doc(report.id).set(report.toMap());
@@ -56,13 +60,9 @@ class DatabaseService {
             snapshot.docs.map((doc) => Report.fromMap(doc.data())).toList());
   }
 
-
-
-   Future<Subject?> getSubjectById(String subjectId) async {
-    // Exemple avec une base de données fictive ou Firestore
-    // Remplace ce code par ta logique réelle d'accès aux données
+  // Récupérer une matière par son ID
+  Future<Subject?> getSubjectById(String subjectId) async {
     try {
-      // Supposons que tu utilises Firestore :
       final doc = await _firestore.collection('subjects').doc(subjectId).get();
       if (doc.exists) {
         return Subject.fromMap(doc.data()!);
@@ -73,7 +73,9 @@ class DatabaseService {
       return null;
     }
   }
-  // 🔽 Méthode pour récupérer uniquement les étudiants
+  
+
+  // Récupérer uniquement les étudiants
   Stream<List<UserModel>> getStudents() {
     return _firestore
         .collection('users')
@@ -84,28 +86,26 @@ class DatabaseService {
             .toList());
   }
 
-  // 🔽 À ajouter dans ta classe DatabaseService
-Stream<List<Grade>> getAllGrades() {
-  return _firestore
-      .collection('grades')
-      .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((doc) => Grade.fromMap(doc.data())).toList());
-}
-
-// 🔽 Ajoute ceci dans ta classe DatabaseService
-Future<UserModel?> getUserById(String userId) async {
-  try {
-    final doc = await _firestore.collection('users').doc(userId).get();
-    if (doc.exists) {
-      return UserModel.fromMap(doc.data()!);
-    }
-    return null;
-  } catch (e) {
-    print('Erreur lors de la récupération de l\'utilisateur: $e');
-    return null;
+  // Récupérer toutes les notes
+  Stream<List<Grade>> getAllGrades() {
+    return _firestore
+        .collection('grades')
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => Grade.fromMap(doc.data())).toList());
   }
-}
 
-
+  // Récupérer un utilisateur par son ID
+  Future<UserModel?> getUserById(String userId) async {
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      if (doc.exists) {
+        return UserModel.fromMap(doc.data()!);
+      }
+      return null;
+    } catch (e) {
+      print('Erreur lors de la récupération de l\'utilisateur: $e');
+      return null;
+    }
+  }
 }

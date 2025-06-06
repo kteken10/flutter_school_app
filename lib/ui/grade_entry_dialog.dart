@@ -62,11 +62,15 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
           key: _formKey,
           child: Column(
             children: [
-              StreamBuilder<List<UserModel>>(
+                            StreamBuilder<List<UserModel>>(
                 stream: _dbService.getStudents(),
                 builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Erreur: ${snapshot.error}');
+                  }
                   if (!snapshot.hasData) return const CircularProgressIndicator();
                   final students = snapshot.data!;
+                  if (students.isEmpty) return const Text('Aucun étudiant trouvé');
                   return DropdownButtonFormField<String>(
                     value: selectedStudentId,
                     decoration: const InputDecoration(labelText: 'Étudiant'),
@@ -82,11 +86,15 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                 },
               ),
               const SizedBox(height: 10),
-              StreamBuilder<List<Subject>>(
+                           StreamBuilder<List<Subject>>(
                 stream: _dbService.getSubjects(),
                 builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Erreur: ${snapshot.error}');
+                  }
                   if (!snapshot.hasData) return const CircularProgressIndicator();
                   final subjects = snapshot.data!;
+                  if (subjects.isEmpty) return const Text('Aucune matière trouvée');
                   return DropdownButtonFormField<Subject>(
                     value: selectedSubject,
                     decoration: const InputDecoration(labelText: 'Matière'),

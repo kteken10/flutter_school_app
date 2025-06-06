@@ -5,12 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:schoop_app/services/database_service.dart';
 
+import 'models/subject.dart';
 import 'models/user.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
 import 'screens/auth/login_screen.dart';
-
-
 import 'screens/student/student_home.dart';
 import 'screens/teacher/teacher_home.dart';
 import 'screens/admin/admin_home.dart';
@@ -19,25 +18,32 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await FirebaseAppCheck.instance.activate(
-    // You can also use a `ReCaptchaEnterpriseProvider` provider instance as an
-   
-    // Default provider for Android is the Play Integrity provider. You can use the "AndroidProvider" enum to choose
-    // your preferred provider. Choose from:
-    // 1. Debug provider
-    // 2. Safety Net provider
-    // 3. Play Integrity provider
     androidProvider: AndroidProvider.debug,
-    // Default provider for iOS/macOS is the Device Check provider. You can use the "AppleProvider" enum to choose
-        // your preferred provider. Choose from:
-        // 1. Debug provider
-        // 2. Device Check provider
-        // 3. App Attest provider
-        // 4. App Attest provider with fallback to Device Check provider (App Attest provider is only available on iOS 14.0+, macOS 14.0+)
     appleProvider: AppleProvider.appAttest,
   );
 
   // Définir la langue utilisée par Firebase Auth
   FirebaseAuth.instance.setLanguageCode('fr');
+
+  // --- AJOUT TEMPORAIRE D'UNE MATIÈRE ---
+  final db = DatabaseService();
+  final subjectName = "Mathématiques";
+  final subjects = await db.getSubjects().first;
+  final exists = subjects.any((s) => s.name == subjectName);
+  if (!exists) {
+    final subject = Subject(
+      id: subjectName.toLowerCase(),
+      name: subjectName,
+      code: 'MATH101', // Remplacez par le code approprié
+      department: 'Sciences', // Remplacez par le département approprié
+      credit: 3, // Remplacez par le nombre de crédits approprié
+    );
+    await db.addSubject(subject);
+    print('Matière ajoutée : $subjectName');
+  } else {
+    print('La matière "$subjectName" existe déjà.');
+  }
+
 
   runApp(MyApp());
 }
@@ -95,7 +101,10 @@ class AuthWrapper extends StatelessWidget {
             return TeacherHomeScreen();
           case UserRole.student:
             return StudentHomeScreen();
-          }
+          default:
+            
+            return LoginScreen();
+        }
       },
     );
   }

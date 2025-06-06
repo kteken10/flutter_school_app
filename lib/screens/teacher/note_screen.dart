@@ -75,12 +75,12 @@ class _NoteScreenState extends State<NoteScreen> {
                 ],
               ),
             ),
-            TeacherCard(
-              name: user.fullName,
-              email: user.email,
-              profileImageUrl: user.photoUrl ?? 'https://www.example.com/default-profile-image.png',
-              subjectCount: 3,
-            ),
+            // TeacherCard(
+            //   name: user.fullName,
+            //   email: user.email,
+            //   profileImageUrl: user.photoUrl ?? 'https://www.example.com/default-profile-image.png',
+            //   subjectCount: 3,
+            // ),
             Expanded(
               child: StreamBuilder<List<Grade>>(
                 stream: _dbService.getAllGrades(),
