@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../constants/colors.dart';
 import '../../models/subject.dart';
 import '../../models/user.dart';
+
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
 
@@ -32,7 +33,6 @@ class _NoteScreenState extends State<NoteScreen> {
     '2021-2022',
   ];
 
-  // Utilisation d'un ValueNotifier pour selectedTab
   final ValueNotifier<int> selectedTab = ValueNotifier<int>(0);
 
   @override
@@ -46,7 +46,7 @@ class _NoteScreenState extends State<NoteScreen> {
       context: context,
       builder: (context) => GradeEntryDialog(
         onGradeSubmitted: () {
-          setState(() {}); // Rafraîchir la liste après ajout
+          setState(() {});
         },
       ),
     );
@@ -58,6 +58,14 @@ class _NoteScreenState extends State<NoteScreen> {
     final futures = subjectIds.map((id) => _dbService.getSubjectById(id));
     final subjects = await Future.wait(futures);
     return subjects.whereType<Subject>().map((s) => s.name).toList();
+  }
+
+  Future<double> getAverageGrade(String studentId) async {
+    final grades = await _dbService.getStudentGrades(studentId).first;
+    if (grades.isEmpty) return 0.0;
+    double sum = grades.fold(0.0, (prev, g) => prev + g.value);
+    double average = sum / grades.length;
+    return (average / 20.0).clamp(0.0, 1.0); // Normalise entre 0 et 1 (si max 20)
   }
 
   @override
@@ -87,7 +95,6 @@ class _NoteScreenState extends State<NoteScreen> {
         return Scaffold(
           body: Column(
             children: [
-              // Ligne de bienvenue + année à droite avec fond blanc
               Padding(
                 padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
                 child: Row(
@@ -113,12 +120,12 @@ class _NoteScreenState extends State<NoteScreen> {
                 ),
               ),
 
-              // Contenu scrollable
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      const TeacherCardDeco(),
+                      TeacherCardDeco(imagePath: 'assets/teacher_picture.jpg'),
+
                       TeacherCard(
                         name: user.fullName,
                         email: user.email,
@@ -131,7 +138,6 @@ class _NoteScreenState extends State<NoteScreen> {
                         onAddPressed: _onAddNote,
                       ),
 
-                      // Zone de recherche
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: SearchZone(
@@ -143,7 +149,6 @@ class _NoteScreenState extends State<NoteScreen> {
 
                       const SizedBox(height: 10),
 
-                      // AcademicTabFilter avec ValueNotifier
                       AcademicTabFilter(
                         tabs: ['Sessions', 'Classes', 'Matières'],
                         onTabSelected: (index) {
@@ -151,7 +156,6 @@ class _NoteScreenState extends State<NoteScreen> {
                         },
                       ),
 
-                      // Titre dynamique selon selectedTab
                       ValueListenableBuilder<int>(
                         valueListenable: selectedTab,
                         builder: (context, index, _) {
@@ -177,7 +181,6 @@ class _NoteScreenState extends State<NoteScreen> {
                         },
                       ),
 
-                      // Liste des étudiants (non reload à chaque tab)
                       StreamBuilder<List<UserModel>>(
                         stream: _dbService.getStudents(),
                         builder: (context, snapshot) {
@@ -187,41 +190,55 @@ class _NoteScreenState extends State<NoteScreen> {
                           }
 
                           final students = snapshot.data!;
-                          if (students.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Center(
-                                child: Text(
-                                  'Aucun étudiant trouvé',
-                                  style: TextStyle(color: AppColors.textSecondary),
-                                ),
-                              ),
-                            );
+
+                          final filteredStudents = _searchController.text.isEmpty
+                              ? students
+                              : students
+                                  .where((s) => s.fullName.toLowerCase().contains(
+                                      _searchController.text.toLowerCase()))
+                                  .toList();
+
+                          if (filteredStudents.isEmpty) {
+                            return const Center(
+                                child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Text("Aucun étudiant trouvé."),
+                            ));
                           }
 
                           return ListView.builder(
-                            shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.only(bottom: 20),
-                            itemCount: students.length,
+                            shrinkWrap: true,
+                            itemCount: filteredStudents.length,
                             itemBuilder: (context, index) {
-                              final student = students[index];
+                              final student = filteredStudents[index];
+
                               return FutureBuilder<List<String>>(
                                 future: getSubjectsForStudent(student.id),
                                 builder: (context, subjectSnapshot) {
-                                  final subjectNames = subjectSnapshot.data ?? [];
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 4),
-                                    child: StudentCard(
-                                      studentName: student.fullName,
-                                      studentPhotoUrl: student.photoUrl ??
-                                          'https://www.example.com/default-profile-image.png',
-                                      subjectNames: subjectNames,
-                                      onProfileTap: () {
-                                        // Action pour voir le détail du profil
-                                      },
-                                    ),
+                                  final subjectNames =
+                                      subjectSnapshot.data ?? [];
+
+                                  return FutureBuilder<double>(
+                                    future: getAverageGrade(student.id),
+                                    builder: (context, progressSnapshot) {
+                                      final progress = progressSnapshot.data ?? 0.0;
+
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16, vertical: 4),
+                                        child: StudentCard(
+                                          studentName: student.fullName,
+                                          studentPhotoUrl: student.photoUrl ??
+                                              'https://www.example.com/default-profile-image.png',
+                                          subjectNames: subjectNames,
+                                          progress: progress,
+                                          onProfileTap: () {
+                                            // Action au clic sur l’icône de profil
+                                          },
+                                        ),
+                                      );
+                                    },
                                   );
                                 },
                               );
@@ -229,6 +246,8 @@ class _NoteScreenState extends State<NoteScreen> {
                           );
                         },
                       ),
+
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),

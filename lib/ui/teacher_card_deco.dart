@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class TeacherCardDeco extends StatelessWidget {
-  const TeacherCardDeco({super.key});
+  final String imagePath;
+
+  const TeacherCardDeco({
+    super.key,
+    required this.imagePath, // paramètre obligatoire
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +17,6 @@ class TeacherCardDeco extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
-       
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
@@ -20,7 +24,7 @@ class TeacherCardDeco extends StatelessWidget {
           height: 150,
           width: double.infinity,
           child: Image.asset(
-            'assets/teacher_picture.jpg',
+            imagePath, // ici on utilise le paramètre
             fit: BoxFit.cover,
           ),
         ),
