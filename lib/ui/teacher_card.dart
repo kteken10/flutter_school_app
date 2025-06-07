@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import 'add_icons.dart';
 
 class TeacherCard extends StatefulWidget {
   final String name;
@@ -28,7 +29,6 @@ class TeacherCard extends StatefulWidget {
 class _TeacherCardState extends State<TeacherCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -37,9 +37,6 @@ class _TeacherCardState extends State<TeacherCard>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
   }
 
   @override
@@ -101,7 +98,7 @@ class _TeacherCardState extends State<TeacherCard>
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       constraints: const BoxConstraints(
-        maxHeight: 140,
+        maxHeight: 152,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -128,105 +125,105 @@ class _TeacherCardState extends State<TeacherCard>
               end: Alignment.bottomRight,
             ),
           ),
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Ligne avec photo + nom + badges
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              // Colonne principale pour aligner verticalement tous les éléments
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Ligne avec badges et AddIcon
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            const Text(
-                              "Matières:",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            _infoBadge(label: '${widget.subjectCount}'),
-                            const SizedBox(width: 4),
-                            const Text(
-                              "Classes:",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            _infoBadge(label: '${widget.classCount}'),
-                          ],
+                        const Text(
+                          "Matières:",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        _infoBadge(label: '${widget.subjectCount}'),
+                        const SizedBox(width: 4),
+                        const Text(
+                          "Classes:",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        _infoBadge(label: '${widget.classCount}'),
+                        const Spacer(),
+                        AddIcon(
+                          onTap: () {
+                            // Action à définir lors du clic
+                          },
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  const Icon(Icons.email, size: 12, color: Colors.white70),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      widget.email,
-                      style: const TextStyle(fontSize: 11, color: Colors.white70),
-                      overflow: TextOverflow.ellipsis,
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.email, size: 12, color: Colors.white70),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            widget.email,
+                            style: const TextStyle(fontSize: 11, color: Colors.white70),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              // Affichage sur la même ligne du label et des matières
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Matières enseignées :",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
+                    const SizedBox(height: 6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Matières enseignées :",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 4,
+                            runSpacing: -8,
+                            children: _compactChips(widget.subjects),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Wrap(
-                      spacing: 4,
-                      runSpacing: -8,
-                      children: _compactChips(widget.subjects),
+                    const SizedBox(height: 4),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Classes de l’enseignant :",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Wrap(
+                            spacing: 4,
+                            runSpacing: -8,
+                            children: _compactChips(widget.classes),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              // Affichage sur la même ligne du label et des classes
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Classes de l’enseignant :",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Wrap(
-                      spacing: 4,
-                      runSpacing: -8,
-                      children: _compactChips(widget.classes),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
