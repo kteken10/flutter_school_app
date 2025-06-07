@@ -9,11 +9,11 @@ import '../../services/database_service.dart';
 
 import '../../ui/teacher_card.dart';
 import '../../ui/teacher_card_deco.dart';
-import '../../ui/add_icons.dart';
 import '../../ui/grade_entry_dialog.dart';
 import '../../ui/student_card.dart';
-import '../../ui/tab_filter.dart';
 import '../../ui/search_zone.dart';
+import '../../ui/year_drop.dart';
+import '../../ui/tab_filter.dart';
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
@@ -24,7 +24,6 @@ class NoteScreen extends StatefulWidget {
 
 class _NoteScreenState extends State<NoteScreen> {
   final DatabaseService _dbService = DatabaseService();
-  int selectedTab = 0;
   final TextEditingController _searchController = TextEditingController();
   String? selectedYear;
   final List<String> availableYears = [
@@ -32,6 +31,9 @@ class _NoteScreenState extends State<NoteScreen> {
     '2022-2023',
     '2021-2022',
   ];
+
+  // Utilisation d'un ValueNotifier pour selectedTab
+  final ValueNotifier<int> selectedTab = ValueNotifier<int>(0);
 
   @override
   void initState() {
@@ -59,6 +61,13 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    selectedTab.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
 
@@ -78,83 +87,50 @@ class _NoteScreenState extends State<NoteScreen> {
         return Scaffold(
           body: Column(
             children: [
-              // Première ligne (toujours visible)
-             // Ligne avec le nom de l'enseignant et la dropdown alignée à droite
-// Ligne de bienvenue + année à droite avec fond blanc
-Padding(
-  padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
-  child: Row(
-    children: [
-      Text(
-        "Bonjour, ${user.fullName}",
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: AppColors.textPrimary,
-        ),
-      ),
-      const Spacer(),
-      Container(
-        decoration: BoxDecoration(
-          color: Colors.white, // Fond blanc
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: selectedYear,
-            icon: const Icon(Icons.arrow_drop_down, size: 20),
-            elevation: 2,
-            style: const TextStyle(
-              color: AppColors.primary,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedYear = newValue;
-              });
-            },
-            items: availableYears.map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
-        ),
-      ),
-    ],
-  ),
-),
+              // Ligne de bienvenue + année à droite avec fond blanc
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
+                child: Row(
+                  children: [
+                    Text(
+                      "Bonjour, ${user.fullName}",
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const Spacer(),
+                    YearSelectorDropdown(
+                      years: availableYears,
+                      selectedYear: selectedYear,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedYear = newValue;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
 
-              
               // Contenu scrollable
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                     
-                      // Carte décorative et carte enseignant
                       const TeacherCardDeco(),
                       TeacherCard(
                         name: user.fullName,
                         email: user.email,
-                        profileImageUrl: user.photoUrl ?? 'https://www.example.com/default-profile-image.png',
+                        profileImageUrl: user.photoUrl ??
+                            'https://www.example.com/default-profile-image.png',
                         subjectCount: 3,
                         classCount: 5,
                         subjects: ['Mathématiques', 'Physique', 'SVT'],
                         classes: ['6e A', '5e B', '4e C', '3e D', 'Terminale S'],
                         onAddPressed: _onAddNote,
                       ),
-                      
+
                       // Zone de recherche
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -164,46 +140,50 @@ Padding(
                           showSearchIcon: true,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 10),
-                      
-                      // Filtres
+
+                      // AcademicTabFilter avec ValueNotifier
                       AcademicTabFilter(
                         tabs: ['Sessions', 'Classes', 'Matières'],
                         onTabSelected: (index) {
-                          setState(() {
-                            selectedTab = index;
-                          });
+                          selectedTab.value = index;
                         },
                       ),
-                      
-                      // Titre de la liste des étudiants
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
-                        child: Row(
-                          children: [
-                            Text(
-                              selectedTab == 0
-                                  ? "Mes étudiants"
-                                  : selectedTab == 1
-                                      ? "Par classe"
-                                      : "Par matière",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
-                              ),
+
+                      // Titre dynamique selon selectedTab
+                      ValueListenableBuilder<int>(
+                        valueListenable: selectedTab,
+                        builder: (context, index, _) {
+                          return Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
+                            child: Row(
+                              children: [
+                                Text(
+                                  index == 0
+                                      ? "Mes étudiants"
+                                      : index == 1
+                                          ? "Par classe"
+                                          : "Par matière",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                      
-                      // Liste des étudiants
+
+                      // Liste des étudiants (non reload à chaque tab)
                       StreamBuilder<List<UserModel>>(
                         stream: _dbService.getStudents(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
 
                           final students = snapshot.data!;
