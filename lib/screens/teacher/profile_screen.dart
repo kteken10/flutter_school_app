@@ -2,79 +2,97 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/auth_service.dart';
 import '../../models/user.dart';
+import '../../ui/profile_action_bar.dart';
+import '../../ui/profile_avatar.dart';
+import 'profile_info.dart';
 
 class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
 
-    return StreamBuilder<UserModel?>(
-      stream: authService.currentUser,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Center(child: CircularProgressIndicator());
-        }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mon Profil'),
+        centerTitle: true,
+      ),
+      backgroundColor: Colors.grey[100],
+      body: StreamBuilder<UserModel?>(
+        stream: authService.currentUser,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        final user = snapshot.data!;
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(child: Text('Utilisateur non connecté'));
+          }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundColor: Theme.of(context).primaryColor,
-                child: Text(
-                  user.fullName[0],
-                  style: TextStyle(fontSize: 40, color: Colors.white),
+          final user = snapshot.data!;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ProfileAvatar(fullName: user.fullName),
+                const SizedBox(height: 20),
+                Text(
+                  user.fullName,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                user.fullName,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              Text(
-                user.email,
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-              SizedBox(height: 24),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.school),
-                  title: Text('Département'),
-                  subtitle: Text(user.department ?? 'Non spécifié'),
+                const SizedBox(height: 6),
+                Text(
+                  user.email,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[700],
+                  ),
                 ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.calendar_today),
-                  title: Text('Membre depuis'),
-                  subtitle: Text('${user.createdAt.day}/${user.createdAt.month}/${user.createdAt.year}'),
+                const SizedBox(height: 30),
+
+                ProfileInfoCard(
+                  icon: Icons.school,
+                  title: 'Département',
+                  subtitle: user.department ?? 'Non spécifié',
                 ),
-              ),
-              SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () {
-                  // Naviguer vers l'édition du profil
-                },
-                child: Text('Modifier le profil'),
-              ),
-              SizedBox(height: 16),
-              TextButton(
-                onPressed: () async {
-                  await authService.signOut();
-                },
-                child: Text(
-                  'Déconnexion',
-                  style: TextStyle(color: Colors.red),
+                ProfileInfoCard(
+                  icon: Icons.calendar_today,
+                  title: 'Membre depuis',
+                  subtitle:
+                      '${user.createdAt.day.toString().padLeft(2, '0')}/${user.createdAt.month.toString().padLeft(2, '0')}/${user.createdAt.year}',
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+
+                const SizedBox(height: 40),
+
+               ProfileActionButton(
+  text: 'Modifier le profil',
+  onPressed: () {
+    Navigator.pushNamed(context, '/editProfile');
+  },
+),
+
+const SizedBox(height: 16),
+
+ProfileActionButton(
+  text: 'Déconnexion',
+  color: Colors.redAccent,
+  onPressed: () async {
+    await authService.signOut();
+    Navigator.pushReplacementNamed(context, '/login');
+  },
+),
+
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
