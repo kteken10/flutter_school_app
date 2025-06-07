@@ -12,13 +12,7 @@ class TeacherCardDeco extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
+       
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),

@@ -4,6 +4,7 @@ import '../../models/grade.dart';
 import '../../models/subject.dart';
 import '../../models/user.dart';
 import '../../services/database_service.dart';
+import '../../constants/colors.dart'; // pour AppColors
 
 class GradeEntryDialog extends StatefulWidget {
   final VoidCallback onGradeSubmitted;
@@ -47,89 +48,161 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Note ajoutée avec succès')),
         );
-        widget.onGradeSubmitted(); // Pour rafraîchir la liste
+        widget.onGradeSubmitted();
         Navigator.of(context).pop();
       });
     }
   }
 
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.grey[100],
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Colors.transparent),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Colors.transparent),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Ajouter une note'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-                            StreamBuilder<List<UserModel>>(
-                stream: _dbService.getStudents(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Erreur: ${snapshot.error}');
-                  }
-                  if (!snapshot.hasData) return const CircularProgressIndicator();
-                  final students = snapshot.data!;
-                  if (students.isEmpty) return const Text('Aucun étudiant trouvé');
-                  return DropdownButtonFormField<String>(
-                    value: selectedStudentId,
-                    decoration: const InputDecoration(labelText: 'Étudiant'),
-                    items: students.map((student) {
-                      return DropdownMenuItem(
-                        value: student.id,
-                        child: Text(student.fullName),
-                      );
-                    }).toList(),
-                    onChanged: (value) => setState(() => selectedStudentId = value),
-                    validator: (value) => value == null ? 'Sélectionnez un étudiant' : null,
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-                           StreamBuilder<List<Subject>>(
-                stream: _dbService.getSubjects(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('Erreur: ${snapshot.error}');
-                  }
-                  if (!snapshot.hasData) return const CircularProgressIndicator();
-                  final subjects = snapshot.data!;
-                  if (subjects.isEmpty) return const Text('Aucune matière trouvée');
-                  return DropdownButtonFormField<Subject>(
-                    value: selectedSubject,
-                    decoration: const InputDecoration(labelText: 'Matière'),
-                    items: subjects.map((subject) {
-                      return DropdownMenuItem(
-                        value: subject,
-                        child: Text(subject.name),
-                      );
-                    }).toList(),
-                    onChanged: (value) => setState(() => selectedSubject = value),
-                    validator: (value) => value == null ? 'Sélectionnez une matière' : null,
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _gradeController,
-                decoration: const InputDecoration(labelText: 'Note'),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) {
-                  final note = double.tryParse(value ?? '');
-                  if (note == null || note < 0 || note > 20) {
-                    return 'Entrez une note entre 0 et 20';
-                  }
-                  return null;
-                },
-              ),
-            ],
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Ajouter une note',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                    inherit: true,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                StreamBuilder<List<UserModel>>(
+                  stream: _dbService.getStudents(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Erreur: ${snapshot.error}');
+                    }
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final students = snapshot.data!;
+                    return DropdownButtonFormField<String>(
+                      value: selectedStudentId,
+                      decoration: _inputDecoration('Étudiant'),
+                      isExpanded: true,
+                      items: students.map((student) {
+                        return DropdownMenuItem(
+                          value: student.id,
+                          child: Text(student.fullName),
+                        );
+                      }).toList(),
+                      onChanged: (value) => setState(() => selectedStudentId = value),
+                      validator: (value) => value == null ? 'Sélectionnez un étudiant' : null,
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                StreamBuilder<List<Subject>>(
+                  stream: _dbService.getSubjects(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Erreur: ${snapshot.error}');
+                    }
+                    if (!snapshot.hasData) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final subjects = snapshot.data!;
+                    return DropdownButtonFormField<Subject>(
+                      value: selectedSubject,
+                      decoration: _inputDecoration('Matière'),
+                      isExpanded: true,
+                      items: subjects.map((subject) {
+                        return DropdownMenuItem(
+                          value: subject,
+                          child: Text(subject.name),
+                        );
+                      }).toList(),
+                      onChanged: (value) => setState(() => selectedSubject = value),
+                      validator: (value) => value == null ? 'Sélectionnez une matière' : null,
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _gradeController,
+                  decoration: _inputDecoration('Note (sur 20)'),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  validator: (value) {
+                    final note = double.tryParse(value ?? '');
+                    if (note == null || note < 0 || note > 20) {
+                      return 'Entrez une note entre 0 et 20';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                      child: const Text('Annuler'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
+                      onPressed: _submitGrade,
+                      child: const Text(
+                        'Valider',
+                        style: TextStyle(
+                          inherit: true,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
-        ElevatedButton(onPressed: _submitGrade, child: const Text('Valider')),
-      ],
     );
   }
 }

@@ -105,13 +105,7 @@ class _TeacherCardState extends State<TeacherCard>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
