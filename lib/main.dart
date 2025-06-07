@@ -22,10 +22,8 @@ void main() async {
     appleProvider: AppleProvider.appAttest,
   );
 
-  // Définir la langue utilisée par Firebase Auth
   FirebaseAuth.instance.setLanguageCode('fr');
 
-  // --- AJOUT TEMPORAIRE D'UNE MATIÈRE ---
   final db = DatabaseService();
   final subjectName = "ANGLAIS";
   final subjects = await db.getSubjects().first;
@@ -34,16 +32,15 @@ void main() async {
     final subject = Subject(
       id: subjectName.toLowerCase(),
       name: subjectName,
-      code: 'ANGLAIS102', // Remplacez par le code approprié
-      department: 'LANGUE', // Remplacez par le département approprié
-      credit: 2, // Remplacez par le nombre de crédits approprié
+      code: 'ANGLAIS102',
+      department: 'LANGUE',
+      credit: 2,
     );
-    await db.addSubject(subject);
+    await db.addSubject(subject);  // Nécessite que addSubject soit défini dans DatabaseService
     print('Matière ajoutée : $subjectName');
   } else {
     print('La matière "$subjectName" existe déjà.');
   }
-
 
   runApp(MyApp());
 }
@@ -55,7 +52,7 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<AuthService>(create: (_) => AuthService()),
         Provider<NotificationService>(create: (_) => NotificationService()),
-        Provider<DatabaseService>(create:(_) => DatabaseService()),
+        Provider<DatabaseService>(create: (_) => DatabaseService()),
       ],
       child: MaterialApp(
         title: 'Plateforme de résultats académiques',
@@ -63,7 +60,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: AuthWrapper(),
+        home: const AuthWrapper(),
       ),
     );
   }
@@ -81,7 +78,9 @@ class AuthWrapper extends StatelessWidget {
       stream: authService.currentUser,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         final user = snapshot.data;
@@ -90,10 +89,8 @@ class AuthWrapper extends StatelessWidget {
           return LoginScreen();
         }
 
-        // Initialiser les notifications
         notificationService.initialize();
 
-        // Rediriger selon le rôle de l'utilisateur
         switch (user.role) {
           case UserRole.admin:
             return AdminHomeScreen();
@@ -101,7 +98,11 @@ class AuthWrapper extends StatelessWidget {
             return TeacherHomeScreen();
           case UserRole.student:
             return StudentHomeScreen();
-          }
+          default:
+            return const Scaffold(
+              body: Center(child: Text("Rôle utilisateur inconnu")),
+            );
+        }
       },
     );
   }

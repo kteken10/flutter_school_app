@@ -5,7 +5,10 @@ import '../../models/session.dart';
 import '../../models/subject.dart';
 
 class ReportGenerationScreen extends StatefulWidget {
+  const ReportGenerationScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ReportGenerationScreenState createState() => _ReportGenerationScreenState();
 }
 

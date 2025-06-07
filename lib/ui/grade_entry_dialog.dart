@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../models/grade.dart';
 import '../../models/subject.dart';
 import '../../models/user.dart';
 import '../../services/database_service.dart';
-import '../../constants/colors.dart'; // pour AppColors
+import '../../constants/colors.dart';
+import '../../models/session.dart';
 
 class GradeEntryDialog extends StatefulWidget {
   final VoidCallback onGradeSubmitted;
@@ -18,9 +20,29 @@ class GradeEntryDialog extends StatefulWidget {
 class _GradeEntryDialogState extends State<GradeEntryDialog> {
   final _formKey = GlobalKey<FormState>();
   final _gradeController = TextEditingController();
+
   String? selectedStudentId;
   Subject? selectedSubject;
+  ExamSessionType? selectedSessionType;
+  List<UserModel> students = [];
+  List<Subject> subjects = [];
+
   final _dbService = DatabaseService();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchInitialData();
+  }
+
+  void _fetchInitialData() async {
+    final fetchedStudents = await _dbService.getStudents().first;
+    final fetchedSubjects = await _dbService.getSubjects().first;
+    setState(() {
+      students = fetchedStudents;
+      subjects = fetchedSubjects;
+    });
+  }
 
   @override
   void dispose() {
@@ -31,17 +53,20 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
   void _submitGrade() {
     if (_formKey.currentState!.validate() &&
         selectedStudentId != null &&
-        selectedSubject != null) {
+        selectedSubject != null &&
+        selectedSessionType != null) {
       final grade = Grade(
         id: const Uuid().v4(),
         studentId: selectedStudentId!,
         subjectId: selectedSubject!.id,
         sessionId: 'session_1',
+        sessionType: selectedSessionType!,
         value: double.parse(_gradeController.text),
         teacherId: 'teacher_1',
         dateRecorded: DateTime.now(),
         isFinal: true,
         comment: null,
+        academicYearId: '2024-2025',
       );
 
       _dbService.addGrade(grade).then((_) {
@@ -94,110 +119,75 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                    inherit: true,
+                    color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: 20),
-                StreamBuilder<List<UserModel>>(
-                  stream: _dbService.getStudents(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text('Erreur: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    final students = snapshot.data!;
-                    return DropdownButtonFormField<String>(
-                      value: selectedStudentId,
-                      decoration: _inputDecoration('Étudiant'),
-                      isExpanded: true,
-                      items: students.map((student) {
-                        return DropdownMenuItem(
-                          value: student.id,
-                          child: Text(student.fullName),
-                        );
-                      }).toList(),
-                      onChanged: (value) => setState(() => selectedStudentId = value),
-                      validator: (value) => value == null ? 'Sélectionnez un étudiant' : null,
-                    );
-                  },
+                DropdownButtonFormField<String>(
+                  decoration: _inputDecoration('Étudiant'),
+                  value: selectedStudentId,
+                  items: students.map((s) => DropdownMenuItem(
+                        value: s.id,
+                        child: Text(s.fullName),
+                      )).toList(),
+                  onChanged: (value) => setState(() => selectedStudentId = value),
+                  validator: (value) => value == null ? 'Sélectionnez un étudiant' : null,
                 ),
-                const SizedBox(height: 12),
-                StreamBuilder<List<Subject>>(
-                  stream: _dbService.getSubjects(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text('Erreur: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    final subjects = snapshot.data!;
-                    return DropdownButtonFormField<Subject>(
-                      value: selectedSubject,
-                      decoration: _inputDecoration('Matière'),
-                      isExpanded: true,
-                      items: subjects.map((subject) {
-                        return DropdownMenuItem(
-                          value: subject,
-                          child: Text(subject.name),
-                        );
-                      }).toList(),
-                      onChanged: (value) => setState(() => selectedSubject = value),
-                      validator: (value) => value == null ? 'Sélectionnez une matière' : null,
-                    );
-                  },
+                const SizedBox(height: 16),
+                DropdownButtonFormField<Subject>(
+                  decoration: _inputDecoration('Matière'),
+                  value: selectedSubject,
+                  items: subjects.map((s) => DropdownMenuItem(
+                        value: s,
+                        child: Text(s.name),
+                      )).toList(),
+                  onChanged: (value) => setState(() => selectedSubject = value),
+                  validator: (value) => value == null ? 'Sélectionnez une matière' : null,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<ExamSessionType>(
+                  decoration: _inputDecoration('Type de session'),
+                  value: selectedSessionType,
+                  items: ExamSessionType.values.map((type) {
+                    return DropdownMenuItem(
+                      value: type,
+                      child: Text(type.name),
+                    );
+                  }).toList(),
+                  onChanged: (value) => setState(() => selectedSessionType = value),
+                  validator: (value) => value == null ? 'Sélectionnez un type de session' : null,
+                ),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _gradeController,
-                  decoration: _inputDecoration('Note (sur 20)'),
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: _inputDecoration('Note sur 20'),
                   validator: (value) {
-                    final note = double.tryParse(value ?? '');
-                    if (note == null || note < 0 || note > 20) {
-                      return 'Entrez une note entre 0 et 20';
+                    if (value == null || value.isEmpty) {
+                      return 'Entrez une note';
+                    }
+                    final val = double.tryParse(value);
+                    if (val == null || val < 0 || val > 20) {
+                      return 'La note doit être entre 0 et 20';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      ),
-                      child: const Text('Annuler'),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      ),
-                      onPressed: _submitGrade,
-                      child: const Text(
-                        'Valider',
-                        style: TextStyle(
-                          inherit: true,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _submitGrade,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                  ],
-                ),
+                    child: const Text('Valider', style: TextStyle(fontSize: 16)),
+                  ),
+                )
               ],
             ),
           ),

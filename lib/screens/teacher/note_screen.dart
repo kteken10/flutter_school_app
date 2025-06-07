@@ -5,6 +5,7 @@ import '../../models/subject.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
+
 import '../../ui/teacher_card.dart';
 import '../../ui/teacher_card_deco.dart';
 import '../../ui/grade_entry_dialog.dart';
@@ -12,6 +13,7 @@ import '../../ui/student_card.dart';
 import '../../ui/search_zone.dart';
 import '../../ui/year_drop.dart';
 import '../../ui/tab_filter.dart';
+
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
@@ -26,7 +28,7 @@ class _NoteScreenState extends State<NoteScreen> {
   String? selectedYear;
   final List<String> availableYears = ['2023-2024', '2022-2023', '2021-2022'];
   final ValueNotifier<int> selectedTab = ValueNotifier<int>(0);
-  final int totalStudentImages = 3; // Nombre d'images disponibles (student_1.png à student_3.png)
+  final int totalStudentImages = 3;
 
   @override
   void initState() {
@@ -136,7 +138,7 @@ class _NoteScreenState extends State<NoteScreen> {
                           showSearchIcon: true,
                         ),
                       ),
-                      const SizedBox(height: 10), // supprimé ou commenté pour réduire espace
+                      const SizedBox(height: 10),
                       AcademicTabFilter(
                         tabs: ['Sessions', 'Classes', 'Matières'],
                         onTabSelected: (index) => selectedTab.value = index,
@@ -145,12 +147,15 @@ class _NoteScreenState extends State<NoteScreen> {
                         valueListenable: selectedTab,
                         builder: (context, index, _) {
                           return Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4), // réduit padding vertical
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                             child: Row(
                               children: [
                                 Text(
-                                  index == 0 ? "Mes étudiants" : 
-                                  index == 1 ? "Par classe" : "Par matière",
+                                  index == 0
+                                      ? "Mes étudiants"
+                                      : index == 1
+                                          ? "Par classe"
+                                          : "Par matière",
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -172,10 +177,11 @@ class _NoteScreenState extends State<NoteScreen> {
                           final students = snapshot.data!;
                           final filteredStudents = _searchController.text.isEmpty
                               ? students
-                              : students.where((s) => s.fullName
-                                  .toLowerCase()
-                                  .contains(_searchController.text.toLowerCase()))
-                                .toList();
+                              : students
+                                  .where((s) => s.fullName
+                                      .toLowerCase()
+                                      .contains(_searchController.text.toLowerCase()))
+                                  .toList();
 
                           if (filteredStudents.isEmpty) {
                             return const Padding(
@@ -200,6 +206,7 @@ class _NoteScreenState extends State<NoteScreen> {
                                   if (!snapshot.hasData) {
                                     return const SizedBox(height: 10);
                                   }
+
                                   final subjectNames = snapshot.data![0] as List<String>;
                                   final progress = snapshot.data![1] as double;
 
@@ -212,7 +219,7 @@ class _NoteScreenState extends State<NoteScreen> {
                                       subjectNames: subjectNames,
                                       progress: progress,
                                       onProfileTap: () {
-                                        // Action au clic sur le profil
+                                        // Action sur le profil de l’étudiant
                                       },
                                     ),
                                   );
@@ -222,7 +229,7 @@ class _NoteScreenState extends State<NoteScreen> {
                           );
                         },
                       ),
-                      const SizedBox(height: 12), // réduit hauteur
+                      const SizedBox(height: 12),
                     ],
                   ),
                 ),
