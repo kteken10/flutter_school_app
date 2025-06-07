@@ -44,8 +44,8 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
       ),
 
       SizedBox(
-        width: 60,
-        height: 60,
+        width: 40,
+        height: 40,
         child: FilePickerCard(
           onTap: _isImporting ? null : () async {
             await _selectFile();
@@ -58,7 +58,7 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
 ),
 
 
-            const SizedBox(height: 24),
+        
 
             const TeacherCardDeco(imagePath: 'assets/import_note.jpg'),
 
@@ -70,9 +70,9 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
                   child: Text(
                     'PV déjà importés :',
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                       fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
                     ),
                   ),
                 ),

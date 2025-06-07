@@ -32,11 +32,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     ];
   }
 
-  void _showNotifications(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Notifications à venir...')),
-    );
-  }
+  // void _showNotifications(BuildContext context) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     const SnackBar(content: Text('Notifications à venir...')),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -60,10 +60,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           bottomNavigationBar: SalomonBottomBar(
             currentIndex: _currentIndex,
             onTap: (index) {
-              if (index == 2) {
-                _showNotifications(context);
-                return;
-              }
+              // if (index == 2) {
+              //   _showNotifications(context);
+              //   return;
+              // }
               setState(() => _currentIndex = index);
             },
             items: [
