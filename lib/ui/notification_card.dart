@@ -23,35 +23,60 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (onDelete == null) {
+      return _buildCardContent(context);
+    }
+
+    return Dismissible(
+      key: Key(title + dateTime.toString()),
+      direction: DismissDirection.endToStart,
+      background: _buildSwipeBackground(),
+      secondaryBackground: _buildSwipeBackground(),
+      confirmDismiss: (direction) async => true,
+      onDismissed: (direction) => onDelete?.call(),
+      child: _buildCardContent(context),
+    );
+  }
+
+  Widget _buildSwipeBackground() {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.red.shade400,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: 20),
+      child: const Icon(Icons.delete, color: Colors.white, size: 24),
+    );
+  }
+
+  Widget _buildCardContent(BuildContext context) {
     final theme = Theme.of(context);
-    final now = DateTime.now();
-    final isToday = dateTime.year == now.year &&
-        dateTime.month == now.month &&
-        dateTime.day == now.day;
+    final isToday = _isToday(dateTime);
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Colors.grey.shade200,
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200, width: 1),
       ),
       color: isRead ? Colors.white : Colors.blue.shade50.withOpacity(0.3),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Stack(
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Réduit la hauteur intrinsèque
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Icône
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: AppColors.secondary.withOpacity(0.1),
                       shape: BoxShape.circle,
@@ -59,33 +84,37 @@ class NotificationCard extends StatelessWidget {
                     child: Icon(
                       icon ?? Icons.notifications_none,
                       color: AppColors.secondary,
-                      size: 24,
+                      size: 20, // Icône légèrement plus petite
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
+                  // Contenu texte
                   Expanded(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Titre et indicateur non lu
                         Row(
                           children: [
                             Expanded(
                               child: Text(
                                 title,
-                                style: theme.textTheme.titleMedium?.copyWith(
+                                style: theme.textTheme.titleSmall?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: isRead
                                       ? AppColors.textPrimary
                                       : AppColors.primary,
                                 ),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             if (!isRead)
                               Container(
-                                width: 8,
-                                height: 8,
-                                margin: const EdgeInsets.only(left: 8),
+                                width: 6,
+                                height: 6,
+                                margin: const EdgeInsets.only(left: 6),
                                 decoration: const BoxDecoration(
                                   color: Colors.red,
                                   shape: BoxShape.circle,
@@ -93,42 +122,45 @@ class NotificationCard extends StatelessWidget {
                               ),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
+                        // Description
                         Text(
                           description,
-                          style: theme.textTheme.bodyMedium?.copyWith(
+                          style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.grey.shade700,
                           ),
-                          maxLines: 3,
+                          maxLines: 2, // Réduit à 2 lignes maximum
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 20), // laisse de l'espace pour l'heure
                       ],
                     ),
                   ),
+                  // Bouton suppression (optionnel)
                   if (onDelete != null)
                     IconButton(
                       icon: Icon(
                         Icons.delete_outline,
                         color: Colors.red.shade400,
-                        size: 20,
+                        size: 18, // Bouton plus petit
                       ),
                       onPressed: onDelete,
-                      tooltip: 'Supprimer',
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
                 ],
               ),
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Text(
-                  isToday
-                      ? 'à ${_formatTime(dateTime)}'
-                      : _formatDateTime(dateTime),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.grey.shade500,
+              // Date/heure alignée à droite
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    isToday
+                        ? 'à ${_formatTime(dateTime)}'
+                        : _formatDateTime(dateTime),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: Colors.grey.shade500,
+                    ),
                   ),
                 ),
               ),
@@ -139,17 +171,18 @@ class NotificationCard extends StatelessWidget {
     );
   }
 
+  bool _isToday(DateTime dt) {
+    final now = DateTime.now();
+    return dt.year == now.year && dt.month == now.month && dt.day == now.day;
+  }
+
   String _formatDateTime(DateTime dt) {
     final now = DateTime.now();
     final difference = now.difference(dt);
 
-    if (difference.inDays == 1) {
-      return 'Hier à ${_formatTime(dt)}';
-    } else if (difference.inDays < 7) {
-      return '${_getWeekday(dt.weekday)} à ${_formatTime(dt)}';
-    } else {
-      return '${dt.day}/${dt.month}/${dt.year}';
-    }
+    if (difference.inDays == 1) return 'Hier à ${_formatTime(dt)}';
+    if (difference.inDays < 7) return '${_getWeekday(dt.weekday)} à ${_formatTime(dt)}';
+    return '${dt.day}/${dt.month}/${dt.year}';
   }
 
   String _formatTime(DateTime dt) {
@@ -157,9 +190,7 @@ class NotificationCard extends StatelessWidget {
   }
 
   String _getWeekday(int weekday) {
-    const weekdays = [
-      'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'
-    ];
+    const weekdays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
     return weekdays[weekday - 1];
   }
 }
