@@ -5,7 +5,6 @@ import '../../ui/file_pciker_card.dart';
 import '../../ui/teacher_card_deco.dart';
 import '../../ui/pv_card.dart';  // Ton widget PvCard avec suppression
 
-
 class GradeImportScreen extends StatefulWidget {
   const GradeImportScreen({super.key});
 
@@ -29,22 +28,35 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Titre de la page
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Importer des notes',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Titre de la page + dossier en haut à droite
+           Padding(
+  padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    crossAxisAlignment: CrossAxisAlignment.center, // CENTRER VERTICALEMENT
+    children: [
+      const Text(
+        'Importer des notes',
+        style: TextStyle(
+          fontSize: 20,
+          color: AppColors.textPrimary,
+        ),
+      ),
+
+      SizedBox(
+        width: 60,
+        height: 60,
+        child: FilePickerCard(
+          onTap: _isImporting ? null : () async {
+            await _selectFile();
+          },
+          fileName: null,
+        ),
+      ),
+    ],
+  ),
+),
+
 
             const SizedBox(height: 24),
 
@@ -66,7 +78,7 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
                 ),
               ),
 
-              const SizedBox(height: 12),
+           
 
               ListView.builder(
                 physics: const NeverScrollableScrollPhysics(),
@@ -109,14 +121,6 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
 
             const SizedBox(height: 32),
 
-            // Nouveau composant avec image dossier
-           FilePickerCard(
-  onTap: _isImporting ? null : () async {
-    await _selectFile();
-  },
-  fileName: _fileName,
-),
-
 
             if (_fileName != null) ...[
               const SizedBox(height: 32),
@@ -127,7 +131,7 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: AppColors.secondary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),

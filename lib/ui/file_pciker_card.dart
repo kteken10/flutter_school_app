@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 
-class FilePickerCard extends StatelessWidget {
+class FilePickerCard extends StatefulWidget {
   final VoidCallback? onTap;
   final String? fileName;
 
@@ -12,46 +12,63 @@ class FilePickerCard extends StatelessWidget {
   });
 
   @override
+  State<FilePickerCard> createState() => _FilePickerCardState();
+}
+
+class _FilePickerCardState extends State<FilePickerCard> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: 20, end: 26).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: widget.onTap,
       child: Container(
-       
-        padding: const EdgeInsets.symmetric(vertical: 24),
+        width: 30,
+        height: 30,
+        padding: EdgeInsets.zero,
         decoration: BoxDecoration(
-          color: Colors.white, // Fond blanc comme tu souhaitais
-          borderRadius: BorderRadius.circular(20),
-          
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              'assets/folder.png',
-              width: 100,
-              height: 100,
-              fit: BoxFit.contain,
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-            const SizedBox(height: 16),
-          
-            if (fileName != null) ...[
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Text(
-                  fileName!,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-              ),
-            ]
           ],
+        ),
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Icon(
+                Icons.cloud_upload_outlined,
+                size: _animation.value,
+                color: AppColors.primary,
+              );
+            },
+          ),
         ),
       ),
     );

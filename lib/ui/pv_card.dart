@@ -35,7 +35,7 @@ class PvCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(Icons.description, color: AppColors.primary, size: 32),
+            const Icon(Icons.description, color: AppColors.secondary, size: 32),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
