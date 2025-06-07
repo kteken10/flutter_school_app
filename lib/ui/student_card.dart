@@ -19,7 +19,7 @@ class StudentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric( vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -27,8 +27,8 @@ class StudentCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
+            blurRadius:2,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -44,15 +44,31 @@ class StudentCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  studentName,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        studentName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_forward_ios,
+                        color: AppColors.primary,
+                        size: 18,
+                      ),
+                      onPressed: onProfileTap,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 6),
                 SizedBox(
@@ -63,7 +79,6 @@ class StudentCard extends StatelessWidget {
                     separatorBuilder: (_, __) => const SizedBox(width: 5),
                     itemBuilder: (context, index) {
                       return Container(
-                       
                         height: 24,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         alignment: Alignment.center,
@@ -74,7 +89,7 @@ class StudentCard extends StatelessWidget {
                         child: Text(
                           subjectNames[index],
                           style: const TextStyle(
-                          color: AppColors.primary,
+                            color: AppColors.primary,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
@@ -88,15 +103,8 @@ class StudentCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 6),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios,color: AppColors.primary, size: 18),
-            onPressed: onProfileTap,
-            
-          ),
         ],
       ),
     );
   }
 }
-
