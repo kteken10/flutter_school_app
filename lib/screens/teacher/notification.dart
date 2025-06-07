@@ -6,7 +6,7 @@ class NotificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Exemple de notifications avec plus de détails
+   
     final notifications = [
       {
         'title': 'Nouvelle note ajoutée',
