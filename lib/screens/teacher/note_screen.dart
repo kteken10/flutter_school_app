@@ -79,77 +79,69 @@ class _NoteScreenState extends State<NoteScreen> {
           body: Column(
             children: [
               // Première ligne (toujours visible)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
-                child: Row(
-                  children: [
-                    Text(
-                      "Bonjour, ${user.fullName}",
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    const Spacer(),
-                  ],
-                ),
-              ),
+             // Ligne avec le nom de l'enseignant et la dropdown alignée à droite
+// Ligne de bienvenue + année à droite avec fond blanc
+Padding(
+  padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
+  child: Row(
+    children: [
+      Text(
+        "Bonjour, ${user.fullName}",
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimary,
+        ),
+      ),
+      const Spacer(),
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.white, // Fond blanc
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: selectedYear,
+            icon: const Icon(Icons.arrow_drop_down, size: 20),
+            elevation: 2,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedYear = newValue;
+              });
+            },
+            items: availableYears.map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    ],
+  ),
+),
+
               
               // Contenu scrollable
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      // Sélecteur d'année
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-                        child: Row(
-                          children: [
-                            const Text(
-                              "Année: ",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppColors.textSecondary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: AppColors.quaternary,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value: selectedYear,
-                                  icon: const Icon(Icons.arrow_drop_down, size: 20),
-                                  elevation: 2,
-                                  style: TextStyle(
-                                    color: AppColors.primary,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectedYear = newValue;
-                                    });
-                                  },
-                                  items: availableYears
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
+                     
                       // Carte décorative et carte enseignant
                       const TeacherCardDeco(),
                       TeacherCard(
