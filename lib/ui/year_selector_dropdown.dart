@@ -21,13 +21,7 @@ class YearSelectorDropdown extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white, // Fond blanc
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
+       
       ),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: DropdownButtonHideUnderline(

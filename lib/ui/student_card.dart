@@ -19,7 +19,7 @@ class StudentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: const EdgeInsets.symmetric( vertical: 6),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -63,8 +63,9 @@ class StudentCard extends StatelessWidget {
                     separatorBuilder: (_, __) => const SizedBox(width: 5),
                     itemBuilder: (context, index) {
                       return Container(
-                        width: 70,
+                       
                         height: 24,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: Colors.blue.shade50,
@@ -91,7 +92,7 @@ class StudentCard extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.arrow_forward_ios,color: AppColors.primary, size: 18),
             onPressed: onProfileTap,
-            tooltip: "Voir le profil",
+            
           ),
         ],
       ),
