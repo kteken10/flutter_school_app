@@ -10,6 +10,7 @@ class TeacherCard extends StatefulWidget {
   final int classCount;
   final List<String> subjects;
   final List<String> classes;
+  final VoidCallback onAddPressed;
 
   const TeacherCard({
     super.key,
@@ -20,6 +21,7 @@ class TeacherCard extends StatefulWidget {
     required this.classCount,
     required this.subjects,
     required this.classes,
+    required this.onAddPressed,
   });
 
   @override
@@ -128,12 +130,10 @@ class _TeacherCardState extends State<TeacherCard>
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Colonne principale pour aligner verticalement tous les éléments
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Ligne avec badges et AddIcon
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -158,9 +158,7 @@ class _TeacherCardState extends State<TeacherCard>
                         _infoBadge(label: '${widget.classCount}'),
                         const Spacer(),
                         AddIcon(
-                          onTap: () {
-                            // Action à définir lors du clic
-                          },
+                          onTap: widget.onAddPressed,
                         ),
                       ],
                     ),
@@ -180,7 +178,8 @@ class _TeacherCardState extends State<TeacherCard>
                     ),
                     const SizedBox(height: 6),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
                           "Matières enseignées :",
@@ -191,8 +190,9 @@ class _TeacherCardState extends State<TeacherCard>
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Expanded(
+                        Flexible(
                           child: Wrap(
+                            alignment: WrapAlignment.center,
                             spacing: 4,
                             runSpacing: -8,
                             children: _compactChips(widget.subjects),
@@ -202,10 +202,11 @@ class _TeacherCardState extends State<TeacherCard>
                     ),
                     const SizedBox(height: 4),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text(
-                          "Classes de l’enseignant :",
+                          "Classes de l'enseignant :",
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -213,8 +214,9 @@ class _TeacherCardState extends State<TeacherCard>
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Expanded(
+                        Flexible(
                           child: Wrap(
+                            alignment: WrapAlignment.center,
                             spacing: 4,
                             runSpacing: -8,
                             children: _compactChips(widget.classes),

@@ -26,6 +26,18 @@ class _NoteScreenState extends State<NoteScreen> {
   final DatabaseService _dbService = DatabaseService();
   int selectedTab = 0;
   final TextEditingController _searchController = TextEditingController();
+  String? selectedYear;
+  final List<String> availableYears = [
+    '2023-2024',
+    '2022-2023',
+    '2021-2022',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    selectedYear = availableYears.first;
+  }
 
   void _onAddNote() {
     showDialog(
@@ -38,7 +50,6 @@ class _NoteScreenState extends State<NoteScreen> {
     );
   }
 
-  // Récupère les matières pour un étudiant donné
   Future<List<String>> getSubjectsForStudent(String studentId) async {
     final grades = await _dbService.getStudentGrades(studentId).first;
     final subjectIds = grades.map((g) => g.subjectId).toSet().toList();
@@ -66,38 +77,89 @@ class _NoteScreenState extends State<NoteScreen> {
 
         return Column(
           children: [
-            // Affiche le nom de l'enseignant en entête
+            // En-tête avec nom de l'enseignant et sélecteur d'année
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Hi,${user.fullName}",
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        "Bonjour, ${user.fullName}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const Spacer(),
+                    ],
                   ),
-                  const Spacer(),
-                  AddIcon(
-                    onTap: _onAddNote,
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Text(
+                        "Année: ",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.quaternary,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: selectedYear,
+                            icon: const Icon(Icons.arrow_drop_down, size: 20),
+                            elevation: 2,
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                selectedYear = newValue;
+                                // Ajoutez ici la logique de filtrage par année si nécessaire
+                              });
+                            },
+                            items: availableYears
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            // Carte décorative
-          
-        const TeacherCardDeco(),
-                    TeacherCard(
+            
+            // Carte décorative et carte enseignant
+            const TeacherCardDeco(),
+            TeacherCard(
               name: user.fullName,
               email: user.email,
               profileImageUrl: user.photoUrl ?? 'https://www.example.com/default-profile-image.png',
               subjectCount: 3,
               classCount: 5,
-              subjects: ['Mathématiques', 'Physique', 'SVT'], // À remplacer par la vraie liste
-              classes: ['6e A', '5e B', '4e C', '3e D', 'Terminale S'], // À remplacer par la vraie liste
+              subjects: ['Mathématiques', 'Physique', 'SVT'],
+              classes: ['6e A', '5e B', '4e C', '3e D', 'Terminale S'],
+              onAddPressed: _onAddNote,
             ),
-              
+            
+            // Zone de recherche
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SearchZone(
@@ -106,20 +168,31 @@ class _NoteScreenState extends State<NoteScreen> {
                 showSearchIcon: true,
               ),
             ),
+            
             const SizedBox(height: 10),
+            
+            // Filtres
             AcademicTabFilter(
               tabs: ['Sessions', 'Classes', 'Matières'],
               onTabSelected: (index) {
-                // Laisse vide si tu ne veux pas filtrer la liste
+                setState(() {
+                  selectedTab = index;
+                });
               },
             ),
+            
+            // Titre de la liste des étudiants
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
               child: Row(
                 children: [
-                  const Text(
-                    "Mes étudiants",
-                    style: TextStyle(
+                  Text(
+                    selectedTab == 0
+                        ? "Mes étudiants"
+                        : selectedTab == 1
+                            ? "Par classe"
+                            : "Par matière",
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: AppColors.primary,
@@ -128,6 +201,8 @@ class _NoteScreenState extends State<NoteScreen> {
                 ],
               ),
             ),
+            
+            // Liste des étudiants
             Expanded(
               child: StreamBuilder<List<UserModel>>(
                 stream: _dbService.getStudents(),
@@ -138,10 +213,16 @@ class _NoteScreenState extends State<NoteScreen> {
 
                   final students = snapshot.data!;
                   if (students.isEmpty) {
-                    return const Center(child: Text('Aucun étudiant trouvé.'));
+                    return const Center(
+                      child: Text(
+                        'Aucun étudiant trouvé',
+                        style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                    );
                   }
 
                   return ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 20),
                     itemCount: students.length,
                     itemBuilder: (context, index) {
                       final student = students[index];
@@ -149,13 +230,18 @@ class _NoteScreenState extends State<NoteScreen> {
                         future: getSubjectsForStudent(student.id),
                         builder: (context, subjectSnapshot) {
                           final subjectNames = subjectSnapshot.data ?? [];
-                          return StudentCard(
-                            studentName: student.fullName,
-                            studentPhotoUrl: student.photoUrl ?? 'https://www.example.com/default-profile-image.png',
-                            subjectNames: subjectNames,
-                            onProfileTap: () {
-                              // Action pour voir le détail du profil
-                            },
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 4),
+                            child: StudentCard(
+                              studentName: student.fullName,
+                              studentPhotoUrl: student.photoUrl ??
+                                  'https://www.example.com/default-profile-image.png',
+                              subjectNames: subjectNames,
+                              onProfileTap: () {
+                                // Action pour voir le détail du profil
+                              },
+                            ),
                           );
                         },
                       );

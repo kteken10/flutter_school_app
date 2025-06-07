@@ -11,26 +11,47 @@ class AddIcon extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.primary,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.secondary,
-          width: 1,
-        ),
         boxShadow: [
+          // Ombre portée pour l'effet flottant
           BoxShadow(
-            color: AppColors.secondary,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColors.primary.withOpacity(0.4),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 4),
+          ),
+          // Ombre interne pour un effet de profondeur
+          BoxShadow(
+            color: Colors.white.withOpacity(0.1),
+            blurRadius: 2,
+            offset: const Offset(0, -2),
           ),
         ],
+        // Dégradé subtil pour un effet dynamique
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.primary.withOpacity(0.9),
+            AppColors.primary.withOpacity(1.0),
+          ],
+        ),
       ),
-      child: IconButton(
-        icon: const Icon(Icons.add, color: AppColors.secondary, size: 22),
-        onPressed: onTap,
-        splashRadius: 22,
-        padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(),
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          splashColor: Colors.white.withOpacity(0.3),
+          child: const Center(
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 22,
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -41,19 +41,10 @@ class _AcademicTabFilterState extends State<AcademicTabFilter> {
               margin: const EdgeInsets.symmetric(horizontal: 6),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.blue.shade50 : Colors.white,
+                color: isSelected ? AppColors.secondary.withOpacity(0.4) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  width: 1,
-                  color: isSelected ? AppColors.primary : Colors.grey.shade300,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+              
+              
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -63,7 +54,7 @@ class _AcademicTabFilterState extends State<AcademicTabFilter> {
                   Text(
                     widget.tabs[index],
                     style: TextStyle(
-                      color: isSelected ? AppColors.primary : Colors.grey[700],
+                      color: isSelected ? AppColors.white : Colors.grey[700],
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
