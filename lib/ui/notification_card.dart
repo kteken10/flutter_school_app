@@ -45,84 +45,93 @@ class NotificationCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon ?? Icons.notifications_none,
-                  color: AppColors.secondary,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon ?? Icons.notifications_none,
+                      color: AppColors.secondary,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Text(
-                            title,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: isRead
-                                  ? AppColors.textPrimary
-                                  : AppColors.primary,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: isRead
+                                      ? AppColors.textPrimary
+                                      : AppColors.primary,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            if (!isRead)
+                              Container(
+                                width: 8,
+                                height: 8,
+                                margin: const EdgeInsets.only(left: 8),
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                          ],
                         ),
-                        if (!isRead)
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
+                        const SizedBox(height: 4),
+                        Text(
+                          description,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey.shade700,
                           ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 20), // laisse de l'espace pour l'heure
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey.shade700,
+                  ),
+                  if (onDelete != null)
+                    IconButton(
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: Colors.red.shade400,
+                        size: 20,
                       ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
+                      onPressed: onDelete,
+                      tooltip: 'Supprimer',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      isToday
-                          ? 'Aujourd\'hui à ${_formatTime(dateTime)}'
-                          : _formatDateTime(dateTime),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
+                ],
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Text(
+                  isToday
+                      ? 'à ${_formatTime(dateTime)}'
+                      : _formatDateTime(dateTime),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.grey.shade500,
+                  ),
                 ),
               ),
-              if (onDelete != null)
-                IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: Colors.red.shade400,
-                    size: 20,
-                  ),
-                  onPressed: onDelete,
-                  tooltip: 'Supprimer',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
             ],
           ),
         ),
@@ -149,13 +158,7 @@ class NotificationCard extends StatelessWidget {
 
   String _getWeekday(int weekday) {
     const weekdays = [
-      'Lundi',
-      'Mardi',
-      'Mercredi',
-      'Jeudi',
-      'Vendredi',
-      'Samedi',
-      'Dimanche'
+      'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'
     ];
     return weekdays[weekday - 1];
   }
