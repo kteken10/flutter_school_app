@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../constants/colors.dart';
+import '../../ui/file_pciker_card.dart';
 import '../../ui/teacher_card_deco.dart';
+import '../../ui/pv_card.dart';  // Ton widget PvCard avec suppression
+
 
 class GradeImportScreen extends StatefulWidget {
   const GradeImportScreen({super.key});
@@ -14,25 +17,84 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
   String? _fileName;
   bool _isImporting = false;
 
+  final List<Map<String, dynamic>> _importedPvs = [
+    {'fileName': 'notes_math_2025.xlsx', 'date': DateTime(2025, 5, 15)},
+    {'fileName': 'pv_physique_mars.csv', 'date': DateTime(2025, 3, 28)},
+    {'fileName': 'resultats_chimie.xls', 'date': DateTime(2025, 2, 10)},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.quaternary.withOpacity(0.1),
-
-      appBar: AppBar(
-        title: const Text('Upload des Notes'),
-        centerTitle: true,
-      ),
-
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Carte de déco avec image
-            const SizedBox(height: 24),
-            const TeacherCardDeco(imagePath: 'assets/import_note.jpg'),
+            // Titre de la page
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Importer des notes',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             const SizedBox(height: 24),
 
-            // Sous-titre explicatif
+            const TeacherCardDeco(imagePath: 'assets/import_note.jpg'),
+
+            if (_importedPvs.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'PV déjà importés :',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: _importedPvs.length,
+                itemBuilder: (context, index) {
+                  final pv = _importedPvs[index];
+                  return PvCard(
+                    fileName: pv['fileName'],
+                    importDate: pv['date'],
+                    onTap: () {
+                      // action clic sur PV
+                    },
+                    onDelete: () {
+                      setState(() {
+                        _importedPvs.removeAt(index);
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${pv['fileName']} supprimé')),
+                      );
+                    },
+                  );
+                },
+              ),
+
+              const SizedBox(height: 24),
+            ],
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -47,62 +109,18 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
 
             const SizedBox(height: 32),
 
-            // Bouton choisir fichier
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.secondary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                icon: const Icon(Icons.attach_file, size: 22),
-                label: const Text(
-                  'Choisir un fichier',
-                  style: TextStyle(fontSize: 18),
-                ),
-                onPressed: _isImporting ? null : _selectFile,
-              ),
-            ),
+            // Nouveau composant avec image dossier
+           FilePickerCard(
+  onTap: _isImporting ? null : () async {
+    await _selectFile();
+  },
+  fileName: _fileName,
+),
+
 
             if (_fileName != null) ...[
-              const SizedBox(height: 24),
-
-              // Affichage nom du fichier
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.quaternary.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.insert_drive_file, size: 20, color: AppColors.primary),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _fileName!,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 32),
 
-              // Bouton Importer
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: SizedBox(
@@ -120,7 +138,10 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
                         ? SizedBox(
                             height: 24,
                             width: 24,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            ),
                           )
                         : const Text(
                             'Importer les notes',
@@ -159,7 +180,14 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
     // Simulation d'import
     await Future.delayed(const Duration(seconds: 2));
 
-    setState(() => _isImporting = false);
+    setState(() {
+      _importedPvs.add({
+        'fileName': _fileName!,
+        'date': DateTime.now(),
+      });
+      _fileName = null;
+      _isImporting = false;
+    });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
