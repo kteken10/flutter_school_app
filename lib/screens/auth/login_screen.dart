@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../services/auth_service.dart';
 import 'register_screen.dart';
-import '../../constants/colors.dart'; // ta palette
+import '../../constants/colors.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -15,30 +15,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      filled: true,
-      fillColor: AppColors.quaternary.withOpacity(0.1),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.primary.withOpacity(0.5)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: AppColors.primary, width: 2),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.red, width: 2),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-    );
-  }
+InputDecoration _inputDecoration(String label, IconData icon) {
+  return InputDecoration(
+    labelText: label,
+    prefixIcon: Icon(icon, color: AppColors.primary),
+    filled: true,
+    fillColor: Colors.white,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(50),
+      borderSide: const BorderSide(color: Colors.white),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(50),
+      borderSide: const BorderSide(color: Colors.white),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(50),
+      borderSide: const BorderSide(color: Colors.white),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(50),
+      borderSide: const BorderSide(color: Colors.red),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(50),
+      borderSide: const BorderSide(color: Colors.red),
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Illustration ou logo en haut
                 Center(
                   child: Image.asset(
                     'assets/logo_academique.png',
@@ -60,14 +65,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
-                // Titre chaleureux
                 Text(
                   'Bienvenue !',
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -80,43 +83,53 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // Formulaire
                 Form(
                   key: _formKey,
                   child: Column(
                     children: [
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: _inputDecoration('Email'),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre email';
-                          }
-                          if (!value.contains('@')) {
-                            return 'Veuillez entrer un email valide';
-                          }
-                          return null;
-                        },
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                        borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                         decoration: _inputDecoration('Email', Icons.email),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer votre email';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Veuillez entrer un email valide';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                       const SizedBox(height: 20),
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: _inputDecoration('Mot de passe'),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer votre mot de passe';
-                          }
-                          if (value.length < 6) {
-                            return 'Le mot de passe doit contenir au moins 6 caractères';
-                          }
-                          return null;
-                        },
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: _inputDecoration('Mot de passe', Icons.lock),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer votre mot de passe';
+                            }
+                            if (value.length < 6) {
+                              return 'Le mot de passe doit contenir au moins 6 caractères';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                       const SizedBox(height: 30),
 
-                      // Bouton avec animation chargement
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -159,7 +172,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Liens textes
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
