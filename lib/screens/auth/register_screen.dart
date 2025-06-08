@@ -90,33 +90,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             InputField(
                               controller: controller.firstNameController,
                               label: 'Prénom',
-                              prefixIcon: const Icon(Icons.person, color: Colors.grey),
+                              prefixIcon:  Icon(Icons.person,  color: Colors.grey[300],size: 22,),
                               keyboardType: TextInputType.name,
                             ),
                             InputField(
                               controller: controller.lastNameController,
                               label: 'Nom',
-                              prefixIcon: const Icon(Icons.person, color: Colors.grey),
+                              prefixIcon: Icon(Icons.person,  color: Colors.grey[300],size: 22,),
                               keyboardType: TextInputType.name,
                             ),
                             InputField(
                               controller: controller.emailController,
                               label: 'Email',
-                              prefixIcon: const Icon(Icons.email, color: Colors.grey),
+                              prefixIcon:  Icon(Icons.email,  color: Colors.grey[300],size: 22),
                               keyboardType: TextInputType.emailAddress,
                             ),
                           ] else if (_formStep == 1) ...[
                             InputField(
                               controller: controller.passwordController,
                               label: 'Mot de passe',
-                              prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                              prefixIcon:  Icon(Icons.lock,  color: Colors.grey[300],size: 22),
                               keyboardType: TextInputType.visiblePassword,
                               obscureText: true,
                             ),
                             InputField(
                               controller: controller.confirmPasswordController,
                               label: 'Confirmer le mot de passe',
-                              prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                              prefixIcon:  Icon(Icons.lock,  color: Colors.grey[300],size: 22,),
                               keyboardType: TextInputType.visiblePassword,
                               obscureText: true,
                             ),
@@ -135,7 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               InputField(
                                 controller: controller.studentIdController,
                                 label: 'Numéro étudiant',
-                                prefixIcon: const Icon(Icons.badge, color: Colors.grey),
+                                prefixIcon:  Icon(Icons.badge, color: Colors.grey[300],size: 22,),
                                 keyboardType: TextInputType.text,
                               ),
                               const SizedBox(height: 12),
