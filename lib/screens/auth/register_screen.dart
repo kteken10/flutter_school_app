@@ -7,7 +7,6 @@ class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _RegisterScreenState createState() => _RegisterScreenState();
 }
 
@@ -20,6 +19,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _lastNameController = TextEditingController();
   final _studentIdController = TextEditingController();
   final _departmentController = TextEditingController();
+  final _classNameController = TextEditingController(); // Ajouté
+
   UserRole _selectedRole = UserRole.student;
   bool _isLoading = false;
 
@@ -45,7 +46,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
-             
               TextFormField(
                 controller: _lastNameController,
                 decoration: InputDecoration(labelText: 'Nom'),
@@ -112,9 +112,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _studentIdController,
                   decoration: InputDecoration(labelText: 'Numéro étudiant'),
                   validator: (value) {
-                    if (_selectedRole == UserRole.student && 
-                        (value == null || value.isEmpty)) {
+                    if (value == null || value.isEmpty) {
                       return 'Veuillez entrer votre numéro étudiant';
+                    }
+                    return null;
+                  },
+                ),
+              if (_selectedRole == UserRole.student)
+                TextFormField(
+                  controller: _classNameController,
+                  decoration: InputDecoration(labelText: 'Classe'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre classe';
                     }
                     return null;
                   },
@@ -124,8 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _departmentController,
                   decoration: InputDecoration(labelText: 'Département'),
                   validator: (value) {
-                    if (_selectedRole == UserRole.teacher && 
-                        (value == null || value.isEmpty)) {
+                    if (value == null || value.isEmpty) {
                       return 'Veuillez entrer votre département';
                     }
                     return null;
@@ -144,11 +153,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             _firstNameController.text.trim(),
                             _lastNameController.text.trim(),
                             _selectedRole,
-                            studentId: _studentIdController.text.trim(),
-                            department: _departmentController.text.trim(),
+                            studentId: _selectedRole == UserRole.student
+                                ? _studentIdController.text.trim()
+                                : null,
+                            className: _selectedRole == UserRole.student
+                                ? _classNameController.text.trim()
+                                : null,
+                            department: _selectedRole == UserRole.teacher
+                                ? _departmentController.text.trim()
+                                : null,
                           );
                           setState(() => _isLoading = false);
-                          
+
                           if (user != null) {
                             Navigator.of(context).pop();
                           } else {

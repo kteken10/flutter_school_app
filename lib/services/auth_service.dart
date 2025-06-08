@@ -10,7 +10,9 @@ class AuthService {
   Future<User?> signInWithEmailAndPassword(String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
       return result.user;
     } catch (e) {
       print(e.toString());
@@ -20,12 +22,21 @@ class AuthService {
 
   // Inscription
   Future<UserModel?> registerWithEmailAndPassword(
-      String email, String password, String firstName, String lastName, UserRole role,
-      {String? studentId, String? department}) async {
+    String email,
+    String password,
+    String firstName,
+    String lastName,
+    UserRole role, {
+    String? studentId,
+    String? department,
+    String? className, // ✅ Ajouté ici
+  }) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      
+        email: email,
+        password: password,
+      );
+
       UserModel user = UserModel(
         id: result.user!.uid,
         firstName: firstName,
@@ -34,11 +45,12 @@ class AuthService {
         role: role,
         studentId: studentId,
         department: department,
+        className: className, // ✅ Ajouté ici
         createdAt: DateTime.now(),
       );
 
       await _firestore.collection('users').doc(user.id).set(user.toMap());
-      
+
       return user;
     } catch (e) {
       print(e.toString());
@@ -60,18 +72,20 @@ class AuthService {
   Stream<UserModel?> get currentUser {
     return _auth.authStateChanges().asyncMap((user) async {
       if (user != null) {
-        DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+        DocumentSnapshot doc =
+            await _firestore.collection('users').doc(user.uid).get();
         return UserModel.fromMap(doc.data() as Map<String, dynamic>);
       }
       return null;
     });
   }
 
-  // Nouvelle méthode pour récupérer le UserModel actuel (Future)
+  // Nouvelle méthode pour récupérer l'utilisateur (Future)
   Future<UserModel?> getCurrentUserModel() async {
     final user = _auth.currentUser;
     if (user != null) {
-      DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(user.uid).get();
       return doc.exists ? UserModel.fromMap(doc.data() as Map<String, dynamic>) : null;
     }
     return null;
