@@ -6,7 +6,7 @@ import '../../services/class_service.dart';
 class RegisterController with ChangeNotifier {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  // Suppression du confirmPasswordController
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController studentIdController = TextEditingController();
@@ -26,7 +26,7 @@ class RegisterController with ChangeNotifier {
   Future<void> loadClasses() async {
     _isLoading = true;
     notifyListeners();
-    
+
     try {
       final classes = await ClassService().fetchAllClasses();
       _classNames = classes.map((c) => c.name).toList();
@@ -50,10 +50,6 @@ class RegisterController with ChangeNotifier {
   }
 
   Future<bool> register(AuthService authService) async {
-    if (passwordController.text != confirmPasswordController.text) {
-      return false;
-    }
-
     _isLoading = true;
     notifyListeners();
 
@@ -64,11 +60,11 @@ class RegisterController with ChangeNotifier {
         firstNameController.text.trim(),
         lastNameController.text.trim(),
         _selectedRole,
-        studentId: _selectedRole == UserRole.student 
-            ? studentIdController.text.trim() 
+        studentId: _selectedRole == UserRole.student
+            ? studentIdController.text.trim()
             : null,
-        className: _selectedRole == UserRole.student 
-            ? _selectedClass 
+        className: _selectedRole == UserRole.student
+            ? _selectedClass
             : null,
         department: _selectedRole == UserRole.teacher
             ? departmentController.text.trim()
@@ -85,7 +81,7 @@ class RegisterController with ChangeNotifier {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose();
+    // Suppression du dispose pour confirmPasswordController
     firstNameController.dispose();
     lastNameController.dispose();
     studentIdController.dispose();
