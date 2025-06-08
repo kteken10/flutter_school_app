@@ -22,41 +22,43 @@ class AuthService {
 
   // Inscription
   Future<UserModel?> registerWithEmailAndPassword(
-    String email,
-    String password,
-    String firstName,
-    String lastName,
-    UserRole role, {
-    String? studentId,
-    String? department,
-    String? className, // ✅ Ajouté ici
-  }) async {
-    try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+  String email,
+  String password,
+  String firstName,
+  String lastName,
+  UserRole role, {
+  String? studentId,
+  String? teacherId,  // Ajout de ce paramètre
+  String? department,
+  String? className,
+}) async {
+  try {
+    UserCredential result = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-      UserModel user = UserModel(
-        id: result.user!.uid,
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        role: role,
-        studentId: studentId,
-        department: department,
-        className: className, // ✅ Ajouté ici
-        createdAt: DateTime.now(),
-      );
+    UserModel user = UserModel(
+      id: result.user!.uid,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      role: role,
+      studentId: studentId,
+      teacherId: teacherId,  // Ajout de ce champ
+      department: department,
+      className: className,
+      createdAt: DateTime.now(),
+    );
 
-      await _firestore.collection('users').doc(user.id).set(user.toMap());
+    await _firestore.collection('users').doc(user.id).set(user.toMap());
 
-      return user;
-    } catch (e) {
-      print(e.toString());
-      return null;
-    }
+    return user;
+  } catch (e) {
+    print(e.toString());
+    return null;
   }
+}
 
   // Déconnexion
   Future signOut() async {
