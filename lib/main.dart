@@ -1,21 +1,17 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-
+import 'services/email_service.dart'; 
 import 'services/class_service.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
 import 'services/database_service.dart';
-
-
-import 'models/user.dart';
-
-import 'screens/auth/login_screen.dart';
-import 'screens/student/student_home.dart';
-import 'screens/teacher/teacher_home.dart';
-import 'screens/admin/admin_home.dart';
+import 'utils.dart';
+import 'wrappers/auth_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,9 +22,15 @@ void main() async {
   );
 
   FirebaseAuth.instance.setLanguageCode('fr');
-
-  // Création automatique des classes
+// Initialisation du EmailService
+  final emailService = EmailService(
+    smtpServer: 'smtp.example.com', // Remplacez par vos infos SMTP
+    smtpUsername: 'dissangfrancis3@gmail.com',
+    smtpPassword: 'uuzb ayvd hczf szee',
+  );
   final classService = ClassService();
+
+
   final classesToCreate = [
     {'name': 'L1', 'department': 'Niveau 1'},
     {'name': 'L2', 'department': 'Niveau 2'},
@@ -41,22 +43,24 @@ void main() async {
     bool exists = await classService.classExists(classe['name']!);
     if (!exists) {
       await classService.createClass(classe['name']!, classe['department']!);
-      print('Classe créée : ${classe['name']}');
-    } else {
-      print('La classe ${classe['name']} existe déjà.');
     }
   }
-  
 
-  runApp(MyApp());
+  // Créer l'admin par défaut
+  await createDefaultAdmin();
+
+  runApp(MyApp(emailService: emailService));
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key,required this.emailService});
+  final EmailService emailService;
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<AuthService>(create: (_) => AuthService()),
+        Provider<AuthService>(create: (_) => AuthService(emailService: emailService)),
         Provider<NotificationService>(create: (_) => NotificationService()),
         Provider<DatabaseService>(create: (_) => DatabaseService()),
         Provider<ClassService>(create: (_) => ClassService()),
@@ -69,48 +73,6 @@ class MyApp extends StatelessWidget {
         ),
         home: const AuthWrapper(),
       ),
-    );
-  }
-}
-
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-    final notificationService = Provider.of<NotificationService>(context);
-
-    return StreamBuilder<UserModel?>(
-      stream: authService.currentUser,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        final user = snapshot.data;
-
-        if (user == null) {
-          return LoginScreen();
-        }
-
-        notificationService.initialize();
-
-        switch (user.role) {
-          case UserRole.admin:
-            return AdminHomeScreen();
-          case UserRole.teacher:
-            return TeacherHomeScreen();
-          case UserRole.student:
-            return StudentHomeScreen();
-          default:
-            return const Scaffold(
-              body: Center(child: Text("Rôle utilisateur inconnu")),
-            );
-        }
-      },
     );
   }
 }

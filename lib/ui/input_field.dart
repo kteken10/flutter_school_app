@@ -10,8 +10,10 @@ class InputField extends StatelessWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final bool showSearchIcon;
-  final Color borderColor; // Nouveau paramètre pour la couleur de bordure
-  final Color? focusedBorderColor; // Optionnel pour le focus
+  final Color borderColor;
+  final Color? focusedBorderColor;
+  final String? Function(String?)? validator; // Ajout du validateur
+  final bool enabled; // Nouveau paramètre pour enabled
 
   const InputField({
     super.key,
@@ -24,13 +26,14 @@ class InputField extends StatelessWidget {
     this.suffixIcon,
     this.showSearchIcon = false,
     this.borderColor = Colors.white,
-    this.focusedBorderColor, // Null par défaut = pas de changement au focus
+    this.focusedBorderColor,
+    this.validator, // Ajout dans le constructeur
+    this.enabled = true, // Valeur par défaut à true
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-     
       padding: const EdgeInsets.symmetric(vertical: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,6 +51,8 @@ class InputField extends StatelessWidget {
             keyboardType: keyboardType,
             obscureText: obscureText,
             style: const TextStyle(color: Colors.black),
+            enabled: enabled, // Utilisation du paramètre enabled
+            validator: validator, // Ajout du validateur ici
             decoration: InputDecoration(
               fillColor: Colors.white,
               filled: true,
@@ -67,12 +72,12 @@ class InputField extends StatelessWidget {
               suffixIcon: suffixIcon,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16.0),
-                borderSide: BorderSide(color: borderColor), // Bordure noire par défaut
+                borderSide: BorderSide(color: borderColor),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16.0),
                 borderSide: BorderSide(
-                  color: focusedBorderColor ?? borderColor, // Garde la même couleur si null
+                  color: focusedBorderColor ?? borderColor,
                   width: 1,
                 ),
               ),

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../services/class_service.dart';
-
+import 'dart:math';
 class RegisterController with ChangeNotifier {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -12,14 +11,14 @@ class RegisterController with ChangeNotifier {
   final TextEditingController studentIdController = TextEditingController();
   final TextEditingController teacherIdController = TextEditingController();
   final TextEditingController departmentController = TextEditingController();
-
+final TextEditingController _adminEmailController = TextEditingController();
+final TextEditingController _adminPassphraseController = TextEditingController();
   UserRole _selectedRole = UserRole.student;
   bool _isLoading = false;
   List<String> _classNames = [];
   String? _selectedClass;
 
   RegisterController() {
-    // Générer les IDs automatiquement à la création du contrôleur
     _generateIds();
   }
 
@@ -37,14 +36,14 @@ class RegisterController with ChangeNotifier {
 
   String _generateStudentId() {
     final random = Random();
-    return 'ETD ${random.nextInt(9000) + 1000}'; // ETD + 4 chiffres (1000-9999)
+    return 'ETD ${random.nextInt(9000) + 1000}';
   }
 
   String _generateTeacherId() {
     final random = Random();
-    final numbers = random.nextInt(900) + 100; // 3 chiffres (100-999)
-    final letter = String.fromCharCode(random.nextInt(26) + 65); // Lettre majuscule
-    return 'ESG $numbers $letter'; // Format: ESG 123 A
+    final numbers = random.nextInt(900) + 100;
+    final letter = String.fromCharCode(random.nextInt(26) + 65);
+    return 'ESG $numbers $letter';
   }
 
   Future<void> loadClasses() async {
@@ -73,29 +72,35 @@ class RegisterController with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> register(AuthService authService) async {
+  Future<bool> register(
+    AuthService authService, {
+    String? adminEmail,
+    String? adminPassphrase,
+  }) async {
     _isLoading = true;
     notifyListeners();
 
     try {
       final user = await authService.registerWithEmailAndPassword(
-        emailController.text.trim(),
-        passwordController.text.trim(),
-        firstNameController.text.trim(),
-        lastNameController.text.trim(),
-        _selectedRole,
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+        firstName: firstNameController.text.trim(),
+        lastName: lastNameController.text.trim(),
+        role: _selectedRole,
         studentId: _selectedRole == UserRole.student
             ? studentIdController.text.trim()
             : null,
         teacherId: _selectedRole == UserRole.teacher
             ? teacherIdController.text.trim()
             : null,
-        className: _selectedRole == UserRole.student
-            ? _selectedClass
-            : null,
         department: _selectedRole == UserRole.teacher
             ? departmentController.text.trim()
             : null,
+        className: _selectedRole == UserRole.student
+            ? _selectedClass
+            : null,
+        adminEmail: adminEmail,
+        adminPassphrase: adminPassphrase,
       );
       return user != null;
     } finally {
@@ -113,6 +118,8 @@ class RegisterController with ChangeNotifier {
     studentIdController.dispose();
     teacherIdController.dispose();
     departmentController.dispose();
+    _adminEmailController.dispose();
+    _adminPassphraseController.dispose();
     super.dispose();
   }
 }
