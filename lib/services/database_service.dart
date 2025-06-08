@@ -28,7 +28,6 @@ class DatabaseService {
   /// Ajouter une matière
   Future<void> addSubject(Subject subject) async {
     await _subjectService.addSubject(subject);
-    
   }
 
   /// Récupérer les notes d'un étudiant

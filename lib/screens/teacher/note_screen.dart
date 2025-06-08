@@ -14,7 +14,6 @@ import '../../ui/search_zone.dart';
 import '../../ui/year_drop.dart';
 import '../../ui/tab_filter.dart';
 
-
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
 
@@ -56,6 +55,12 @@ class _NoteScreenState extends State<NoteScreen> {
     final futures = subjectIds.map((id) => _dbService.getSubjectById(id));
     final subjects = await Future.wait(futures);
     return subjects.whereType<Subject>().map((s) => s.name).toList();
+  }
+
+  Future<List<double>> getGradesForStudent(String studentId) async {
+    final grades = await _dbService.getStudentGrades(studentId).first;
+    // On retourne simplement la liste des notes dans l'ordre récupéré
+    return grades.map((g) => g.value).toList();
   }
 
   Future<double> getAverageGrade(String studentId) async {
@@ -201,6 +206,7 @@ class _NoteScreenState extends State<NoteScreen> {
                                 future: Future.wait([
                                   getSubjectsForStudent(student.id),
                                   getAverageGrade(student.id),
+                                  getGradesForStudent(student.id),
                                 ]),
                                 builder: (context, snapshot) {
                                   if (!snapshot.hasData) {
@@ -209,6 +215,7 @@ class _NoteScreenState extends State<NoteScreen> {
 
                                   final subjectNames = snapshot.data![0] as List<String>;
                                   final progress = snapshot.data![1] as double;
+                                  final subjectGrades = snapshot.data![2] as List<double>;
 
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -217,6 +224,7 @@ class _NoteScreenState extends State<NoteScreen> {
                                       studentPhotoUrl: student.photoUrl,
                                       studentPhotoAsset: _getStudentImageAsset(index),
                                       subjectNames: subjectNames,
+                                      subjectGrades: subjectGrades,
                                       progress: progress,
                                       onProfileTap: () {
                                         // Action sur le profil de l’étudiant

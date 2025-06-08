@@ -5,13 +5,13 @@ class Grade {
   final String studentId;
   final String subjectId;
   final String sessionId;
-  final ExamSessionType sessionType; // Nouveau champ
+  final ExamSessionType sessionType;
   final double value;
   final String? comment;
   final String teacherId;
   final DateTime dateRecorded;
   final bool isFinal;
-  final String academicYearId; // Nouveau champ
+  final String academicYearId;
 
   Grade({
     required this.id,
