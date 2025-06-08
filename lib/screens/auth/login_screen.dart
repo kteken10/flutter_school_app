@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../services/auth_service.dart';
+import '../../ui/teacher_card_deco.dart';
 import 'register_screen.dart';
 import '../../constants/colors.dart';
 
@@ -18,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
 InputDecoration _inputDecoration(String label, IconData icon) {
   return InputDecoration(
     labelText: label,
-    prefixIcon: Icon(icon, color: AppColors.primary),
+    prefixIcon: Icon(icon, color: AppColors.textSecondary.withOpacity(0.2),size: 22),
     filled: true,
     fillColor: Colors.white,
     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -51,34 +52,38 @@ InputDecoration _inputDecoration(String label, IconData icon) {
     final authService = Provider.of<AuthService>(context);
 
     return Scaffold(
+    backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
                   child: Image.asset(
-                    'assets/logo_academique.png',
-                    height: 120,
+                    'assets/academic_logo.png',
+                    height: 100,
                   ),
                 ),
+                const SizedBox(height: 16),
+               const TeacherCardDeco(imagePath: 'assets/login_school.jpg', withHorizontalMargin: false,),
                 const SizedBox(height: 30),
                 Text(
-                  'Bienvenue !',
+                  'Bienvenu sur !',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                   ),
                 ),
+               
                 const SizedBox(height: 8),
                 Text(
-                  'Connectez-vous pour accéder à votre espace',
+                  ' Votre plateforme de gestion de note optimisée',
                   style: TextStyle(
-                    fontSize: 16,
-                    color: AppColors.textSecondary,
+                    fontSize: 14,
+                    color: AppColors.textSecondary.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -135,9 +140,9 @@ InputDecoration _inputDecoration(String label, IconData icon) {
                         height: 50,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: AppColors.secondary,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(50),
                             ),
                           ),
                           onPressed: _isLoading
@@ -161,10 +166,11 @@ InputDecoration _inputDecoration(String label, IconData icon) {
                           child: _isLoading
                               ? const CircularProgressIndicator(color: Colors.white)
                               : const Text(
-                                  'SE CONNECTER',
+                                  'Se connecter',
                                   style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                  
                                     letterSpacing: 1.2,
                                   ),
                                 ),

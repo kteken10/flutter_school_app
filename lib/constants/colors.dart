@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
+   static const Color background = Color.fromARGB(255, 241, 245, 254);
   // Couleur principale (violet académique - sérieux et créativité)
   static const Color primary = Color(0xFF5A3D80); // Violet foncé profond
 

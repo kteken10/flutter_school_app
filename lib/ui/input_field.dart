@@ -18,19 +18,19 @@ class InputField extends StatelessWidget {
     required this.controller,
     this.label = '',
     this.hintText,
-    required this.keyboardType,
+    this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.prefixIcon,
     this.suffixIcon,
     this.showSearchIcon = false,
-    this.borderColor = Colors.black, // Bordure noire par défaut
+    this.borderColor = Colors.white,
     this.focusedBorderColor, // Null par défaut = pas de changement au focus
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+     
       padding: const EdgeInsets.symmetric(vertical: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
