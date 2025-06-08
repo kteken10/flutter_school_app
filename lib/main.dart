@@ -3,12 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:schoop_app/services/database_service.dart';
 
-import 'models/subject.dart';
-import 'models/user.dart';
+import 'services/class_service.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
+import 'services/database_service.dart';
+
+
+import 'models/user.dart';
+
 import 'screens/auth/login_screen.dart';
 import 'screens/student/student_home.dart';
 import 'screens/teacher/teacher_home.dart';
@@ -24,23 +27,26 @@ void main() async {
 
   FirebaseAuth.instance.setLanguageCode('fr');
 
-  final db = DatabaseService();
-  final subjectName = "ANGLAIS";
-  final subjects = await db.getSubjects().first;
-  final exists = subjects.any((s) => s.name == subjectName);
-  if (!exists) {
-    final subject = Subject(
-      id: subjectName.toLowerCase(),
-      name: subjectName,
-      code: 'ANGLAIS102',
-      department: 'LANGUE',
-      credit: 2,
-    );
-    await db.addSubject(subject);  // Nécessite que addSubject soit défini dans DatabaseService
-    print('Matière ajoutée : $subjectName');
-  } else {
-    print('La matière "$subjectName" existe déjà.');
+  // Création automatique des classes
+  final classService = ClassService();
+  final classesToCreate = [
+    {'name': 'L1', 'department': 'Niveau 1'},
+    {'name': 'L2', 'department': 'Niveau 2'},
+    {'name': 'L3', 'department': 'Niveau 3'},
+    {'name': 'M1', 'department': 'Niveau Master 1'},
+    {'name': 'M2', 'department': 'Niveau Master 2'},
+  ];
+
+  for (var classe in classesToCreate) {
+    bool exists = await classService.classExists(classe['name']!);
+    if (!exists) {
+      await classService.createClass(classe['name']!, classe['department']!);
+      print('Classe créée : ${classe['name']}');
+    } else {
+      print('La classe ${classe['name']} existe déjà.');
+    }
   }
+  
 
   runApp(MyApp());
 }
@@ -53,6 +59,7 @@ class MyApp extends StatelessWidget {
         Provider<AuthService>(create: (_) => AuthService()),
         Provider<NotificationService>(create: (_) => NotificationService()),
         Provider<DatabaseService>(create: (_) => DatabaseService()),
+        Provider<ClassService>(create: (_) => ClassService()),
       ],
       child: MaterialApp(
         title: 'Plateforme de résultats académiques',

@@ -18,6 +18,22 @@ class UserService {
             .toList());
   }
 
+  /// Récupère la liste des étudiants d'une classe spécifique (version Future)
+  Future<List<UserModel>> fetchStudentsByClass(String classId) async {
+    final snapshot = await _firestore
+        .collection('users')
+        .where('role', isEqualTo: 'student')
+        .where('classId', isEqualTo: classId)  // Champ utilisé pour filtrer par classe
+        .get();
+
+    return snapshot.docs.map((doc) {
+      return UserModel.fromMap({
+        ...doc.data(),
+        'id': doc.id,
+      });
+    }).toList();
+  }
+
   /// Récupère un utilisateur spécifique à partir de son ID
   Future<UserModel?> getUserById(String userId) async {
     try {

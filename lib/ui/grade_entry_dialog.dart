@@ -21,13 +21,18 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
   final _formKey = GlobalKey<FormState>();
   final _gradeController = TextEditingController();
 
+  String? selectedClassId;
   String? selectedStudentId;
   Subject? selectedSubject;
   ExamSessionType? selectedSessionType;
+
+  List<String> classes = [];
   List<UserModel> students = [];
   List<Subject> subjects = [];
 
   final _dbService = DatabaseService();
+
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -35,12 +40,25 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
     _fetchInitialData();
   }
 
-  void _fetchInitialData() async {
-    final fetchedStudents = await _dbService.getStudents().first;
-    final fetchedSubjects = await _dbService.getSubjects().first;
+ void _fetchInitialData() async {
+  final fetchedClasses = await _dbService.getClasses();
+
+  // Pour convertir le Stream<List<Subject>> en List<Subject> :
+  final fetchedSubjects = await _dbService.getSubjects().first;
+
+  setState(() {
+    classes = fetchedClasses.map((c) => c.name).toList();
+    subjects = fetchedSubjects;
+  });
+}
+
+
+  /// Charge les étudiants d’une classe sélectionnée
+  void _fetchStudentsForClass(String classId) async {
+    final fetchedStudents = await _dbService.getStudentsByClass(classId);
     setState(() {
       students = fetchedStudents;
-      subjects = fetchedSubjects;
+      selectedStudentId = null; // reset sélection étudiant
     });
   }
 
@@ -50,32 +68,51 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
     super.dispose();
   }
 
-  void _submitGrade() {
-    if (_formKey.currentState!.validate() &&
-        selectedStudentId != null &&
-        selectedSubject != null &&
-        selectedSessionType != null) {
-      final grade = Grade(
-        id: const Uuid().v4(),
-        studentId: selectedStudentId!,
-        subjectId: selectedSubject!.id,
-        sessionId: 'session_1',
-        sessionType: selectedSessionType!,
-        value: double.parse(_gradeController.text),
-        teacherId: 'teacher_1',
-        dateRecorded: DateTime.now(),
-        isFinal: true,
-        comment: null,
-        academicYearId: '2024-2025',
-      );
+  /// Soumission du formulaire d’ajout de note
+  void _submitGrade() async {
+    if (!_formKey.currentState!.validate() ||
+        selectedClassId == null ||
+        selectedStudentId == null ||
+        selectedSubject == null ||
+        selectedSessionType == null) {
+      return;
+    }
 
-      _dbService.addGrade(grade).then((_) {
+    setState(() => _isSubmitting = true);
+
+    final grade = Grade(
+      id: const Uuid().v4(),
+      studentId: selectedStudentId!,
+      subjectId: selectedSubject!.id,
+      sessionId: 'session_1', // TODO: gérer dynamiquement ?
+      sessionType: selectedSessionType!,
+      value: double.parse(_gradeController.text),
+      teacherId: 'teacher_1', // TODO: récupérer id enseignant connecté
+      dateRecorded: DateTime.now(),
+      isFinal: true,
+      comment: null,
+      academicYearId: '2024-2025', // TODO: rendre dynamique
+    );
+
+    try {
+      await _dbService.addGrade(grade);
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Note ajoutée avec succès')),
         );
         widget.onGradeSubmitted();
         Navigator.of(context).pop();
-      });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de l\'ajout de la note : $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 
@@ -123,6 +160,28 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
+                // Sélection de la classe
+                DropdownButtonFormField<String>(
+                  decoration: _inputDecoration('Classe'),
+                  value: selectedClassId,
+                  items: classes.map((classId) {
+                    return DropdownMenuItem(
+                      value: classId,
+                      child: Text(classId), // Adapter selon ClassModel si besoin
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => selectedClassId = value);
+                      _fetchStudentsForClass(value);
+                    }
+                  },
+                  validator: (value) => value == null ? 'Sélectionnez une classe' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // Étudiants filtrés par classe
                 DropdownButtonFormField<String>(
                   decoration: _inputDecoration('Étudiant'),
                   value: selectedStudentId,
@@ -134,6 +193,8 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   validator: (value) => value == null ? 'Sélectionnez un étudiant' : null,
                 ),
                 const SizedBox(height: 16),
+
+                // Matière
                 DropdownButtonFormField<Subject>(
                   decoration: _inputDecoration('Matière'),
                   value: selectedSubject,
@@ -145,6 +206,8 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   validator: (value) => value == null ? 'Sélectionnez une matière' : null,
                 ),
                 const SizedBox(height: 16),
+
+                // Session
                 DropdownButtonFormField<ExamSessionType>(
                   decoration: _inputDecoration('Type de session'),
                   value: selectedSessionType,
@@ -158,6 +221,8 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   validator: (value) => value == null ? 'Sélectionnez un type de session' : null,
                 ),
                 const SizedBox(height: 16),
+
+                // Note
                 TextFormField(
                   controller: _gradeController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -174,10 +239,12 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   },
                 ),
                 const SizedBox(height: 24),
+
+                // Bouton de validation désactivé pendant la soumission
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _submitGrade,
+                    onPressed: _isSubmitting ? null : _submitGrade,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -185,7 +252,16 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text('Valider', style: TextStyle(fontSize: 16)),
+                    child: _isSubmitting
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text('Valider', style: TextStyle(fontSize: 16)),
                   ),
                 )
               ],

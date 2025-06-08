@@ -1,3 +1,5 @@
+import '../models/class.dart';
+import 'class_service.dart';
 import 'session_service.dart';
 import 'subject_service.dart';
 import 'grade_service.dart';
@@ -13,6 +15,7 @@ class DatabaseService {
   final SubjectService _subjectService = SubjectService();
   final GradeService _gradeService = GradeService();
   final UserService _userService = UserService();
+  final ClassService _classService = ClassService();
 
   /// Récupérer la liste des sessions académiques
   Stream<List<AcademicSession>> getSessions() => _sessionService.getSessions();
@@ -45,8 +48,18 @@ class DatabaseService {
     return _userService.getStudents();
   }
 
+  /// Récupérer la liste des étudiants filtrée par classe (nouvelle méthode)
+  Future<List<UserModel>> getStudentsByClass(String classId) async {
+    return await _userService.fetchStudentsByClass(classId);
+  }
+
   /// Récupérer un utilisateur par son ID
   Future<UserModel?> getUserById(String userId) {
     return _userService.getUserById(userId);
+  }
+
+  /// Récupérer la liste des classes
+  Future<List<ClasseModel>> getClasses() async {
+    return await _classService.fetchAllClasses();
   }
 }
