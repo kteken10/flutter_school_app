@@ -4,7 +4,8 @@ class Subject {
   final String code;
   final String department;
   final int credit;
-  final String? teacherId;
+  final List<String> teacherIds; // Modifié: Plusieurs enseignants possibles
+  final List<String> classIds; // Nouveau: Classes concernées
 
   Subject({
     required this.id,
@@ -12,7 +13,8 @@ class Subject {
     required this.code,
     required this.department,
     required this.credit,
-    this.teacherId,
+    this.teacherIds = const [],
+    this.classIds = const [],
   });
 
   factory Subject.fromMap(Map<String, dynamic> map) {
@@ -22,7 +24,8 @@ class Subject {
       code: map['code'],
       department: map['department'],
       credit: map['credit'],
-      teacherId: map['teacherId'],
+      teacherIds: List<String>.from(map['teacherIds'] ?? []),
+      classIds: List<String>.from(map['classIds'] ?? []),
     );
   }
 
@@ -33,17 +36,15 @@ class Subject {
       'code': code,
       'department': department,
       'credit': credit,
-      'teacherId': teacherId,
+      'teacherIds': teacherIds,
+      'classIds': classIds,
     };
   }
 
-  // Ajoute ceci pour corriger le bug DropdownButtonFormField
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Subject &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
+      other is Subject && runtimeType == other.runtimeType && id == other.id;
 
   @override
   int get hashCode => id.hashCode;

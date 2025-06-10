@@ -8,6 +8,7 @@ import '../../ui/student_card.dart';
 import '../../ui/search_zone.dart';
 import '../../ui/year_drop.dart';
 import '../../ui/tab_filter.dart';
+import '../../ui/class_filter.dart'; // Nouvel import
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
@@ -22,6 +23,7 @@ class _NoteScreenState extends State<NoteScreen> {
   final ValueNotifier<int> selectedTab = ValueNotifier<int>(0);
   final int totalStudentImages = 3;
   String? selectedYear;
+  String? selectedClass;
 
   final List<UserModel> _students = [
     UserModel(
@@ -30,6 +32,7 @@ class _NoteScreenState extends State<NoteScreen> {
       lastName: 'Ngoua',
       email: 'alice@example.com',
       role: UserRole.student,
+      className: 'L1',
       createdAt: DateTime(2023, 9, 1),
     ),
     UserModel(
@@ -38,6 +41,7 @@ class _NoteScreenState extends State<NoteScreen> {
       lastName: 'Yaoundé',
       email: 'brice@example.com',
       role: UserRole.student,
+      className: 'L2',
       createdAt: DateTime(2023, 9, 1),
     ),
     UserModel(
@@ -46,6 +50,25 @@ class _NoteScreenState extends State<NoteScreen> {
       lastName: 'Bafoussam',
       email: 'chantal@example.com',
       role: UserRole.student,
+      className: 'L3',
+      createdAt: DateTime(2023, 9, 1),
+    ),
+    UserModel(
+      id: 's4',
+      firstName: 'David',
+      lastName: 'Douala',
+      email: 'david@example.com',
+      role: UserRole.student,
+      className: 'M1',
+      createdAt: DateTime(2023, 9, 1),
+    ),
+    UserModel(
+      id: 's5',
+      firstName: 'Eva',
+      lastName: 'Garoua',
+      email: 'eva@example.com',
+      role: UserRole.student,
+      className: 'M2',
       createdAt: DateTime(2023, 9, 1),
     ),
   ];
@@ -54,19 +77,27 @@ class _NoteScreenState extends State<NoteScreen> {
     's1': ['Mathématiques', 'Info', 'Hacking'],
     's2': ['BD', 'ML'],
     's3': ['Linux', 'Reseaux'],
+    's4': ['IA', 'Big Data'],
+    's5': ['Cloud Computing', 'DevOps'],
   };
-
 
   final Map<String, List<double>> _gradesByStudent = {
     's1': [12.0, 14.5, 17.0],
     's2': [8.0, 10.0],
     's3': [15.0, 13.5],
+    's4': [16.0, 14.0],
+    's5': [18.0, 19.5],
   };
 
   @override
   void initState() {
     super.initState();
     selectedYear = availableYears.first;
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    setState(() {});
   }
 
   double _calculateAverage(String studentId) {
@@ -90,8 +121,35 @@ class _NoteScreenState extends State<NoteScreen> {
     );
   }
 
+  List<UserModel> _filterStudents(String searchText) {
+    List<UserModel> filtered = _students;
+    
+    if (selectedClass != null) {
+      filtered = filtered.where((student) => student.className == selectedClass).toList();
+    }
+    
+    if (searchText.isNotEmpty) {
+      filtered = filtered.where((student) {
+        final fullName = student.fullName.toLowerCase();
+        final searchLower = searchText.toLowerCase();
+        return fullName.contains(searchLower) ||
+            student.firstName.toLowerCase().contains(searchLower) ||
+            student.lastName.toLowerCase().contains(searchLower);
+      }).toList();
+    }
+    
+    return filtered;
+  }
+
+  void _onClassSelected(String? className) {
+    setState(() {
+      selectedClass = className;
+    });
+  }
+
   @override
   void dispose() {
+    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     selectedTab.dispose();
     super.dispose();
@@ -99,11 +157,8 @@ class _NoteScreenState extends State<NoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredStudents = _searchController.text.isEmpty
-        ? _students
-        : _students
-            .where((s) => s.fullName.toLowerCase().contains(_searchController.text.toLowerCase()))
-            .toList();
+    final filteredStudents = _filterStudents(_searchController.text);
+    final classes = ['L1', 'L2', 'L3', 'M1', 'M2'];
 
     return Scaffold(
       body: Column(
@@ -131,13 +186,13 @@ class _NoteScreenState extends State<NoteScreen> {
                 children: [
                   const TeacherCardDeco(imagePath: 'assets/teacher_picture.jpg'),
                   TeacherCard(
-                    name: 'Emirate Caib',
+                    name: 'Aziz Deboule',
                     email: 'emirate@example.com',
                     profileImageUrl: '',
                     subjectCount: 3,
                     classCount: 5,
-                    subjects: ['Mathématiques', 'Physique', 'SVT'],
-                    classes: ['6e A', '5e B', '4e C', '3e D', 'Terminale S'],
+                    subjects: ['Linux', 'Big Data', 'Machine Learning'],
+                    classes: classes,
                     onAddPressed: _onAddNote,
                   ),
                   Padding(
@@ -146,61 +201,96 @@ class _NoteScreenState extends State<NoteScreen> {
                       controller: _searchController,
                       hintText: "Rechercher un étudiant...",
                       showSearchIcon: true,
+                      onChanged: (value) => setState(() {}), 
                     ),
                   ),
                   const SizedBox(height: 10),
                   AcademicTabFilter(
                     tabs: ['Sessions', 'Classes', 'Matières'],
-                    onTabSelected: (index) => selectedTab.value = index,
+                    onTabSelected: (index) {
+                      selectedTab.value = index;
+                      if (index == 1) {
+                        selectedClass = null;
+                      }
+                    },
                   ),
                   ValueListenableBuilder<int>(
                     valueListenable: selectedTab,
                     builder: (context, index, _) {
+                      if (index == 1) {
+                        return ClassFilter(
+                          classes: classes,
+                          selectedClass: selectedClass,
+                          onClassSelected: _onClassSelected,
+                        );
+                      }
+                      
                       return Padding(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                         child: Row(
                           children: [
                             Text(
-                              index == 0
-                                  ? "Mes étudiants"
-                                  : index == 1
-                                      ? "Par classe"
-                                      : "Par matière",
+                              index == 0 ? "Mes étudiants" : "Par matière",
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.primary,
                               ),
                             ),
+                            if (filteredStudents.isEmpty && _searchController.text.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Text(
+                                  "Aucun résultat pour '${_searchController.text}'",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       );
                     },
                   ),
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: filteredStudents.length,
-                    itemBuilder: (context, index) {
-                      final student = filteredStudents[index];
-                      final subjects = _subjectsByStudent[student.id] ?? [];
-                      final grades = _gradesByStudent[student.id] ?? [];
-                      final progress = _calculateAverage(student.id);
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        child: StudentCard(
-                          studentName: student.fullName,
-                          studentPhotoUrl: '',
-                          studentPhotoAsset: _getStudentImageAsset(index),
-                          subjectNames: subjects,
-                          subjectGrades: grades,
-                          progress: progress,
-                          onProfileTap: () {},
+                  if (filteredStudents.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        selectedClass != null
+                            ? "Aucun étudiant dans la classe $selectedClass"
+                            : "Aucun étudiant ne correspond à votre recherche",
+                        style: TextStyle(
+                          color: AppColors.textSecondary.withOpacity(0.7),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: filteredStudents.length,
+                      itemBuilder: (context, index) {
+                        final student = filteredStudents[index];
+                        final subjects = _subjectsByStudent[student.id] ?? [];
+                        final grades = _gradesByStudent[student.id] ?? [];
+                        final progress = _calculateAverage(student.id);
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          child: StudentCard(
+                            studentName: student.fullName,
+                            studentClass: student.className ?? 'N/A',
+                            studentPhotoUrl: '',
+                            studentPhotoAsset: _getStudentImageAsset(index),
+                            subjectNames: subjects,
+                            subjectGrades: grades,
+                            progress: progress,
+                            onProfileTap: () {},
+                          ),
+                        );
+                      },
+                    ),
                   const SizedBox(height: 12),
                 ],
               ),

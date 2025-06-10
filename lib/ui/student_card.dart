@@ -3,6 +3,7 @@ import '../constants/colors.dart';
 
 class StudentCard extends StatelessWidget {
   final String studentName;
+  final String studentClass; // Nouveau champ pour la classe
   final String? studentPhotoUrl;
   final String? studentPhotoAsset;
   final List<String> subjectNames;
@@ -13,6 +14,7 @@ class StudentCard extends StatelessWidget {
   const StudentCard({
     super.key,
     required this.studentName,
+    required this.studentClass, // Ajout du paramètre obligatoire
     this.studentPhotoUrl,
     this.studentPhotoAsset,
     required this.subjectNames,
@@ -31,10 +33,27 @@ class StudentCard extends StatelessWidget {
     }
   }
 
+  Color getClassColor(String className) {
+    switch (className) {
+      case 'L1':
+        return AppColors.primary;
+      case 'L2':
+        return Colors.blue;
+      case 'L3':
+        return Colors.purple;
+      case 'M1':
+        return Colors.teal;
+      case 'M2':
+        return Colors.orange;
+      default:
+        return AppColors.textSecondary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white,  // <-- ici on définit la couleur de fond blanche
+      color: Colors.white,
       elevation: 0.5,
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: InkWell(
@@ -43,24 +62,68 @@ class StudentCard extends StatelessWidget {
           padding: const EdgeInsets.all(12.0),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundImage: studentPhotoUrl != null && studentPhotoUrl!.isNotEmpty
-                    ? NetworkImage(studentPhotoUrl!)
-                    : AssetImage(studentPhotoAsset ?? 'assets/student_1.png') as ImageProvider,
+              // Photo de profil avec badge de classe
+              Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundImage: studentPhotoUrl != null && studentPhotoUrl!.isNotEmpty
+                        ? NetworkImage(studentPhotoUrl!)
+                        : AssetImage(studentPhotoAsset ?? 'assets/student_1.png') as ImageProvider,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: getClassColor(studentClass),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      studentClass,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      studentName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            studentName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        // Note moyenne si disponible
+                        if (subjectGrades != null && subjectGrades!.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: getProgressColor(progress).withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${(progress * 20).toStringAsFixed(1)}/20',
+                              style: TextStyle(
+                                color: getProgressColor(progress),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 6),
                     SizedBox(

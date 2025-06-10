@@ -21,6 +21,7 @@ class GradeEntryScreen extends StatefulWidget {
 class _GradeEntryScreenState extends State<GradeEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _gradeController = TextEditingController();
+  final _commentController = TextEditingController();
   final NotificationService _notificationService = NotificationService();
 
   String? selectedStudentId;
@@ -28,78 +29,79 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
   String? selectedSessionId;
   String? selectedAcademicYearId;
   ExamSessionType? selectedSessionType;
+  GradeStatus selectedStatus = GradeStatus.published;
 
   final DatabaseService _dbService = DatabaseService();
 
   @override
   void dispose() {
     _gradeController.dispose();
+    _commentController.dispose();
     super.dispose();
   }
 
-void _submitGrade() async {
-  if (_formKey.currentState!.validate() &&
-      selectedStudentId != null &&
-      selectedSubject != null &&
-      selectedSessionId != null &&
-      selectedAcademicYearId != null &&
-      selectedSessionType != null) {
-    
-    // Récupère l'utilisateur actuel
-    final authService = Provider.of<AuthService>(context, listen: false);
-    final currentUser = await authService.getCurrentUserModel();
+  void _submitGrade() async {
+    if (_formKey.currentState!.validate() &&
+        selectedStudentId != null &&
+        selectedSubject != null &&
+        selectedSessionId != null &&
+        selectedAcademicYearId != null &&
+        selectedSessionType != null) {
+      
+      final authService = Provider.of<AuthService>(context, listen: false);
+      final currentUser = await authService.getCurrentUserModel();
 
-    if (currentUser == null || currentUser.id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur: Utilisateur non connecté')),
-      );
-      return;
-    }
+      if (currentUser == null || currentUser.id == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur: Utilisateur non connecté')),
+        );
+        return;
+      }
 
-    final grade = Grade(
-      id: const Uuid().v4(),
-      studentId: selectedStudentId!,
-      subjectId: selectedSubject!.id,
-      sessionId: selectedSessionId!,
-      sessionType: selectedSessionType!,
-      value: double.parse(_gradeController.text),
-      teacherId: currentUser.id!, // Utilisation de l'ID réel
-      dateRecorded: DateTime.now(),
-      isFinal: true,
-      comment: null,
-     
-    );
-
-    _dbService.addGrade(grade).then((_) async {
-      // Crée et envoie une notification
-      final notification = NotificationModel(
+      final grade = Grade(
         id: const Uuid().v4(),
-        title: 'Nouvelle note enregistrée',
-        description: 'Vous avez obtenu la note de ${_gradeController.text} en ${selectedSubject!.name}.',
-        createdAt: DateTime.now(),
-        type: NotificationType.info,
-        recipientId: selectedStudentId!,
-        recipientRole: UserRole.student,
-        senderId: currentUser.id!, // ID réel de l'enseignant
+        studentId: selectedStudentId!,
+        subjectId: selectedSubject!.id,
+        sessionId: selectedSessionId!,
+        sessionType: selectedSessionType!,
+        value: double.parse(_gradeController.text),
+        teacherId: currentUser.id!,
+        dateRecorded: DateTime.now(),
+        status: selectedStatus,
+        classId: selectedAcademicYearId ?? 'class1', // Utilisation de l'année académique comme classId temporaire
+        comment: _commentController.text.isNotEmpty ? _commentController.text : null,
       );
 
-      await _notificationService.createNotification(notification);
+      _dbService.addGrade(grade).then((_) async {
+        final notification = NotificationModel(
+          id: const Uuid().v4(),
+          title: 'Nouvelle note enregistrée',
+          description: 'Vous avez obtenu la note de ${_gradeController.text} en ${selectedSubject!.name}.',
+          createdAt: DateTime.now(),
+          type: NotificationType.info,
+          recipientId: selectedStudentId!,
+          recipientRole: UserRole.student,
+          senderId: currentUser.id!,
+        );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Note ajoutée et notification envoyée')),
-      );
+        await _notificationService.createNotification(notification);
 
-      _gradeController.clear();
-      setState(() {
-        selectedStudentId = null;
-        selectedSubject = null;
-        selectedSessionId = null;
-        selectedAcademicYearId = null;
-        selectedSessionType = null;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Note ajoutée et notification envoyée')),
+        );
+
+        _gradeController.clear();
+        _commentController.clear();
+        setState(() {
+          selectedStudentId = null;
+          selectedSubject = null;
+          selectedSessionId = null;
+          selectedAcademicYearId = null;
+          selectedSessionType = null;
+        });
       });
-    });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +191,7 @@ void _submitGrade() async {
               ),
               const SizedBox(height: 16),
 
-              // Année académique (temporaire, à remplacer si base de données disponible)
+              // Année académique
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Année académique',
@@ -216,12 +218,29 @@ void _submitGrade() async {
                 items: ExamSessionType.values.map((type) {
                   return DropdownMenuItem(
                     value: type,
-                    child: Text(type.name), // Ou customiser l'affichage
+                    child: Text(type.toString().split('.').last),
                   );
                 }).toList(),
                 onChanged: (value) => setState(() => selectedSessionType = value),
                 validator: (value) =>
                     value == null ? 'Sélectionnez un type de session' : null,
+              ),
+              const SizedBox(height: 16),
+
+              // Statut de la note
+              DropdownButtonFormField<GradeStatus>(
+                decoration: const InputDecoration(
+                  labelText: 'Statut',
+                  border: OutlineInputBorder(),
+                ),
+                value: selectedStatus,
+                items: GradeStatus.values.map((status) {
+                  return DropdownMenuItem(
+                    value: status,
+                    child: Text(status.toString().split('.').last),
+                  );
+                }).toList(),
+                onChanged: (value) => setState(() => selectedStatus = value!),
               ),
               const SizedBox(height: 16),
 
@@ -232,8 +251,7 @@ void _submitGrade() async {
                   labelText: 'Note',
                   border: OutlineInputBorder(),
                 ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Entrez une note';
@@ -245,11 +263,25 @@ void _submitGrade() async {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
+
+              // Commentaire
+              TextFormField(
+                controller: _commentController,
+                decoration: const InputDecoration(
+                  labelText: 'Commentaire (optionnel)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
+              ),
               const SizedBox(height: 24),
 
               ElevatedButton(
                 onPressed: _submitGrade,
-                child: const Text('Valider'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('Enregistrer la note'),
               ),
             ],
           ),
