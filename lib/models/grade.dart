@@ -11,7 +11,7 @@ class Grade {
   final String teacherId;
   final DateTime dateRecorded;
   final bool isFinal;
-  final String academicYearId;
+ 
 
   Grade({
     required this.id,
@@ -24,7 +24,7 @@ class Grade {
     required this.teacherId,
     required this.dateRecorded,
     required this.isFinal,
-    required this.academicYearId,
+    
   });
 
   factory Grade.fromMap(Map<String, dynamic> map) {
@@ -39,7 +39,7 @@ class Grade {
       teacherId: map['teacherId'],
       dateRecorded: DateTime.parse(map['dateRecorded']),
       isFinal: map['isFinal'],
-      academicYearId: map['academicYearId'],
+      
     );
   }
 
@@ -55,7 +55,7 @@ class Grade {
       'teacherId': teacherId,
       'dateRecorded': dateRecorded.toIso8601String(),
       'isFinal': isFinal,
-      'academicYearId': academicYearId,
+      
     };
   }
 }

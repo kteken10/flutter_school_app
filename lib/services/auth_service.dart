@@ -10,6 +10,7 @@ class AuthService {
   final EmailService _emailService;
   final String _encryptedAdminPassphrase = "keyce admin";
 
+
   AuthService({required EmailService emailService}) : _emailService = emailService;
 
   // Connexion sécurisée

@@ -1,118 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
+import '../../constants/colors.dart';
 import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import 'grades_view.dart';
-// import 'transcript.dart';
-// import 'notifications.dart';
+import 'student_transcript.dart';
+import 'student_notifications.dart';
+import 'student_profile.dart';
 
-class StudentHomeScreen extends StatelessWidget {
+class StudentHomeScreen extends StatefulWidget {
+  const StudentHomeScreen({super.key});
+
+  @override
+  State<StudentHomeScreen> createState() => _StudentHomeScreenState();
+}
+
+class _StudentHomeScreenState extends State<StudentHomeScreen> {
+  int _currentIndex = 0;
+  late List<Widget> _children;
+
+  @override
+  void initState() {
+    super.initState();
+    _children = [
+      const GradesViewScreen(),
+      const StudentTranscriptScreen(),
+      const StudentNotificationsScreen(),
+      const StudentProfileScreen(),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Tableau de bord étudiant'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () async {
-              await authService.signOut();
-            },
-          ),
-        ],
-      ),
-      body: StreamBuilder<UserModel?>(
-        stream: authService.currentUser,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          
-          final user = snapshot.data;
-          if (user == null) {
-            return Center(child: Text('Utilisateur non connecté'));
-          }
-          
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Text(user.fullName, style: Theme.of(context).textTheme.headlineSmall),
-                        SizedBox(height: 8),
-                        Text('Numéro étudiant: ${user.studentId ?? 'N/A'}'),
-                        Text('Email: ${user.email}'),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  children: [
-                    _buildMenuCard(
-                      context,
-                      icon: Icons.grade,
-                      title: 'Mes notes',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => GradesViewScreen()),
-                      ),
-                    ),
-                    _buildMenuCard(
-                      context,
-                      icon: Icons.list_alt,
-                      title: 'Relevé de notes',
-                      onTap: () => {}
-                      
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => TranscriptScreen()),
-                      // ),
-                    ),
-                    _buildMenuCard(
-                      context,
-                      icon: Icons.notifications,
-                      title: 'Notifications',
-                      onTap: () => {}
-                      
-                      // Navigator.push(
-                      //   contex,
-                      //   MaterialPageRoute(builder: (context) => NotificationsScreen()),
-                      // ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
 
-  Widget _buildMenuCard(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 48),
-              SizedBox(height: 8),
-              Text(title),
+    return StreamBuilder<UserModel?>(
+      stream: authService.currentUser,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const Scaffold(
+            body: Center(child: Text('Utilisateur non connecté')),
+          );
+        }
+
+        final user = snapshot.data!;
+        
+        return Scaffold(
+        
+          body: IndexedStack(
+            index: _currentIndex,
+            children: _children,
+          ),
+          bottomNavigationBar: SalomonBottomBar(
+            currentIndex: _currentIndex,
+            onTap: (index) => setState(() => _currentIndex = index),
+            items: [
+              SalomonBottomBarItem(
+                icon: const Icon(Icons.grade),
+                title: const Text('Mes Notes'),
+                selectedColor: AppColors.secondary,
+                unselectedColor: Colors.grey,
+              ),
+              SalomonBottomBarItem(
+                icon: const Icon(Icons.list_alt),
+                title: const Text('Relevé'),
+                selectedColor: AppColors.secondary,
+                unselectedColor: Colors.grey,
+              ),
+              SalomonBottomBarItem(
+                icon: const Icon(Icons.notifications),
+                title: const Text('Alertes'),
+                selectedColor: AppColors.secondary,
+                unselectedColor: Colors.grey,
+              ),
+              SalomonBottomBarItem(
+                icon: const Icon(Icons.person),
+                title: const Text('Profil'),
+                selectedColor: AppColors.secondary,
+                unselectedColor: Colors.grey,
+              ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

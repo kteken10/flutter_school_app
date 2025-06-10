@@ -14,7 +14,7 @@ class EmailService {
     required String smtpUsername,
     required String smtpPassword,
     int smtpPort = 587,
-    String senderEmail = 'dissangfrancis@yahoo.com',
+    String senderEmail = 'patientdjappa@gmail.com',
     String senderName = 'Système de Gestion Scolaire KEYCE',
   })  : _smtpServer = smtpServer,
         _smtpUsername = smtpUsername,
@@ -62,38 +62,78 @@ class EmailService {
     }
   }
 
-  String _buildAccountCreationEmailHtml({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String userId,
-    required String password,
-    required String roleName,
-  }) {
-    return """
-    <html>
-      <body>
+String _buildAccountCreationEmailHtml({
+  required String firstName,
+  required String lastName,
+  required String email,
+  required String userId,
+  required String password,
+  required String roleName,
+}) {
+  return """
+  <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          color: #333;
+          padding: 20px;
+        }
+        .container {
+          background-color: #ffffff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          max-width: 600px;
+          margin: auto;
+        }
+        h2 {
+          color: #2c3e50;
+        }
+        ul {
+          list-style: none;
+          padding: 0;
+        }
+        ul li {
+          padding: 8px 0;
+        }
+        strong {
+          color: #2980b9;
+        }
+        .footer {
+          margin-top: 20px;
+          font-size: 14px;
+          color: #777;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
         <h2>Bonjour $firstName $lastName,</h2>
-        <p>Votre compte a été créé avec succès dans le système de gestion scolaire.</p>
-        
-        <h3>Vos informations de connexion :</h3>
+        <p>Votre compte a été <strong>créé avec succès</strong> dans le système de gestion scolaire.</p>
+
+        <h3>🎓 Vos informations de connexion :</h3>
         <ul>
           <li><strong>Email :</strong> $email</li>
           <li><strong>Identifiant unique :</strong> $userId</li>
           <li><strong>Mot de passe temporaire :</strong> $password</li>
           <li><strong>Rôle :</strong> $roleName</li>
         </ul>
-        
-        <p>Pour des raisons de sécurité, nous vous recommandons de changer votre mot de passe après votre première connexion.</p>
-        
-        <p>Cordialement,<br/>
-        L'équipe de gestion scolaire  (
-DABTOUTA NATHAN
-Djappi jonathan
-Patient Djappa
-</p>
-      </body>
-    </html>
-    """;
-  }
+
+        <p style="margin-top: 20px;">
+          🔐 <em>Pour votre sécurité, veuillez changer votre mot de passe après votre première connexion.</em>
+        </p>
+
+        <div class="footer">
+          Cordialement,<br/>
+          L'équipe de gestion scolaire :<br/>
+          Dabtouta Nathan, Djappi Jonathan, Patient Djappa
+        </div>
+      </div>
+    </body>
+  </html>
+  """;
+}
+
 }

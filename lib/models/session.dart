@@ -7,7 +7,7 @@ class ExamSession {
   final DateTime startDate;
   final DateTime endDate;
   final DateTime registrationDeadline;
-  final String academicYearId; // Référence à l'année académique
+  final String academicYearId;
   final bool resultsPublished;
   final bool isActive;
 
@@ -23,11 +23,10 @@ class ExamSession {
     this.isActive = true,
   });
 
-  // Helper pour afficher le type
   String get typeName {
-    return type == ExamSessionType.controleContinu 
-      ? 'Contrôle Continu' 
-      : 'Session Normale';
+    return type == ExamSessionType.controleContinu
+        ? 'Contrôle Continu'
+        : 'Session Normale';
   }
 
   factory ExamSession.fromMap(Map<String, dynamic> map) {
@@ -61,22 +60,23 @@ class ExamSession {
 
 class AcademicSession {
   final String id;
-  final String name; // Ex: "2023-2024"
+  final String name; // ex: "2023-2024"
   final DateTime startDate;
   final DateTime endDate;
+  final ExamSessionType type; // <-- Ajouté ici
   final bool isCurrent;
-  final List<String> examSessionIds; // Références aux sessions
+  final List<String> examSessionIds;
 
   AcademicSession({
     required this.id,
     required this.name,
     required this.startDate,
     required this.endDate,
+    required this.type, // <-- Correction ici
     required this.isCurrent,
     this.examSessionIds = const [],
   });
 
-  // Nom court (ex: "23-24")
   String get shortName {
     final years = name.split('-');
     if (years.length != 2) return name;
@@ -89,6 +89,7 @@ class AcademicSession {
       name: map['name'],
       startDate: DateTime.parse(map['startDate']),
       endDate: DateTime.parse(map['endDate']),
+      type: ExamSessionType.values.byName(map['type']),
       isCurrent: map['isCurrent'] ?? false,
       examSessionIds: List<String>.from(map['examSessionIds'] ?? []),
     );
@@ -100,6 +101,7 @@ class AcademicSession {
       'name': name,
       'startDate': startDate.toIso8601String(),
       'endDate': endDate.toIso8601String(),
+      'type': type.name,
       'isCurrent': isCurrent,
       'examSessionIds': examSessionIds,
     };

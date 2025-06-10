@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/grade.dart';
+import '../../models/notification.dart';
 import '../../models/subject.dart';
 import '../../models/user.dart';
 import '../../models/session.dart';
+import '../../services/auth_service.dart';
 import '../../services/database_service.dart';
+import '../../services/notification_service.dart';
 
 class GradeEntryScreen extends StatefulWidget {
   const GradeEntryScreen({super.key});
@@ -17,6 +21,7 @@ class GradeEntryScreen extends StatefulWidget {
 class _GradeEntryScreenState extends State<GradeEntryScreen> {
   final _formKey = GlobalKey<FormState>();
   final _gradeController = TextEditingController();
+  final NotificationService _notificationService = NotificationService();
 
   String? selectedStudentId;
   Subject? selectedSubject;
@@ -32,42 +37,69 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
     super.dispose();
   }
 
-  void _submitGrade() {
-    if (_formKey.currentState!.validate() &&
-        selectedStudentId != null &&
-        selectedSubject != null &&
-        selectedSessionId != null &&
-        selectedAcademicYearId != null &&
-        selectedSessionType != null) {
-      final grade = Grade(
+void _submitGrade() async {
+  if (_formKey.currentState!.validate() &&
+      selectedStudentId != null &&
+      selectedSubject != null &&
+      selectedSessionId != null &&
+      selectedAcademicYearId != null &&
+      selectedSessionType != null) {
+    
+    // Récupère l'utilisateur actuel
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final currentUser = await authService.getCurrentUserModel();
+
+    if (currentUser == null || currentUser.id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erreur: Utilisateur non connecté')),
+      );
+      return;
+    }
+
+    final grade = Grade(
+      id: const Uuid().v4(),
+      studentId: selectedStudentId!,
+      subjectId: selectedSubject!.id,
+      sessionId: selectedSessionId!,
+      sessionType: selectedSessionType!,
+      value: double.parse(_gradeController.text),
+      teacherId: currentUser.id!, // Utilisation de l'ID réel
+      dateRecorded: DateTime.now(),
+      isFinal: true,
+      comment: null,
+     
+    );
+
+    _dbService.addGrade(grade).then((_) async {
+      // Crée et envoie une notification
+      final notification = NotificationModel(
         id: const Uuid().v4(),
-        studentId: selectedStudentId!,
-        subjectId: selectedSubject!.id,
-        sessionId: selectedSessionId!,
-        sessionType: selectedSessionType!,
-        value: double.parse(_gradeController.text),
-        teacherId: 'teacher_1', // À remplacer par l’ID réel de l’enseignant
-        dateRecorded: DateTime.now(),
-        isFinal: true,
-        comment: null,
-        academicYearId: selectedAcademicYearId!,
+        title: 'Nouvelle note enregistrée',
+        description: 'Vous avez obtenu la note de ${_gradeController.text} en ${selectedSubject!.name}.',
+        createdAt: DateTime.now(),
+        type: NotificationType.info,
+        recipientId: selectedStudentId!,
+        recipientRole: UserRole.student,
+        senderId: currentUser.id!, // ID réel de l'enseignant
       );
 
-      _dbService.addGrade(grade).then((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Note ajoutée avec succès')),
-        );
-        _gradeController.clear();
-        setState(() {
-          selectedStudentId = null;
-          selectedSubject = null;
-          selectedSessionId = null;
-          selectedAcademicYearId = null;
-          selectedSessionType = null;
-        });
+      await _notificationService.createNotification(notification);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Note ajoutée et notification envoyée')),
+      );
+
+      _gradeController.clear();
+      setState(() {
+        selectedStudentId = null;
+        selectedSubject = null;
+        selectedSessionId = null;
+        selectedAcademicYearId = null;
+        selectedSessionType = null;
       });
-    }
+    });
   }
+}
 
   @override
   Widget build(BuildContext context) {

@@ -1,67 +1,54 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/notification.dart';
+
 
 class NotificationService {
-  final FirebaseMessaging _fcm = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> initialize() async {
-    // Configuration des notifications locales
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    
-    final InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-    
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-    // Demande d'autorisation
-    NotificationSettings settings = await _fcm.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-
-    // Écoute des messages en foreground
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      _showNotification(message);
-    });
-
-    // Récupération du token FCM
-    String? token = await _fcm.getToken();
-    print("FCM Token: $token");
+  /// Crée une notification pour un utilisateur spécifique
+  Future<void> createNotification(NotificationModel notification) async {
+    final doc = _firestore.collection('notifications').doc(notification.id);
+    await doc.set(notification.toMap());
   }
 
-  Future<void> _showNotification(RemoteMessage message) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'grades_channel',
-      'Nouvelles notes',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-    
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    
-    await _flutterLocalNotificationsPlugin.show(
-      0,
-      message.notification?.title,
-      message.notification?.body,
-      platformChannelSpecifics,
-    );
+  /// Récupère toutes les notifications pour un utilisateur spécifique
+  Future<List<NotificationModel>> fetchNotificationsForUser(String userId) async {
+    final snapshot = await _firestore
+        .collection('notifications')
+        .where('recipientId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      return NotificationModel.fromMap(doc.data());
+    }).toList();
   }
 
-  Future<void> subscribeToTopic(String topic) async {
-    await _fcm.subscribeToTopic(topic);
+  /// Marque une notification comme lue
+  Future<void> markAsRead(String notificationId) async {
+    await _firestore
+        .collection('notifications')
+        .doc(notificationId)
+        .update({'isRead': true});
   }
 
-  Future<void> unsubscribeFromTopic(String topic) async {
-    await _fcm.unsubscribeFromTopic(topic);
+  /// Supprime une notification
+  Future<void> deleteNotification(String notificationId) async {
+    await _firestore.collection('notifications').doc(notificationId).delete();
+  }
+
+  /// Supprime toutes les notifications d’un utilisateur (optionnel)
+  Future<void> deleteAllNotificationsForUser(String userId) async {
+    final batch = _firestore.batch();
+    final snapshot = await _firestore
+        .collection('notifications')
+        .where('recipientId', isEqualTo: userId)
+        .get();
+
+    for (final doc in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
   }
 }
