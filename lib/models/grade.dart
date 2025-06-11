@@ -1,6 +1,6 @@
 import 'package:schoop_app/models/session.dart';
 
-enum GradeStatus { graded, absent, excused, pending ,published }
+enum GradeStatus { graded, absent, excused, pending, published }
 
 class Grade {
   final String id;
@@ -28,9 +28,9 @@ class Grade {
     required this.dateRecorded,
     required this.classId,
   }) : assert(
-          (status == GradeStatus.graded && value != null) || 
-          (status != GradeStatus.graded && value == null),
-          'Grade must have value when status is graded'
+          ((status == GradeStatus.graded || status == GradeStatus.published) && value != null) ||
+          (!(status == GradeStatus.graded || status == GradeStatus.published) && value == null),
+          'Grade must have value when status is graded or published'
         );
 
   factory Grade.fromMap(Map<String, dynamic> map) {
@@ -65,13 +65,17 @@ class Grade {
     };
   }
 
-  // Helper methods
+  // Méthode améliorée
   String get formattedValue {
-    return status == GradeStatus.graded 
-        ? value!.toStringAsFixed(2)
-        : status == GradeStatus.absent
-          ? 'Absent'
-          : 'Excusé';
+    if ((status == GradeStatus.graded || status == GradeStatus.published) && value != null) {
+      return value!.toStringAsFixed(2);
+    } else if (status == GradeStatus.absent) {
+      return 'Absent';
+    } else if (status == GradeStatus.excused) {
+      return 'Excusé';
+    } else {
+      return '–';
+    }
   }
 
   bool get isValidForTeacher {

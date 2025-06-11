@@ -3,8 +3,7 @@ import '../../models/grade.dart';
 import '../../models/subject.dart';
 import '../../models/user.dart';
 import '../../constants/colors.dart';
-
-import '../models/session.dart'; 
+import '../models/session.dart';
 
 class GradeCard extends StatelessWidget {
   final Grade grade;
@@ -20,120 +19,6 @@ class GradeCard extends StatelessWidget {
     required this.publicationDate,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // En-tête avec la note et le statut
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Affichage de la note ou du statut
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(grade.status),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    grade.formattedValue,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                // Type de session
-                Chip(
-                  label: Text(
-                    grade.sessionType == ExamSessionType.controleContinu
-                        ? 'Contrôle Continu'
-                        : 'Session Normale',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                  backgroundColor: Colors.grey[200],
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // Détails de la matière
-            _buildDetailRow(
-              icon: Icons.book,
-              label: 'Matière',
-              value: subject.name,
-            ),
-
-            // Enseignant
-            _buildDetailRow(
-              icon: Icons.person,
-              label: 'Enseignant',
-              value: teacher.fullName,
-            ),
-
-            // Date d'attribution
-            _buildDetailRow(
-              icon: Icons.calendar_today,
-              label: 'Attribuée le',
-              value: DateFormatter.formatDate(grade.dateRecorded),
-            ),
-
-            // Date de publication
-            _buildDetailRow(
-              icon: Icons.publish,
-              label: 'Publiée le',
-              value: DateFormatter.formatDate(publicationDate),
-            ),
-
-            // Commentaire (si existant)
-            if (grade.comment != null && grade.comment!.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Text(
-                'Commentaire: ${grade.comment}',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailRow({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: AppColors.primary),
-          const SizedBox(width: 8),
-          Text(
-            '$label: ',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(value),
-        ],
-      ),
-    );
-  }
-
   Color _getStatusColor(GradeStatus status) {
     switch (status) {
       case GradeStatus.graded:
@@ -145,15 +30,127 @@ class GradeCard extends StatelessWidget {
       case GradeStatus.pending:
         return Colors.grey;
       case GradeStatus.published:
-       
-        throw UnimplementedError();
+        return Colors.purple;
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0.3,
+      color: Colors.white,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            // Badge Note
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: _getStatusColor(grade.status).withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  grade.formattedValue,
+                  style: TextStyle(
+                    color: _getStatusColor(grade.status),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Informations principales
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    subject.name,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.person, size: 14, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          teacher.fullName,
+                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 14, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        DateFormatter.formatDate(publicationDate),
+                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Tags
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    grade.sessionType == ExamSessionType.controleContinu
+                        ? 'Contrôle'
+                        : 'Session',
+                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(grade.status).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    grade.status.name.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: _getStatusColor(grade.status),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
-// Exemple d'utilitaire de formatage de date (date_formatter.dart)
+// Formatage de date simple
 class DateFormatter {
   static String formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year} à ${date.hour}h${date.minute.toString().padLeft(2, '0')}';
+    return '${date.day}/${date.month}/${date.year}';
   }
 }

@@ -8,7 +8,9 @@ import '../../ui/student_card.dart';
 import '../../ui/search_zone.dart';
 import '../../ui/year_drop.dart';
 import '../../ui/tab_filter.dart';
-import '../../ui/class_filter.dart'; // Nouvel import
+import '../../ui/class_filter.dart';
+import '../../ui/subject_filter.dart';
+import '../../ui/session_filter.dart';
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
@@ -24,6 +26,8 @@ class _NoteScreenState extends State<NoteScreen> {
   final int totalStudentImages = 3;
   String? selectedYear;
   String? selectedClass;
+  String? selectedSubject;
+  String? selectedSession;
 
   final List<UserModel> _students = [
     UserModel(
@@ -73,21 +77,45 @@ class _NoteScreenState extends State<NoteScreen> {
     ),
   ];
 
-  final Map<String, List<String>> _subjectsByStudent = {
-    's1': ['Mathématiques', 'Info', 'Hacking'],
-    's2': ['BD', 'ML'],
-    's3': ['Linux', 'Reseaux'],
-    's4': ['IA', 'Big Data'],
-    's5': ['Cloud Computing', 'DevOps'],
+  // Structure de données plus complète pour gérer les notes par matière et session
+  final Map<String, Map<String, Map<String, double>>> _studentGrades = {
+    's1': {
+      'Mathématiques': {'Session 1': 12.0, 'Session 2': 14.0},
+      'Informatique': {'Session 1': 15.5, 'Session 2': 16.0},
+    },
+    's2': {
+      'Base de données': {'Session 1': 8.0, 'Session 2': 10.5},
+      'Machine Learning': {'Session 1': 14.0},
+    },
+    's3': {
+      'Linux': {'Session 1': 15.0, 'Session 2': 13.5},
+      'Réseaux': {'Session 1': 17.0},
+    },
+    's4': {
+      'IA': {'Session 1': 16.0, 'Session 2': 18.0},
+      'Big Data': {'Session 1': 14.0},
+    },
+    's5': {
+      'Cloud Computing': {'Session 1': 18.0, 'Session 2': 19.5},
+      'DevOps': {'Session 1': 17.5},
+    },
   };
 
-  final Map<String, List<double>> _gradesByStudent = {
-    's1': [12.0, 14.5, 17.0],
-    's2': [8.0, 10.0],
-    's3': [15.0, 13.5],
-    's4': [16.0, 14.0],
-    's5': [18.0, 19.5],
-  };
+  final List<String> _allSubjects = [
+    'Mathématiques',
+    'Informatique',
+    'Base de données',
+    'Machine Learning',
+    'Linux',
+    'Réseaux',
+    'IA',
+    'Big Data',
+    'Cloud Computing',
+    'DevOps'
+  ];
+
+  final List<String> _allSessions = ['Session 1', 'Session 2'];
+  final List<String> _classes = ['L1', 'L2', 'L3', 'M1', 'M2'];
 
   @override
   void initState() {
@@ -101,10 +129,36 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
   double _calculateAverage(String studentId) {
-    final grades = _gradesByStudent[studentId] ?? [];
+    final grades = _getAllGradesForStudent(studentId);
     if (grades.isEmpty) return 0.0;
     final sum = grades.reduce((a, b) => a + b);
     return (sum / grades.length / 20.0).clamp(0.0, 1.0);
+  }
+
+  List<double> _getAllGradesForStudent(String studentId) {
+    final studentData = _studentGrades[studentId];
+    if (studentData == null) return [];
+    
+    return studentData.values
+        .expand((sessionGrades) => sessionGrades.values)
+        .toList();
+  }
+
+  List<String> _getFilteredSubjects(String studentId) {
+    final studentData = _studentGrades[studentId];
+    if (studentData == null) return [];
+    
+    if (selectedSubject != null) {
+      return studentData.containsKey(selectedSubject) 
+          ? [selectedSubject!] 
+          : [];
+    }
+    
+    return studentData.keys.toList();
+  }
+
+  Map<String, double> _getGradesForSubject(String studentId, String subject) {
+    return _studentGrades[studentId]?[subject] ?? {};
   }
 
   String _getStudentImageAsset(int index) {
@@ -124,10 +178,12 @@ class _NoteScreenState extends State<NoteScreen> {
   List<UserModel> _filterStudents(String searchText) {
     List<UserModel> filtered = _students;
     
+    // Filtre par classe
     if (selectedClass != null) {
       filtered = filtered.where((student) => student.className == selectedClass).toList();
     }
     
+    // Filtre par recherche textuelle
     if (searchText.isNotEmpty) {
       filtered = filtered.where((student) {
         final fullName = student.fullName.toLowerCase();
@@ -138,12 +194,51 @@ class _NoteScreenState extends State<NoteScreen> {
       }).toList();
     }
     
+    // Filtre par matière (si activé)
+    if (selectedTab.value == 2 && selectedSubject != null) {
+      filtered = filtered.where((student) {
+        return _studentGrades[student.id]?.containsKey(selectedSubject) ?? false;
+      }).toList();
+    }
+    
+    // Filtre par session (si activé)
+    if (selectedTab.value == 0 && selectedSession != null) {
+      filtered = filtered.where((student) {
+        final studentData = _studentGrades[student.id];
+        if (studentData == null) return false;
+        
+        return studentData.values.any((sessionGrades) => 
+            sessionGrades.containsKey(selectedSession));
+      }).toList();
+    }
+    
     return filtered;
   }
 
   void _onClassSelected(String? className) {
     setState(() {
       selectedClass = className;
+    });
+  }
+
+  void _onSubjectSelected(String? subject) {
+    setState(() {
+      selectedSubject = subject;
+    });
+  }
+
+  void _onSessionSelected(String? session) {
+    setState(() {
+      selectedSession = session;
+    });
+  }
+
+  void _resetFilters() {
+    setState(() {
+      selectedClass = null;
+      selectedSubject = null;
+      selectedSession = null;
+      _searchController.clear();
     });
   }
 
@@ -158,7 +253,6 @@ class _NoteScreenState extends State<NoteScreen> {
   @override
   Widget build(BuildContext context) {
     final filteredStudents = _filterStudents(_searchController.text);
-    final classes = ['L1', 'L2', 'L3', 'M1', 'M2'];
 
     return Scaffold(
       body: Column(
@@ -189,10 +283,10 @@ class _NoteScreenState extends State<NoteScreen> {
                     name: 'Aziz Deboule',
                     email: 'emirate@example.com',
                     profileImageUrl: '',
-                    subjectCount: 3,
-                    classCount: 5,
-                    subjects: ['Linux', 'Big Data', 'Machine Learning'],
-                    classes: classes,
+                    subjectCount: _allSubjects.length,
+                    classCount: _classes.length,
+                    subjects: _allSubjects,
+                    classes: _classes,
                     onAddPressed: _onAddNote,
                   ),
                   Padding(
@@ -209,47 +303,54 @@ class _NoteScreenState extends State<NoteScreen> {
                     tabs: ['Sessions', 'Classes', 'Matières'],
                     onTabSelected: (index) {
                       selectedTab.value = index;
-                      if (index == 1) {
-                        selectedClass = null;
-                      }
+                      // Réinitialiser les filtres spécifiques quand on change d'onglet
+                      if (index != 1) selectedClass = null;
+                      if (index != 2) selectedSubject = null;
+                      if (index != 0) selectedSession = null;
                     },
                   ),
                   ValueListenableBuilder<int>(
                     valueListenable: selectedTab,
                     builder: (context, index, _) {
-                      if (index == 1) {
-                        return ClassFilter(
-                          classes: classes,
-                          selectedClass: selectedClass,
-                          onClassSelected: _onClassSelected,
-                        );
-                      }
-                      
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                        child: Row(
-                          children: [
-                            Text(
-                              index == 0 ? "Mes étudiants" : "Par matière",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
-                              ),
+                      return Column(
+                        children: [
+                          if (index == 0) 
+                            SessionFilter(
+                              sessions: _allSessions,
+                              selectedSession: selectedSession,
+                              onSessionSelected: _onSessionSelected,
                             ),
-                            if (filteredStudents.isEmpty && _searchController.text.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Text(
-                                  "Aucun résultat pour '${_searchController.text}'",
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AppColors.textSecondary,
+                          if (index == 1)
+                            ClassFilter(
+                              classes: _classes,
+                              selectedClass: selectedClass,
+                              onClassSelected: _onClassSelected,
+                            ),
+                          if (index == 2)
+                            SubjectFilter(
+                              subjects: _allSubjects,
+                              selectedSubject: selectedSubject,
+                              onSubjectSelected: _onSubjectSelected,
+                            ),
+                          // Bouton de réinitialisation
+                          if (selectedClass != null || 
+                              selectedSubject != null || 
+                              selectedSession != null ||
+                              _searchController.text.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: _resetFilters,
+                                  child: const Text(
+                                    'Réinitialiser les filtres',
+                                    style: TextStyle(color: AppColors.primary),
                                   ),
                                 ),
                               ),
-                          ],
-                        ),
+                            ),
+                        ],
                       );
                     },
                   ),
@@ -257,9 +358,7 @@ class _NoteScreenState extends State<NoteScreen> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        selectedClass != null
-                            ? "Aucun étudiant dans la classe $selectedClass"
-                            : "Aucun étudiant ne correspond à votre recherche",
+                        _getNoResultsMessage(),
                         style: TextStyle(
                           color: AppColors.textSecondary.withOpacity(0.7),
                         ),
@@ -267,30 +366,42 @@ class _NoteScreenState extends State<NoteScreen> {
                     )
                   else
                     ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: filteredStudents.length,
-                      itemBuilder: (context, index) {
-                        final student = filteredStudents[index];
-                        final subjects = _subjectsByStudent[student.id] ?? [];
-                        final grades = _gradesByStudent[student.id] ?? [];
-                        final progress = _calculateAverage(student.id);
+  physics: const NeverScrollableScrollPhysics(),
+  shrinkWrap: true,
+  itemCount: filteredStudents.length,
+  itemBuilder: (context, index) {
+    final student = filteredStudents[index];
+    final subjects = _getFilteredSubjects(student.id);
+    final progress = _calculateAverage(student.id);
 
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                          child: StudentCard(
-                            studentName: student.fullName,
-                            studentClass: student.className ?? 'N/A',
-                            studentPhotoUrl: '',
-                            studentPhotoAsset: _getStudentImageAsset(index),
-                            subjectNames: subjects,
-                            subjectGrades: grades,
-                            progress: progress,
-                            onProfileTap: () {},
-                          ),
-                        );
-                      },
-                    ),
+    // Convertir les notes en List<double>
+    final grades = subjects.expand((subject) {
+      final subjectGrades = _getGradesForSubject(student.id, subject);
+      if (selectedSession != null) {
+        return subjectGrades.containsKey(selectedSession) 
+            ? [subjectGrades[selectedSession]!] 
+            : [];
+      }
+      return subjectGrades.values;
+    }).toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: StudentCard(
+        studentName: student.fullName,
+        studentClass: student.className ?? 'N/A',
+        studentPhotoUrl: '',
+        studentPhotoAsset: _getStudentImageAsset(index),
+        subjectNames: subjects,
+        subjectGrades: grades.cast<double>(), // Conversion explicite en List<double>
+        progress: progress,
+        onProfileTap: () {},
+        // showSession: selectedTab.value == 0,
+        // sessionName: selectedSession,
+      ),
+    );
+  },
+),
                   const SizedBox(height: 12),
                 ],
               ),
@@ -299,5 +410,21 @@ class _NoteScreenState extends State<NoteScreen> {
         ],
       ),
     );
+  }
+
+  String _getNoResultsMessage() {
+    if (selectedClass != null) {
+      return "Aucun étudiant dans la classe $selectedClass";
+    }
+    if (selectedSubject != null) {
+      return "Aucun étudiant n'a de notes en $selectedSubject";
+    }
+    if (selectedSession != null) {
+      return "Aucun étudiant n'a de notes pour la $selectedSession";
+    }
+    if (_searchController.text.isNotEmpty) {
+      return "Aucun étudiant ne correspond à '${_searchController.text}'";
+    }
+    return "Aucun étudiant trouvé";
   }
 }

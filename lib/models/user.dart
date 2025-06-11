@@ -10,8 +10,8 @@ class UserModel {
   final String? teacherId;
   final String? department;
   final String? className;
-  final List<String> taughtSubjectIds; // Nouveau: Liste des IDs des matières enseignées
-  final List<String> assignedClassIds; // Nouveau: Liste des IDs des classes assignées
+  final List<String> taughtSubjectIds;
+  final List<String> assignedClassIds;
   final String? photoUrl;
   final DateTime createdAt;
   final bool isSuperAdmin;
@@ -47,7 +47,10 @@ class UserModel {
       firstName: map['firstName'],
       lastName: map['lastName'],
       email: map['email'],
-      role: UserRole.values.firstWhere((e) => e.toString() == 'UserRole.${map['role']}'),
+      role: UserRole.values.firstWhere(
+        (e) => e.toString() == 'UserRole.${map['role']}',
+        orElse: () => UserRole.student,
+      ),
       studentId: map['studentId'],
       teacherId: map['teacherId'],
       department: map['department'],
@@ -58,8 +61,8 @@ class UserModel {
       createdAt: DateTime.parse(map['createdAt']),
       isSuperAdmin: map['isSuperAdmin'] ?? false,
       adminPermissions: List<String>.from(map['adminPermissions'] ?? []),
-      lastAdminAction: map['lastAdminAction'] != null 
-          ? DateTime.parse(map['lastAdminAction']) 
+      lastAdminAction: map['lastAdminAction'] != null
+          ? DateTime.parse(map['lastAdminAction'])
           : null,
       isActive: map['isActive'] ?? true,
       createdBy: map['createdBy'],
@@ -89,43 +92,65 @@ class UserModel {
     };
   }
 
+  // ============ PROPRIETES CALCULEES ============
   String get fullName => '$firstName $lastName';
 
-  // ============ NOUVELLES METHODES ============
-
-  /// Vérifie si l'utilisateur est un enseignant
   bool get isTeacher => role == UserRole.teacher;
-
-  /// Vérifie si l'utilisateur est un étudiant
   bool get isStudent => role == UserRole.student;
+  bool get isAdmin => role == UserRole.admin;
 
-  /// Vérifie si l'enseignant dispense une matière spécifique
-  bool teachesSubject(String subjectId) {
-    return isTeacher && taughtSubjectIds.contains(subjectId);
+  // Formatage pour l'affichage
+  String get roleDisplay {
+    switch (role) {
+      case UserRole.admin:
+        return 'Administrateur';
+      case UserRole.teacher:
+        return 'Enseignant';
+      case UserRole.student:
+        return 'Étudiant';
+    }
   }
 
-  /// Vérifie si l'enseignant est assigné à une classe spécifique
-  bool isAssignedToClass(String classId) {
-    return isTeacher && assignedClassIds.contains(classId);
+  String get departmentDisplay => department ?? 'Non spécifié';
+  String get statusDisplay => isActive ? 'Actif' : 'Inactif';
+
+  // ============ METHODES D'AFFICHAGE ============
+  List<String> get subjectsDisplay => taughtSubjectIds.map((id) => 'Matière $id').toList();
+  List<String> get classesDisplay => assignedClassIds.map((id) => 'Classe $id').toList();
+
+  int get yearsOfExperience {
+    final now = DateTime.now();
+    return now.difference(createdAt).inDays ~/ 365;
   }
 
-  /// Vérifie si l'enseignant peut noter un étudiant dans une matière
+  // ============ METHODES METIERS ============
+  bool teachesSubject(String subjectId) => isTeacher && taughtSubjectIds.contains(subjectId);
+  bool isAssignedToClass(String classId) => isTeacher && assignedClassIds.contains(classId);
+
   bool canGradeStudentForSubject(String subjectId, String classId) {
-    return isTeacher && 
-           teachesSubject(subjectId) && 
-           isAssignedToClass(classId);
+    return isTeacher && teachesSubject(subjectId) && isAssignedToClass(classId);
   }
-
-  // ============ METHODES ADMIN ============
 
   bool canCreateUsers() {
-    return role == UserRole.admin && 
-           (isSuperAdmin || adminPermissions.contains('create_users'));
+    return isAdmin && (isSuperAdmin || adminPermissions.contains('create_users'));
   }
 
   bool canVerifyAdminActions() {
-    return role == UserRole.admin && 
-           (isSuperAdmin || adminPermissions.contains('verify_actions'));
+    return isAdmin && (isSuperAdmin || adminPermissions.contains('verify_actions'));
+  }
+
+  // ============ METHODES UTILITAIRES ============
+  Map<String, dynamic> toCompactMap() {
+    return {
+      'id': id,
+      'fullName': fullName,
+      'email': email,
+      'role': role.toString().split('.').last,
+      'className': className,
+      'photoUrl': photoUrl,
+      if (isTeacher) 'taughtSubjects': taughtSubjectIds,
+      if (isTeacher) 'assignedClasses': assignedClassIds,
+    };
   }
 
   Map<String, dynamic> toAdminLog() {
@@ -138,19 +163,19 @@ class UserModel {
     };
   }
 
-  // ============ METHODES UTILITAIRES ============
+  // ============ METHODES DE COMPARAISON ============
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserModel &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
 
-  /// Retourne les informations essentielles pour le frontend
-  Map<String, dynamic> toCompactMap() {
-    return {
-      'id': id,
-      'fullName': fullName,
-      'email': email,
-      'role': role.toString().split('.').last,
-      'className': className,
-      'photoUrl': photoUrl,
-      if (isTeacher) 'taughtSubjects': taughtSubjectIds,
-      if (isTeacher) 'assignedClasses': assignedClassIds,
-    };
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'UserModel{id: $id, fullName: $fullName, role: $role, email: $email}';
   }
 }

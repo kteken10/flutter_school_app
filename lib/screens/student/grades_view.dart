@@ -122,7 +122,7 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         children: [
           const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 0),
             child: TeacherCardDeco(imagePath: 'assets/teacher_picture.jpg'),
           ),
           const SizedBox(height: 16),
@@ -147,7 +147,7 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
                 );
 
             return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
               child: GradeCard(
                 grade: grade,
                 subject: subject,
