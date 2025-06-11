@@ -147,10 +147,10 @@ InputDecoration _inputDecoration(String label, IconData icon) {
                           ),
                           onPressed: _isLoading
                               ? null
-                              : () async {
+                              : () {
                                   if (_formKey.currentState!.validate()) {
                                     setState(() => _isLoading = true);
-                                    final user = await authService.signInWithEmailAndPassword(
+                                    final user = authService.signInWithEmailAndPassword(
                                       _emailController.text.trim(),
                                       _passwordController.text.trim(),
                                     );

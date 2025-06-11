@@ -66,33 +66,21 @@ class _TeacherCardState extends State<TeacherCard>
     );
   }
 
-  List<Widget> _compactChips(List<String> items) {
-    final display = items.length > 3 ? items.sublist(0, 3) : items;
-    final chips = display
-        .map((e) => Chip(
-              label: Text(
-                e,
-                style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 10),
-              ),
-              backgroundColor: Colors.white.withOpacity(0.85),
-              visualDensity: VisualDensity.compact,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              padding: EdgeInsets.zero,
-            ))
-        .toList();
-    if (items.length > 3) {
-      chips.add(const Chip(
-        label: Text("...", style: TextStyle(color: AppColors.primary, fontSize: 10)),
-        backgroundColor: Colors.white,
-        visualDensity: VisualDensity.compact,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        padding: EdgeInsets.zero,
-      ));
-    }
-    return chips;
+  Widget _buildSubjectChip(String subject) {
+    return Chip(
+      label: Text(
+        subject,
+        style: const TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w500,
+          fontSize: 10,
+        ),
+      ),
+      backgroundColor: Colors.white.withOpacity(0.85),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: EdgeInsets.zero,
+    );
   }
 
   @override
@@ -105,7 +93,6 @@ class _TeacherCardState extends State<TeacherCard>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
@@ -171,52 +158,50 @@ class _TeacherCardState extends State<TeacherCard>
                       ],
                     ),
                     const SizedBox(height: 6),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Matières enseignées :",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 4,
-                            runSpacing: -8,
-                            children: _compactChips(widget.subjects),
-                          ),
-                        ),
-                      ],
+                    const Text(
+                      "Matières enseignées :",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                      ),
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Classes de l'enseignant :",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 4,
-                            runSpacing: -8,
-                            children: _compactChips(widget.classes),
-                          ),
-                        ),
-                      ],
+                    SizedBox(
+                      height: 24,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: widget.subjects.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: _buildSubjectChip(widget.subjects[index]),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      "Classes de l'enseignant :",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    SizedBox(
+                      height: 24,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: widget.classes.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 4),
+                            child: _buildSubjectChip(widget.classes[index]),
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
