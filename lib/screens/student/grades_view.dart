@@ -5,12 +5,20 @@ import '../../models/subject.dart';
 import '../../models/user.dart';
 import '../../ui/grade_card.dart';
 import '../../ui/teacher_card_deco.dart';
+import '../../ui/year_drop.dart';
 
 class GradesViewScreen extends StatefulWidget {
   const GradesViewScreen({super.key});
 
   @override
   State<GradesViewScreen> createState() => _GradesViewScreenState();
+}
+
+enum SortOption {
+  byGradeValue,
+  bySubjectName,
+  byTeacherName,
+  byDateRecorded,
 }
 
 class _GradesViewScreenState extends State<GradesViewScreen> {
@@ -27,6 +35,32 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
       sessionType: ExamSessionType.controleContinu,
       comment: 'Bon travail',
       dateRecorded: DateTime.now().subtract(const Duration(days: 10)),
+    ),
+    Grade(
+      id: 'g2',
+      studentId: 's2',
+      subjectId: 'sub3',
+      sessionId: 'session2',
+      status: GradeStatus.published,
+      classId: 'class1',
+      teacherId: 't3',
+      value: 12.0,
+      sessionType: ExamSessionType.sessionNormale,
+      comment: 'Peut mieux faire',
+      dateRecorded: DateTime.now().subtract(const Duration(days: 5)),
+    ),
+    Grade(
+      id: 'g3',
+      studentId: 's3',
+      subjectId: 'sub2',
+      sessionId: 'session1',
+      status: GradeStatus.published,
+      classId: 'class1',
+      teacherId: 't2',
+      value: 18.0,
+      sessionType: ExamSessionType.controleContinu,
+      comment: 'Excellent',
+      dateRecorded: DateTime.now().subtract(const Duration(days: 20)),
     ),
     // ... autres notes
   ];
@@ -84,36 +118,94 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
 
   final String userImageAsset = 'assets/student_1.png';
   final List<String> availableYears = ['2023-2024', '2022-2023', '2021-2022'];
-  String selectedYear = '2023-2024';
+  late String selectedYear;
+
+  SortOption _currentSortOption = SortOption.byDateRecorded;
+
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    selectedYear = availableYears.first;
+  }
+
+  List<Grade> getSortedGrades() {
+    // Pour le moment on ignore le tri et on ne garde que le filtrage par recherche textuelle
+
+    if (_searchQuery.isEmpty) {
+      return List.from(_dummyGrades);
+    }
+
+    final query = _searchQuery.toLowerCase();
+
+    return _dummyGrades.where((grade) {
+      final subject = _subjects[grade.subjectId];
+      final teacher = _teachers[grade.teacherId];
+
+      final subjectName = subject?.name.toLowerCase() ?? '';
+      final teacherName =
+          '${teacher?.firstName.toLowerCase() ?? ''} ${teacher?.lastName.toLowerCase() ?? ''}';
+      final comment = grade.comment?.toLowerCase();
+
+      return subjectName.contains(query) ||
+          teacherName.contains(query) ||
+          comment!.contains(query);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final filteredGrades = getSortedGrades();
+
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100),
+        preferredSize: const Size.fromHeight(160),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
-          child: Row(
+          child: Column(
             children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundImage: AssetImage(userImageAsset),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundImage: AssetImage(userImageAsset),
+                  ),
+                  YearSelectorDropdown(
+                    years: availableYears,
+                    selectedYear: selectedYear,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          selectedYear = value;
+                        });
+                      }
+                    },
+                  ),
+                ],
               ),
-              const Spacer(),
-              DropdownButton<String>(
-                value: selectedYear,
-                items: availableYears
-                    .map((year) => DropdownMenuItem(
-                          value: year,
-                          child: Text(year),
-                        ))
-                    .toList(),
-                onChanged: (newValue) {
-                  if (newValue != null) {
-                    setState(() => selectedYear = newValue);
-                  }
-                },
+              const SizedBox(height: 8),
+              // Champ de recherche
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'Rechercher par matière, professeur ou commentaire',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
+                ),
               ),
+              const SizedBox(height: 8),
             ],
           ),
         ),
@@ -126,8 +218,8 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
             child: TeacherCardDeco(imagePath: 'assets/teacher_picture.jpg'),
           ),
           const SizedBox(height: 16),
-          ..._dummyGrades.map((grade) {
-            final subject = _subjects[grade.subjectId] ?? 
+          ...filteredGrades.map((grade) {
+            final subject = _subjects[grade.subjectId] ??
                 Subject(
                   id: 'unknown',
                   name: 'Matière inconnue',
@@ -135,8 +227,8 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
                   department: 'Inconnu',
                   credit: 0,
                 );
-                
-            final teacher = _teachers[grade.teacherId] ?? 
+
+            final teacher = _teachers[grade.teacherId] ??
                 UserModel(
                   id: 'unknown',
                   firstName: 'Professeur',
@@ -155,9 +247,10 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
                 publicationDate: grade.dateRecorded,
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
   }
 }
+ 
