@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/user.dart';
-import '../screens/admin/home.dart';
+
+import '../screens/admin/admin_home.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/student/student_home.dart';
 import '../screens/teacher/teacher_home.dart';

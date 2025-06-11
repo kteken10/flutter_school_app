@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../services/auth_service.dart';
 import '../../ui/teacher_card_deco.dart';
-import '../admin/home.dart';
+
+import '../admin/admin_home.dart';
 import '../student/student_home.dart';
 import '../teacher/teacher_home.dart';
 import 'register_screen.dart';

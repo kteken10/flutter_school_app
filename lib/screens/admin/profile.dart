@@ -26,11 +26,17 @@ class AdminProfileScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Utilisateur non connecté'));
-          }
-
-          final user = snapshot.data!;
+          // Mode bypass : utilisateur fictif par défaut si pas connecté
+          final user = snapshot.data ??
+              UserModel(
+                id: 'bypass_admin',
+                firstName: 'Administrateur',
+                lastName: 'Par Défaut',
+                role: UserRole.admin,
+                email: 'admin@exemple.com',
+                department: 'Département fictif',
+                createdAt: DateTime.now(),
+              );
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -75,22 +81,34 @@ class AdminProfileScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // Boutons
-                _ProfileButton(
-                  text: 'Modifier le profil',
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/editProfile');
-                  },
-                ),
-                const SizedBox(height: 12),
-                _ProfileButton(
-                  text: 'Déconnexion',
-                  color: Colors.redAccent,
-                  onPressed: () async {
-                    await authService.signOut();
-                    Navigator.pushReplacementNamed(context, '/login');
-                  },
-                ),
+                // Boutons (si utilisateur réel connecté, sinon on ne propose pas la déconnexion)
+                if (snapshot.hasData && snapshot.data != null) ...[
+                  _ProfileButton(
+                    text: 'Modifier le profil',
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/editProfile');
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _ProfileButton(
+                    text: 'Déconnexion',
+                    color: Colors.redAccent,
+                    onPressed: () async {
+                      await authService.signOut();
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                  ),
+                ] else
+                  Center(
+                    child: Text(
+                      'Mode Bypass : utilisateur non connecté',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
               ],
             ),
           );
@@ -129,14 +147,14 @@ class _InfoCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style:
-                        const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                        fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     value,
-                    style:
-                        const TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, color: Colors.black87, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
