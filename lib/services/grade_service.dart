@@ -4,14 +4,16 @@ import '../models/grade.dart';
 class GradeService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Stream<List<Grade>> getStudentGrades(String studentId) {
-    return _firestore
-        .collection('grades')
-        .where('studentId', isEqualTo: studentId)
-        .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Grade.fromMap(doc.data())).toList());
-  }
+  Stream<List<Grade>> getStudentGrades(String studentId, String year) {
+  return _firestore
+      .collection('grades')
+      .where('studentId', isEqualTo: studentId)
+      .where('year', isEqualTo: year)
+      .snapshots()
+      .map((snapshot) =>
+          snapshot.docs.map((doc) => Grade.fromMap(doc.data())).toList());
+}
+
 
   Stream<List<Grade>> getAllGrades() {
     return _firestore

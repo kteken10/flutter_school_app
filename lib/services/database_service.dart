@@ -33,10 +33,7 @@ class DatabaseService {
     await _subjectService.addSubject(subject);
   }
 
-  /// Récupérer les notes d'un étudiant
-  Stream<List<Grade>> getStudentGrades(String studentId) {
-    return _gradeService.getStudentGrades(studentId);
-  }
+
 
   /// Ajouter une note (grade)
   Future<void> addGrade(Grade grade) async {
