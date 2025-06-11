@@ -46,74 +46,6 @@ class GradeFormField extends StatelessWidget {
   }
 }
 
-// Composant pour sélectionner le statut de la note
-class StatusSelector extends StatelessWidget {
-  final GradeStatus value;
-  final ValueChanged<GradeStatus?> onChanged;
-
-  const StatusSelector({
-    super.key,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<GradeStatus>(
-      value: value,
-      items: GradeStatus.values.map((status) {
-        IconData icon;
-        Color color;
-        
-        switch (status) {
-          case GradeStatus.graded:
-            icon = Icons.grade;
-            color = Colors.green;
-            break;
-          case GradeStatus.absent:
-            icon = Icons.person_off;
-            color = Colors.orange;
-            break;
-          case GradeStatus.excused:
-            icon = Icons.event_available;
-            color = Colors.blue;
-            break;
-          case GradeStatus.pending:
-            icon = Icons.pending;
-            color = Colors.grey;
-            break;
-          case GradeStatus.published:
-            // TODO: Handle this case.
-            throw UnimplementedError();
-        }
-
-        return DropdownMenuItem(
-          value: status,
-          child: Row(
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                status == GradeStatus.graded ? 'Noté' :
-                status == GradeStatus.absent ? 'Absent' : 
-                status == GradeStatus.excused ? 'Excusé' : 'En attente',
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      ),
-    );
-  }
-}
-
-// Dialogue principal de saisie des notes
 class GradeEntryDialog extends StatefulWidget {
   final VoidCallback onGradeSubmitted;
 
@@ -199,9 +131,9 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
 
   Future<void> _submitGrade() async {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedClassId == null || 
-        _selectedStudentId == null || 
-        _selectedSubject == null || 
+    if (_selectedClassId == null ||
+        _selectedStudentId == null ||
+        _selectedSubject == null ||
         _selectedSessionId == null) {
       _showError('Veuillez remplir tous les champs obligatoires');
       return;
@@ -212,7 +144,7 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
       final currentUser = await authService.getCurrentUserModel();
-      
+
       if (currentUser == null) {
         throw Exception('Utilisateur non connecté');
       }
@@ -226,11 +158,13 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
         subjectId: _selectedSubject!.id,
         sessionId: _selectedSessionId!,
         sessionType: session.type,
-        value: _selectedStatus == GradeStatus.graded 
-            ? double.parse(_gradeController.text) 
+        value: _selectedStatus == GradeStatus.graded
+            ? double.parse(_gradeController.text)
             : null,
         status: _selectedStatus,
-        comment: _commentController.text.isNotEmpty ? _commentController.text : null,
+        comment: _commentController.text.isNotEmpty
+            ? _commentController.text
+            : null,
         teacherId: currentUser.id,
         dateRecorded: DateTime.now(),
         classId: student.className ?? _selectedClassId!,
@@ -294,7 +228,6 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                 ),
                 const SizedBox(height: 24),
 
-                // Sélecteur de classe
                 GradeFormField(
                   label: 'Classe *',
                   child: DropdownButtonFormField<String>(
@@ -314,7 +247,6 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   ),
                 ),
 
-                // Sélecteur d'étudiant
                 GradeFormField(
                   label: 'Étudiant *',
                   child: DropdownButtonFormField<String>(
@@ -323,16 +255,17 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                       value: s.id,
                       child: Text('${s.fullName} (${s.studentId ?? 'N/A'})'),
                     )).toList(),
-                    onChanged: (value) => setState(() => _selectedStudentId = value),
+                    onChanged: (value) =>
+                        setState(() => _selectedStudentId = value),
                     decoration: _buildInputDecoration(),
-                    validator: (value) => value == null ? 'Sélection requise' : null,
-                    disabledHint: _selectedClassId == null 
+                    validator: (value) =>
+                        value == null ? 'Sélection requise' : null,
+                    disabledHint: _selectedClassId == null
                         ? const Text('Sélectionnez d\'abord une classe')
                         : null,
                   ),
                 ),
 
-                // Sélecteur de matière
                 GradeFormField(
                   label: 'Matière *',
                   child: DropdownButtonFormField<Subject>(
@@ -347,7 +280,6 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   ),
                 ),
 
-                // Sélecteur de session
                 GradeFormField(
                   label: 'Session *',
                   child: DropdownButtonFormField<String>(
@@ -364,7 +296,7 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                               size: 20,
                             ),
                             const SizedBox(width: 8),
-                            Text('${s.name} (${s.name})'),
+                            Text(s.name),
                           ],
                         ),
                       );
@@ -375,45 +307,40 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   ),
                 ),
 
-                // Sélecteur de statut
-                GradeFormField(
-                  label: 'Statut *',
-                  child: StatusSelector(
-                    value: _selectedStatus,
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          _selectedStatus = value;
-                          if (value != GradeStatus.graded) {
-                            _gradeController.clear();
-                          }
-                        });
-                      }
-                    },
-                  ),
-                ),
+                // GradeFormField(
+                //   label: 'Statut *',
+                //   child: StatusSelector(
+                //     value: _selectedStatus,
+                //     onChanged: (value) {
+                //       if (value != null) {
+                //         setState(() {
+                //           _selectedStatus = value;
+                //           if (value != GradeStatus.graded) {
+                //             _gradeController.clear();
+                //           }
+                //         });
+                //       }
+                //     },
+                //   ),
+                // ),
 
-                // Champ de note (conditionnel)
                 if (_selectedStatus == GradeStatus.graded)
                   GradeFormField(
                     label: 'Note sur 20 *',
                     child: TextFormField(
                       controller: _gradeController,
-                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       decoration: _buildInputDecoration(),
                       validator: (value) {
-                        if (_selectedStatus == GradeStatus.graded) {
-                          if (value == null || value.isEmpty) return 'Note requise';
-                          final val = double.tryParse(value);
-                          if (val == null) return 'Nombre invalide';
-                          if (val < 0 || val > 20) return 'Doit être entre 0 et 20';
-                        }
+                        if (value == null || value.isEmpty) return 'Note requise';
+                        final val = double.tryParse(value);
+                        if (val == null) return 'Nombre invalide';
+                        if (val < 0 || val > 20) return 'Doit être entre 0 et 20';
                         return null;
                       },
                     ),
                   ),
 
-                // Champ de commentaire
                 GradeFormField(
                   label: 'Commentaire (optionnel)',
                   child: TextFormField(
@@ -423,7 +350,7 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   ),
                 ),
 
-                // Bouton de soumission
+                const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

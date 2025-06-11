@@ -3,13 +3,8 @@ import '../../models/grade.dart';
 import '../../models/session.dart';
 import '../../models/subject.dart';
 import '../../models/user.dart';
-import '../../services/auth_service.dart';
-import '../../services/email_service.dart';
-import '../../services/grade_service.dart';
 import '../../ui/grade_card.dart';
 import '../../ui/teacher_card_deco.dart';
-import '../../ui/year_drop.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GradesViewScreen extends StatefulWidget {
   const GradesViewScreen({super.key});
@@ -18,170 +13,230 @@ class GradesViewScreen extends StatefulWidget {
   State<GradesViewScreen> createState() => _GradesViewScreenState();
 }
 
-enum SortOption {
-  byGradeValue,
-  bySubjectName,
-  byTeacherName,
-  byDateRecorded,
-}
-
 class _GradesViewScreenState extends State<GradesViewScreen> {
-  late Stream<List<Grade>> _gradesStream;
-   final List<String> availableYears = ['2023-2024', '2022-2023'];
-  UserModel? currentUser;
-  final GradeService _gradeService = GradeService();
-  final AuthService _authService = AuthService(
-    emailService: EmailService(
-      smtpServer: 'smtp.gmail.com',
-      smtpUsername: 'patientdjappa@gmail.com',
-      smtpPassword: 'bjtp uswy idke kddq',
+  final List<Grade> _dummyGrades = [
+    Grade(
+      id: 'g1',
+      studentId: 's1',
+      subjectId: 'sub1',
+      sessionId: 'session1',
+      status: GradeStatus.published,
+      classId: 'class1',
+      teacherId: 't1',
+      value: 14.0,
+      sessionType: ExamSessionType.controleContinu,
+      comment: 'Bonne maîtrise des commandes de base',
+      dateRecorded: DateTime.now().subtract(const Duration(days: 10)),
     ),
-  );
+    Grade(
+      id: 'g2',
+      studentId: 's1',
+      subjectId: 'sub2',
+      sessionId: 'session2',
+      status: GradeStatus.published,
+      classId: 'class1',
+      teacherId: 't2',
+      value: 16.5,
+      sessionType: ExamSessionType.controleContinu,
+      comment: 'Requêtes SQL bien maîtrisées',
+      dateRecorded: DateTime.now().subtract(const Duration(days: 12)),
+    ),
+    Grade(
+      id: 'g3',
+      studentId: 's1',
+      subjectId: 'sub3',
+      sessionId: 'session3',
+      status: GradeStatus.published,
+      classId: 'class1',
+      teacherId: 't3',
+      value: 18.0,
+      sessionType: ExamSessionType.controleContinu,
+      comment: 'Très bon projet IA',
+      dateRecorded: DateTime.now().subtract(const Duration(days: 20)),
+    ),
+    Grade(
+      id: 'g4',
+      studentId: 's1',
+      subjectId: 'sub4',
+      sessionId: 'session4',
+      status: GradeStatus.published,
+      classId: 'class1',
+      teacherId: 't1',
+      value: 15.5,
+      sessionType: ExamSessionType.sessionNormale,
+      comment: 'Modèles bien entraînés',
+      dateRecorded: DateTime.now().subtract(const Duration(days: 25)),
+    ),
+    Grade(
+      id: 'g5',
+      studentId: 's1',
+      subjectId: 'sub5',
+      sessionId: 'session5',
+      status: GradeStatus.published,
+      classId: 'class1',
+      teacherId: 't2',
+      value: 17.0,
+      sessionType: ExamSessionType.controleContinu,
+      comment: 'Bonne configuration des protocoles',
+      dateRecorded: DateTime.now().subtract(const Duration(days: 8)),
+    ),
+  ];
 
+  final Map<String, Subject> _subjects = {
+    'sub1': Subject(id: 'sub1', name: 'Systèmes Linux', code: 'LINUX201', department: 'Informatique', credit: 3),
+    'sub2': Subject(id: 'sub2', name: 'Bases de Données', code: 'BD202', department: 'Informatique', credit: 4),
+    'sub3': Subject(id: 'sub3', name: 'Intelligence Artificielle', code: 'IA301', department: 'Informatique', credit: 5),
+    'sub4': Subject(id: 'sub4', name: 'Machine Learning', code: 'ML302', department: 'Informatique', credit: 5),
+    'sub5': Subject(id: 'sub5', name: 'Réseaux Informatiques', code: 'NET203', department: 'Informatique', credit: 3),
+  };
+
+  final Map<String, UserModel> _teachers = {
+    't1': UserModel(
+      id: 't1',
+      firstName: 'Mme',
+      lastName: 'Dupont',
+      email: 'dupont@ecole.com',
+      role: UserRole.teacher,
+      createdAt: DateTime.now().subtract(const Duration(days: 365)),
+    ),
+    't2': UserModel(
+      id: 't2',
+      firstName: 'M.',
+      lastName: 'Martin',
+      email: 'martin@ecole.com',
+      role: UserRole.teacher,
+      createdAt: DateTime.now().subtract(const Duration(days: 365)),
+    ),
+    't3': UserModel(
+      id: 't3',
+      firstName: 'Mme',
+      lastName: 'Bernard',
+      email: 'bernard@ecole.com',
+      role: UserRole.teacher,
+      createdAt: DateTime.now().subtract(const Duration(days: 365)),
+    ),
+  };
+
+  final String userImageAsset = 'assets/student_1.png';
+  final List<String> availableYears = ['2023-2024', '2022-2023', '2021-2022'];
   String selectedYear = '2023-2024';
-  String _searchQuery = '';
 
-  // ✅ Ajout des maps pour matières et enseignants
-  Map<String, Subject> _subjects = {};
-  Map<String, UserModel> _teachers = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserAndGrades();
-  }
-
-  void _loadUserAndGrades() async {
-    currentUser = await _authService.getCurrentUserModel();
-
-    if (currentUser != null) {
-      // Charger matières et profs
-      final subjects = await _loadSubjects();
-      final teachers = await _loadTeachers();
-
-      setState(() {
-        _subjects = subjects;
-        _teachers = teachers;
-        _gradesStream = _gradeService.getStudentGrades(currentUser!.id, selectedYear);
-      });
-    }
-  }
-
-  Future<Map<String, Subject>> _loadSubjects() async {
-    final snapshot = await FirebaseFirestore.instance.collection('subjects').get();
-    final map = <String, Subject>{};
-    for (var doc in snapshot.docs) {
-      map[doc.id] = Subject.fromMap(doc.data());
-    }
-    return map;
-  }
-
-  Future<Map<String, UserModel>> _loadTeachers() async {
-    final snapshot = await FirebaseFirestore.instance.collection('users').where('role', isEqualTo: 'teacher').get();
-    final map = <String, UserModel>{};
-    for (var doc in snapshot.docs) {
-      map[doc.id] = UserModel.fromMap(doc.data());
-    }
-    return map;
-  }
-
-  void _onYearChanged(String? year) {
-    if (year != null && currentUser != null) {
-      setState(() {
-        selectedYear = year;
-        _gradesStream = _gradeService.getStudentGrades(currentUser!.id, selectedYear);
-      });
-    }
-  }
-
-  List<Grade> _filterGrades(List<Grade> grades) {
-    if (_searchQuery.isEmpty) return grades;
-    final query = _searchQuery.toLowerCase();
-    return grades.where((grade) {
-      final subject = _subjects[grade.subjectId]?.name.toLowerCase() ?? '';
-      final teacher = _teachers[grade.teacherId];
-      final teacherName = '${teacher?.firstName.toLowerCase() ?? ''} ${teacher?.lastName.toLowerCase() ?? ''}';
-      final comment = grade.comment?.toLowerCase() ?? '';
-      return subject.contains(query) || teacherName.contains(query) || comment.contains(query);
-    }).toList();
-  }
+  String? selectedSubjectId;
+  ExamSessionType? selectedSessionType;
 
   @override
   Widget build(BuildContext context) {
+    final filteredGrades = _dummyGrades.where((grade) {
+      final subjectMatch = selectedSubjectId == null || grade.subjectId == selectedSubjectId;
+      final sessionMatch = selectedSessionType == null || grade.sessionType == selectedSessionType;
+      return subjectMatch && sessionMatch;
+    }).toList();
+
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(160),
+        preferredSize: const Size.fromHeight(100),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
-          child: Column(
+          child: Row(
             children: [
-              YearSelectorDropdown(
-                years: availableYears,
-                selectedYear: selectedYear,
-                onChanged: _onYearChanged,
+              CircleAvatar(
+                radius: 22,
+                backgroundImage: AssetImage(userImageAsset),
               ),
-              TextField(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Rechercher par matière, professeur ou commentaire',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
+              const Spacer(),
+              DropdownButton<String>(
+                value: selectedYear,
+                items: availableYears
+                    .map((year) => DropdownMenuItem(
+                          value: year,
+                          child: Text(year),
+                        ))
+                    .toList(),
+                onChanged: (newValue) {
+                  if (newValue != null) {
+                    setState(() => selectedYear = newValue);
+                  }
                 },
               ),
             ],
           ),
         ),
       ),
-      body: StreamBuilder<List<Grade>>(
-        stream: _gradesStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Erreur : ${snapshot.error}'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Aucune note trouvée.'));
-          }
-
-          final filteredGrades = _filterGrades(snapshot.data!);
-
-          return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 0),
-                child: TeacherCardDeco(imagePath: 'assets/teacher_picture.jpg'),
-              ),
-              const SizedBox(height: 16),
-              ...filteredGrades.map((grade) {
-                final subject = _subjects[grade.subjectId] ?? Subject(
-                  id: 'unknown',
-                  name: 'Matière inconnue',
-                  code: 'UNKN000',
-                  department: 'Inconnu',
-                  credit: 0,
-                );
-
-                final teacher = _teachers[grade.teacherId] ?? UserModel(
-                  id: 'unknown',
-                  firstName: 'Professeur',
-                  lastName: 'Inconnu',
-                  email: '',
-                  role: UserRole.teacher,
-                  createdAt: DateTime.now(),
-                );
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: DropdownButton<String?>(
+                    value: selectedSubjectId,
+                    hint: const Text('Filtrer par matière'),
+                    isExpanded: true,
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('Toutes les matières'),
+                      ),
+                      ..._subjects.entries.map(
+                        (entry) => DropdownMenuItem(
+                          value: entry.key,
+                          child: Text(entry.value.name),
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedSubjectId = value;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButton<ExamSessionType?>(
+                    value: selectedSessionType,
+                    hint: const Text('Type d’évaluation'),
+                    isExpanded: true,
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('Tous les types'),
+                      ),
+                      ...ExamSessionType.values.map(
+                        (type) => DropdownMenuItem(
+                          value: type,
+                          child: Text(type == ExamSessionType.controleContinu
+                              ? 'Contrôle Continu'
+                              : 'Session Normale'),
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedSessionType = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 0),
+            child: TeacherCardDeco(imagePath: 'assets/teacher_picture.jpg'),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              children: filteredGrades.map((grade) {
+                final subject = _subjects[grade.subjectId]!;
+                final teacher = _teachers[grade.teacherId]!;
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: GradeCard(
                     grade: grade,
                     subject: subject,
@@ -189,11 +244,12 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
                     publicationDate: grade.dateRecorded,
                   ),
                 );
-              }),
-            ],
-          );
-        },
+              }).toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+

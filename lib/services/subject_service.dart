@@ -27,20 +27,10 @@ class SubjectService {
     }
   }
 
-  Future<String?> getSubjectName(String subjectId) async {
-  try {
-    final doc = await _firestore.collection('subjects').doc(subjectId).get();
-    if (doc.exists) {
-      final data = doc.data();
-      if (data != null && data.containsKey('name')) {
-        return data['name'] as String;
-      }
-    }
-    return null;
-  } catch (e) {
-    print('Erreur lors de la récupération du nom de la matière: $e');
-    return null;
-  }
+Future<String?> getSubjectName(String subjectId) async {
+  final doc = await FirebaseFirestore.instance.collection('subjects').doc(subjectId).get();
+  return doc.data()?['name'] as String?;
 }
+
 
 }

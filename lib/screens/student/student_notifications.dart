@@ -74,7 +74,7 @@ class StudentNotificationsScreen extends StatelessWidget {
         'type': 'update',
         'isRead': false,
       },
-      
+     
     ];
 
     if (fakeNotifications.isEmpty) {

@@ -26,11 +26,19 @@ class ProfileScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('Utilisateur non connecté'));
-          }
+          // Création d'un user fictif si données absentes (Bypass)
+          final user = snapshot.data ??
+              UserModel(
+                id: '0',
+                firstName: 'Utilisateur Bypass',
+                lastName: "Armand",
+                role: UserRole.teacher,
+                email: 'bypass@exemple.com',
+                department: 'Département fictif',
+                createdAt: DateTime.now(),
+              );
 
-          final user = snapshot.data!;
+          final bool isRealUser = snapshot.hasData && snapshot.data != null;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
@@ -70,24 +78,38 @@ class ProfileScreen extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-               ProfileActionButton(
-  text: 'Modifier le profil',
-  onPressed: () {
-    Navigator.pushNamed(context, '/editProfile');
-  },
-),
+                // Affiche le bouton Modifier le profil seulement si utilisateur réel
+                if (isRealUser)
+                  ProfileActionButton(
+                    text: 'Modifier le profil',
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/editProfile');
+                    },
+                  ),
 
-const SizedBox(height: 16),
+                if (isRealUser) const SizedBox(height: 16),
 
-ProfileActionButton(
-  text: 'Déconnexion',
-  color: Colors.redAccent,
-  onPressed: () async {
-    await authService.signOut();
-    Navigator.pushReplacementNamed(context, '/login');
-  },
-),
+                // Le bouton Déconnexion est toujours affiché et actif
+                ProfileActionButton(
+                  text: 'Déconnexion',
+                  color: Colors.redAccent,
+                  onPressed: () async {
+                    await authService.signOut();
+                    Navigator.pushReplacementNamed(context, '/login');
+                  },
+                ),
 
+                if (!isRealUser)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(
+                      "Mode Bypass : modifications désactivées",
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
               ],
             ),
           );

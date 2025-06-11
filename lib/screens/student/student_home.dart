@@ -33,21 +33,14 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
+    final authService = Provider.of<AuthService>(context, listen: false);
 
     return StreamBuilder<UserModel?>(
       stream: authService.currentUser,
       builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data == null) {
-          return const Scaffold(
-            body: Center(child: Text('Utilisateur non connecté')),
-          );
-        }
+        final user = snapshot.data;
 
-        final user = snapshot.data!;
-        
         return Scaffold(
-        
           body: IndexedStack(
             index: _currentIndex,
             children: _children,
@@ -76,7 +69,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               ),
               SalomonBottomBarItem(
                 icon: const Icon(Icons.person),
-                title: const Text('Profil'),
+                title: Text(user != null ? 'Profil' : 'Connexion'),
                 selectedColor: AppColors.secondary,
                 unselectedColor: Colors.grey,
               ),

@@ -9,9 +9,17 @@ class AuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final EmailService _emailService;
   final String _encryptedAdminPassphrase = "keyce admin";
+ String? _bypassRole;
 
+  void setBypassRole(String role) {
+    _bypassRole = role;
+  }
 
+  String? get bypassRole => _bypassRole;
   AuthService({required EmailService emailService}) : _emailService = emailService;
+
+  // Getter public pour accéder à l'utilisateur Firebase actuel (pour bypass)
+  User? get currentFirebaseUser => _auth.currentUser;
 
   // Connexion sécurisée
   Future<User?> signInWithEmailAndPassword(String email, String password) async {
@@ -142,6 +150,15 @@ class AuthService {
       return false;
     }
   }
+Future<User?> signInAnonymously() async {
+  try {
+    UserCredential userCredential = await _auth.signInAnonymously();
+    return userCredential.user;
+  } catch (e) {
+    print('Erreur connexion anonyme: $e');
+    return null;
+  }
+}
 
   // Méthode rendue publique
   Future<UserModel?> getUserByEmail(String email) async {

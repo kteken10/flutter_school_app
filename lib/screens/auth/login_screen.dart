@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../services/auth_service.dart';
 import '../../ui/teacher_card_deco.dart';
+import '../admin/home.dart';
+import '../student/student_home.dart';
+import '../teacher/teacher_home.dart';
 import 'register_screen.dart';
 import '../../constants/colors.dart';
 
@@ -15,44 +18,97 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _bypassMode = false;
+  String? _selectedRole; // Pour stocker le rôle sélectionné dans le bypass
 
-InputDecoration _inputDecoration(String label, IconData icon) {
-  return InputDecoration(
-    labelText: label,
-    prefixIcon: Icon(icon, color: AppColors.textSecondary.withOpacity(0.2),size: 22),
-    filled: true,
-    fillColor: Colors.white,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(50),
-      borderSide: const BorderSide(color: Colors.white),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(50),
-      borderSide: const BorderSide(color: Colors.white),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(50),
-      borderSide: const BorderSide(color: Colors.white),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(50),
-      borderSide: const BorderSide(color: Colors.red),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(50),
-      borderSide: const BorderSide(color: Colors.red),
-    ),
-  );
-}
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(
+        icon,
+        color: AppColors.textSecondary.withOpacity(0.2),
+      ),
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+        borderSide: const BorderSide(color: Colors.white),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+        borderSide: const BorderSide(color: Colors.white),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+        borderSide: const BorderSide(color: Colors.white),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+        borderSide: const BorderSide(color: Colors.red),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50),
+        borderSide: const BorderSide(color: Colors.red),
+      ),
+    );
+  }
 
+  Future<void> _handleBypassLogin(BuildContext context) async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    if (_selectedRole == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Veuillez sélectionner un rôle')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+
+      authService.setBypassRole(_selectedRole!);
+
+      switch (_selectedRole) {
+        case 'admin':
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
+          );
+          break;
+
+        case 'teacher':
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const TeacherHomeScreen()),
+          );
+          break;
+
+        case 'student':
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const StudentHomeScreen()),
+          );
+          break;
+
+        default:
+          Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: ${e.toString()}')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
-
     return Scaffold(
-    backgroundColor: AppColors.background,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
@@ -67,7 +123,10 @@ InputDecoration _inputDecoration(String label, IconData icon) {
                   ),
                 ),
                 const SizedBox(height: 16),
-               const TeacherCardDeco(imagePath: 'assets/login_school.jpg', withHorizontalMargin: false,),
+                const TeacherCardDeco(
+                  imagePath: 'assets/login_school.jpg',
+                  withHorizontalMargin: false,
+                ),
                 const SizedBox(height: 30),
                 Text(
                   'Bienvenu sur !',
@@ -77,7 +136,6 @@ InputDecoration _inputDecoration(String label, IconData icon) {
                     color: AppColors.textPrimary,
                   ),
                 ),
-               
                 const SizedBox(height: 8),
                 Text(
                   ' Votre plateforme de gestion de note optimisée',
@@ -92,49 +150,91 @@ InputDecoration _inputDecoration(String label, IconData icon) {
                   key: _formKey,
                   child: Column(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                        borderRadius: BorderRadius.circular(50),
+                      // Champs email/mdp normaux affichés uniquement si bypass désactivé
+                      if (!_bypassMode) ...[
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: _inputDecoration('Email', Icons.email),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Veuillez entrer votre email';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Veuillez entrer un email valide';
+                              }
+                              return null;
+                            },
+                          ),
                         ),
-                        child: TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                         decoration: _inputDecoration('Email', Icons.email),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Veuillez entrer votre email';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Veuillez entrer un email valide';
-                            }
-                            return null;
-                          },
+                        const SizedBox(height: 20),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: TextFormField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: _inputDecoration('Mot de passe', Icons.lock),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Veuillez entrer votre mot de passe';
+                              }
+                              if (value.length < 6) {
+                                return 'Le mot de passe doit contenir au moins 6 caractères';
+                              }
+                              return null;
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(50),
+                      ],
+                      // Sélecteur de rôle toujours visible en mode bypass
+                      if (_bypassMode) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedRole,
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              labelText: 'Sélectionnez un rôle',
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'admin',
+                                child: Text('Administrateur'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'teacher',
+                                child: Text('Enseignant'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'student',
+                                child: Text('Étudiant'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedRole = value;
+                              });
+                            },
+                            validator: (value) =>
+                                value == null ? 'Veuillez sélectionner un rôle' : null,
+                          ),
                         ),
-                        child: TextFormField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: _inputDecoration('Mot de passe', Icons.lock),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Veuillez entrer votre mot de passe';
-                            }
-                            if (value.length < 6) {
-                              return 'Le mot de passe doit contenir au moins 6 caractères';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 30),
+                        const SizedBox(height: 20),
+                      ],
 
+                      const SizedBox(height: 30),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -147,30 +247,39 @@ InputDecoration _inputDecoration(String label, IconData icon) {
                           ),
                           onPressed: _isLoading
                               ? null
-                              : () {
-                                  if (_formKey.currentState!.validate()) {
-                                    setState(() => _isLoading = true);
-                                    final user = authService.signInWithEmailAndPassword(
-                                      _emailController.text.trim(),
-                                      _passwordController.text.trim(),
-                                    );
-                                    setState(() => _isLoading = false);
-
-                                    if (user == null) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Échec de la connexion')),
-                                      );
+                              : () async {
+                                  if (_bypassMode) {
+                                    await _handleBypassLogin(context);
+                                  } else {
+                                    if (_formKey.currentState!.validate()) {
+                                      setState(() => _isLoading = true);
+                                      try {
+                                        final authService =
+                                            Provider.of<AuthService>(context, listen: false);
+                                        final user = await authService.signInWithEmailAndPassword(
+                                          _emailController.text.trim(),
+                                          _passwordController.text.trim(),
+                                        );
+                                        setState(() => _isLoading = false);
+                                        if (user != null) {
+                                          Navigator.pushReplacementNamed(context, '/home');
+                                        }
+                                      } catch (e) {
+                                        setState(() => _isLoading = false);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Erreur: ${e.toString()}')),
+                                        );
+                                      }
                                     }
                                   }
                                 },
                           child: _isLoading
                               ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text(
-                                  'Se connecter',
-                                  style: TextStyle(
+                              : Text(
+                                  _bypassMode ? 'Accéder directement' : 'Se connecter',
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.white,
-                                  
                                     letterSpacing: 1.2,
                                   ),
                                 ),
@@ -190,27 +299,35 @@ InputDecoration _inputDecoration(String label, IconData icon) {
                             },
                             child: Text(
                               'Créer un compte',
-                              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
+                              style: TextStyle(
+                                  color: AppColors.primary, fontWeight: FontWeight.w600),
                             ),
                           ),
-                          const SizedBox(width: 20),
-                          TextButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Fonctionnalité à implémenter')),
-                              );
+                        ],
+                      ),
+
+                      // Switch pour activer/désactiver le bypass TOUJOURS visible
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Mode bypass'),
+                          Switch(
+                            value: _bypassMode,
+                            onChanged: (value) {
+                              setState(() {
+                                _bypassMode = value;
+                                _selectedRole = null;
+                              });
                             },
-                            child: Text(
-                              'Mot de passe oublié ?',
-                              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
-                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                )
+                ),
               ],
+              
             ),
           ),
         ),

@@ -43,7 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final result = await showDialog<Map<String, String>>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AdminVerificationModal(),
+      builder: (context) => const AdminVerificationModal(),
     );
 
     if (result != null) {
@@ -79,7 +79,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   withHorizontalMargin: true,
                 ),
                 const SizedBox(height: 16),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -96,9 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 16),
-
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -125,9 +122,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               controller: controller.emailController,
                               label: 'Email',
                               prefixIcon: Icon(Icons.email, color: Colors.grey[300], size: 22),
-                              validator: (value) => 
-                                value!.isEmpty ? 'Ce champ est requis' : 
-                                !value.contains('@') ? 'Email invalide' : null,
+                              validator: (value) =>
+                                  value!.isEmpty ? 'Ce champ est requis' : !value.contains('@') ? 'Email invalide' : null,
                               keyboardType: TextInputType.emailAddress,
                             ),
                           ] else if (_formStep == 1) ...[
@@ -135,13 +131,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               controller: controller.passwordController,
                               label: 'Mot de passe',
                               prefixIcon: Icon(Icons.lock, color: Colors.grey[300], size: 22),
-                              validator: (value) => 
-                                value!.isEmpty ? 'Ce champ est requis' : 
-                                value.length < 6 ? 'Minimum 6 caractères' : null,
+                              validator: (value) =>
+                                  value!.isEmpty ? 'Ce champ est requis' : value.length < 6 ? 'Minimum 6 caractères' : null,
                               keyboardType: TextInputType.visiblePassword,
                               obscureText: true,
                             ),
-
                             const SizedBox(height: 16),
                             RoleDropdown(
                               value: controller.selectedRole,
@@ -152,7 +146,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               },
                             ),
                             const SizedBox(height: 16),
-
                             if (controller.selectedRole == UserRole.student) ...[
                               InputField(
                                 controller: controller.studentIdController,
@@ -174,15 +167,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 controller: controller.departmentController,
                                 label: 'Département',
                                 prefixIcon: const Icon(Icons.account_balance, color: Colors.grey),
-                                validator: (value) => 
-                                  controller.selectedRole == UserRole.teacher && value!.isEmpty 
-                                    ? 'Ce champ est requis' 
-                                    : null,
+                                validator: (value) =>
+                                    controller.selectedRole == UserRole.teacher && value!.isEmpty
+                                        ? 'Ce champ est requis'
+                                        : null,
                                 keyboardType: TextInputType.text,
                               ),
                             ],
                           ],
-
                           const SizedBox(height: 30),
                           Row(
                             children: [
@@ -198,33 +190,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: controller.isLoading
                                     ? const Center(child: CircularProgressIndicator())
                                     : PrimaryButton(
-                                        text: _formStep == 0 ? 'Continuer' : "Inscire",
+                                        text: _formStep == 0 ? 'Continuer' : 'Inscrire',
                                         onPressed: () async {
                                           if (_formKey.currentState!.validate()) {
                                             if (_formStep == 0) {
                                               setState(() => _formStep++);
                                             } else {
                                               bool isAdminVerified = true;
-                                              
                                               if (controller.selectedRole != UserRole.admin) {
                                                 isAdminVerified = await _showAdminVerification(context);
                                               }
-
                                               if (isAdminVerified) {
                                                 final success = await controller.register(
                                                   authService,
                                                   adminEmail: _adminEmailController.text.trim(),
                                                   adminPassphrase: _adminPassphraseController.text.trim(),
                                                 );
-                                                
                                                 if (success) {
-                                                  // ignore: use_build_context_synchronously
-                                                  Navigator.of(context).pop();
+                                                  if (context.mounted) {
+                                                    Navigator.of(context).pop();
+                                                  }
                                                 } else {
-                                                  // ignore: use_build_context_synchronously
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(content: Text('Échec de l\'inscription')),
-                                                  );
+                                                  if (context.mounted) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(content: Text('Échec de l\'inscription')),
+                                                    );
+                                                  }
                                                 }
                                               }
                                             }
@@ -234,6 +225,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ],
                           ),
+                          
                         ],
                       ),
                     ),
