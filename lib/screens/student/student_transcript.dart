@@ -61,10 +61,7 @@ class StudentTranscriptScreen extends StatelessWidget {
     final semesters = fakeTranscript['semesters'] as List<dynamic>;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Relevé de notes académique'),
-        backgroundColor: AppColors.secondary,
-      ),
+     backgroundColor: AppColors.background,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -77,6 +74,7 @@ class StudentTranscriptScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ...semesters.map((semester) {
               return Card(
+                elevation: 0,
                 margin: const EdgeInsets.only(bottom: 16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),

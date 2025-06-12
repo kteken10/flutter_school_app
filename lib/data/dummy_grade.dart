@@ -3,6 +3,14 @@ import '../models/session.dart';
 import '../models/subject.dart';
 import '../models/user.dart';
 
+
+final String name = "Mme. Dupont";
+  final String email = "dupont.teacher@example.com";
+  final String profileImageUrl = "assets/teacher_profile.png";
+  final int subjectCount = 3;
+  final int classCount = 2;
+  final List<String> subjects = ["Math", "Physique", "Français"];
+  final List<String> classes = ["Classe A", "Classe B"];
 final List<Grade> dummyGrades = [
   Grade(
     id: 'g1',

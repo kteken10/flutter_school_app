@@ -22,66 +22,48 @@ class ClassFilter extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(
-                "Classes :",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.secondary,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: classes.map((cls) {
-                    return Flexible(
-                      fit: FlexFit.tight,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color: selectedClass == cls
-                                ? AppColors.secondary.withOpacity(0.2)
-                                : AppColors.white,
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
-                              onTap: () {
-                                onClassSelected(selectedClass == cls ? null : cls);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    cls,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: selectedClass == cls
-                                          ? AppColors.secondary
-                                          : AppColors.textprimary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+          Text(
+            "Classes :",
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.secondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: classes.map((cls) {
+                final bool isSelected = selectedClass == cls;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () => onClassSelected(isSelected ? null : cls),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.secondary.withOpacity(0.2)
+                            : AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                       
+                      ),
+                      child: Text(
+                        cls,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected
+                              ? AppColors.secondary
+                              : AppColors.textprimary,
                         ),
                       ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         ],
       ),

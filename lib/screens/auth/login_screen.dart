@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
       'password': '11111111',
       'role': 'student',
     },
-    'eboa@yahoo.cm': {
+    'eboa@yahoo.com': {
       'password': '88888888',
       'role': 'teacher',
     },

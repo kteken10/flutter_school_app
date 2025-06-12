@@ -1,196 +1,133 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../services/auth_service.dart';
+import 'package:schoop_app/screens/auth/login_screen.dart';
+import '../../constants/colors.dart';
 import '../../models/user.dart';
+import '../../ui/profile_info_card.dart';
 
 class AdminProfileScreen extends StatelessWidget {
   const AdminProfileScreen({super.key});
 
+  void _onEditProfile(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Modifier le profil - fonctionnalité à implémenter")),
+    );
+  }
+
+  void _onLogout(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context);
+    final user = UserModel(
+      id: 'admin_local',
+      firstName: 'Kevin',
+      lastName: 'Dissang',
+      role: UserRole.admin,
+      email: 'admin@mediplus.com',
+      department: 'Administration Générale',
+      createdAt: DateTime(2023, 1, 10),
+    );
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Mon Profil'),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        foregroundColor: Colors.black,
       ),
-      body: StreamBuilder<UserModel?>(
-        stream: authService.currentUser,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: CircleAvatar(
+                radius: 45,
+                backgroundColor: AppColors.secondary.withOpacity(0.1),
+                child: const Icon(Icons.person, size: 45, color: AppColors.secondary),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                user.fullName,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Center(
+              child: Text(
+                user.email,
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
+            const SizedBox(height: 30),
 
-          // Mode bypass : utilisateur fictif par défaut si pas connecté
-          final user = snapshot.data ??
-              UserModel(
-                id: 'bypass_admin',
-                firstName: 'Administrateur',
-                lastName: 'Par Défaut',
-                role: UserRole.admin,
-                email: 'admin@exemple.com',
-                department: 'Département fictif',
-                createdAt: DateTime.now(),
-              );
+            ProfileInfoCard(
+              icon: Icons.admin_panel_settings,
+              title: "Informations Administratives",
+              infos: [
+                InfoItem(label: "Rôle", value: "Administrateur"),
+                InfoItem(label: "Département", value: user.department ?? "Non spécifié"),
+              ],
+            ),
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // Avatar
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.blueAccent.withOpacity(0.1),
-                  child: Text(
-                    user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : '',
-                    style: const TextStyle(fontSize: 40, color: Colors.blueAccent),
-                  ),
-                ),
-                const SizedBox(height: 16),
+            const SizedBox(height: 30),
 
-                // Nom et Email
-                Text(
-                  user.fullName,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  user.email,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Infos utilisateur
-                _InfoCard(
-                  icon: Icons.school,
-                  title: 'Département',
-                  value: user.department ?? 'Non spécifié',
-                ),
-                _InfoCard(
-                  icon: Icons.calendar_today,
-                  title: 'Membre depuis',
+            ProfileInfoCard(
+              icon: Icons.calendar_today,
+              title: "Détails du Compte",
+              infos: [
+                InfoItem(
+                  label: "Compte créé le",
                   value:
-                      '${user.createdAt.day.toString().padLeft(2, '0')}/${user.createdAt.month.toString().padLeft(2, '0')}/${user.createdAt.year}',
+                      '${user.createdAt.day.toString().padLeft(2, '0')}/'
+                      '${user.createdAt.month.toString().padLeft(2, '0')}/'
+                      '${user.createdAt.year}',
                 ),
+              ],
+            ),
 
-                const SizedBox(height: 24),
+            const SizedBox(height: 30),
 
-                // Boutons (si utilisateur réel connecté, sinon on ne propose pas la déconnexion)
-                if (snapshot.hasData && snapshot.data != null) ...[
-                  _ProfileButton(
-                    text: 'Modifier le profil',
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/editProfile');
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _ProfileButton(
-                    text: 'Déconnexion',
-                    color: Colors.redAccent,
-                    onPressed: () async {
-                      await authService.signOut();
-                      Navigator.pushReplacementNamed(context, '/login');
-                    },
-                  ),
-                ] else
-                  Center(
-                    child: Text(
-                      'Mode Bypass : utilisateur non connecté',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontStyle: FontStyle.italic,
-                        fontSize: 14,
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _onEditProfile(context),
+                    icon: const Icon(Icons.edit, color: Colors.white),
+                    label: const Text("Modifier le profil", style: TextStyle(color: Colors.white)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
                       ),
                     ),
                   ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _onLogout(context),
+                    icon: const Icon(Icons.logout, color: AppColors.secondary),
+                    label: const Text("Déconnexion", style: TextStyle(color: AppColors.secondary)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        side: const BorderSide(color: AppColors.secondary, width: 0.1),
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String value;
-
-  const _InfoCard({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.blueAccent),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                        fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: const TextStyle(
-                        fontSize: 16, color: Colors.black87, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final Color? color;
-
-  const _ProfileButton({
-    required this.text,
-    required this.onPressed,
-    this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color ?? Colors.blueAccent,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
     );
