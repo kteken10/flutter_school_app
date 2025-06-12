@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 import 'package:schoop_app/screens/auth/login_screen.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:schoop_app/services/grade_service.dart';
 // import 'services/email_service.dart'; 
 // import 'services/class_service.dart';
 // import 'services/auth_service.dart';
-import 'services/notification_service.dart';
+// import 'services/notification_service.dart';
 // import 'services/database_service.dart';
 // import 'services/subject_service.dart';
-// import 'utils.dart';
-import 'wrappers/auth_wrapper.dart';
+import 'utils.dart';
+// import 'wrappers/auth_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // // Initialisation Firebase sans App Check
-  // await Firebase.initializeApp();
+  // Initialisation Firebase sans App Check
+  await Firebase.initializeApp();
 
-  // // Configuration de la langue
-  // FirebaseAuth.instance.setLanguageCode('fr');
+  // Configuration de la langue
+  FirebaseAuth.instance.setLanguageCode('fr');
 
   // // Initialisation du EmailService
   // final emailService = EmailService(
@@ -46,8 +46,8 @@ void main() async {
   //   }
   // }
 
-  // // Créer l'admin par défaut
-  // await createDefaultAdmin();
+  // Créer l'admin par défaut
+  await createDefaultAdmin();
 
   runApp(MyApp());
 }

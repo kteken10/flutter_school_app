@@ -3,6 +3,7 @@ import '../../constants/colors.dart';
 
 import '../../models/user.dart';
 import '../../ui/profile_info_card.dart';
+import '../auth/login_screen.dart';
 
 class StudentProfileScreen extends StatelessWidget {
   const StudentProfileScreen({super.key});
@@ -14,12 +15,15 @@ class StudentProfileScreen extends StatelessWidget {
     );
   }
 
-  void _onLogout(BuildContext context) {
+   void _onLogout(BuildContext context) {
     // TODO: Implémenter la logique de déconnexion
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Déconnexion - fonctionnalité à implémenter")),
-    );
+     Navigator.pushReplacement(
+              // ignore: use_build_context_synchronously
+              context,
+              MaterialPageRoute(builder: (_) => const LoginScreen())
+            );
   }
+
 
   @override
   Widget build(BuildContext context) {

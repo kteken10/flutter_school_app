@@ -199,7 +199,13 @@ class _NoteScreenState extends State<NoteScreen> {
     }
     return gradesBySubject.keys.toList();
   }
-
+ final String name = "Mme. Dupont";
+  final String email = "dupont.teacher@example.com";
+  final String profileImageUrl = "assets/teacher_profile.png";
+  final int subjectCount = 3;
+  final int classCount = 2;
+  final List<String> subjects = ["Math", "Physique", "Français"];
+  final List<String> classes = ["Classe A", "Classe B"];
   List<double> _getGradesForStudentAndSubjects(String studentId, List<String> subjects) {
     final gradesBySubject = _studentGrades[studentId];
     if (gradesBySubject == null) return [];
@@ -247,8 +253,12 @@ class _NoteScreenState extends State<NoteScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                  const SizedBox(height: 64),
-               
+ const SizedBox(height: 50),
+                TeacherCard(name: name, email: email, profileImageUrl: profileImageUrl, subjectCount: subjectCount, classCount: classCount, subjects: subjects, classes: classes, onAddPressed: (){
+
+                }),
+                 
+                    
                    TeacherCardDeco(imagePaths: ['assets/registerd_school.jpg','assets/student_black.jpg']),
           const SizedBox(height: 16),
           Container(
