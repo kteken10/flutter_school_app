@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../../services/auth_service.dart';
 import '../../ui/teacher_card_deco.dart';
-
 import '../admin/admin_home.dart';
 import '../student/student_home.dart';
 import '../teacher/teacher_home.dart';
@@ -10,7 +7,10 @@ import 'register_screen.dart';
 import '../../constants/colors.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _LoginScreenState createState() => _LoginScreenState();
 }
 
@@ -19,8 +19,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _bypassMode = false;
-  String? _selectedRole; // Pour stocker le rôle sélectionné dans le bypass
+
+  // Stockage des credentials utilisateurs : email -> {password, role}
+  final Map<String, Map<String, String>> _users = {
+    'patientdjappa@yahoo.com': {
+      'password': '11111111',
+      'role': 'student',
+    },
+    'Eboa Pière': {
+      'password': '88888888',
+      'role': 'teacher',
+    },
+    'demo@demo.com': {
+      'password': '33333333',
+      'role': 'admin',
+    },
+  };
 
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
@@ -55,54 +69,76 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _handleBypassLogin(BuildContext context) async {
-    final authService = Provider.of<AuthService>(context, listen: false);
-
-    if (_selectedRole == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez sélectionner un rôle')),
-      );
-      return;
-    }
+  void _login() async {
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+    await Future.delayed(const Duration(seconds: 1));
+    setState(() => _isLoading = false);
 
-    try {
-      await Future.delayed(const Duration(seconds: 1));
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
 
-      authService.setBypassRole(_selectedRole!);
+    if (_users.containsKey(email)) {
+      final user = _users[email]!;
 
-      switch (_selectedRole) {
-        case 'admin':
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
-          );
-          break;
+      if (user['password'] == password) {
+        // Authentification réussie, redirection selon rôle
+        switch (user['role']) {
+          case 'student':
+            Navigator.pushReplacement(
+              // ignore: use_build_context_synchronously
+              context,
+              MaterialPageRoute(builder: (_) => const StudentHomeScreen()),
+            );
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Bienvenue Étudiant Djappa')),
+            );
+            break;
 
-        case 'teacher':
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const TeacherHomeScreen()),
-          );
-          break;
+          case 'teacher':
+            Navigator.pushReplacement(
+              // ignore: use_build_context_synchronously
+              context,
+              MaterialPageRoute(builder: (_) => const TeacherHomeScreen()),
+            );
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Bienvenue Enseignant Eboa Pière')),
+            );
+            break;
 
-        case 'student':
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const StudentHomeScreen()),
-          );
-          break;
+          case 'admin':
+            Navigator.pushReplacement(
+              // ignore: use_build_context_synchronously
+              context,
+              MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
+            );
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Compte Démo connecté')),
+            );
+            break;
 
-        default:
-          Navigator.pushReplacementNamed(context, '/home');
+          default:
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Rôle inconnu')),
+            );
+        }
+      } else {
+        // Mauvais mot de passe
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Mot de passe incorrect')),
+        );
       }
-    } catch (e) {
+    } else {
+      // Email non trouvé
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: ${e.toString()}')),
+        const SnackBar(content: Text('Utilisateur non trouvé')),
       );
-    } finally {
-      setState(() => _isLoading = false);
     }
   }
 
@@ -142,99 +178,56 @@ class _LoginScreenState extends State<LoginScreen> {
                   ' Votre plateforme de gestion de note optimisée',
                   style: TextStyle(
                     fontSize: 14,
+                    // ignore: deprecated_member_use
                     color: AppColors.textSecondary.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(height: 40),
-
                 Form(
                   key: _formKey,
                   child: Column(
                     children: [
-                      // Champs email/mdp normaux affichés uniquement si bypass désactivé
-                      if (!_bypassMode) ...[
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: _inputDecoration('Email', Icons.email),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Veuillez entrer votre email';
-                              }
-                              if (!value.contains('@')) {
-                                return 'Veuillez entrer un email valide';
-                              }
-                              return null;
-                            },
-                          ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
                         ),
-                        const SizedBox(height: 20),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: TextFormField(
-                            controller: _passwordController,
-                            obscureText: true,
-                            decoration: _inputDecoration('Mot de passe', Icons.lock),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Veuillez entrer votre mot de passe';
-                              }
-                              if (value.length < 6) {
-                                return 'Le mot de passe doit contenir au moins 6 caractères';
-                              }
-                              return null;
-                            },
-                          ),
+                        child: TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: _inputDecoration('Email', Icons.email),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer votre email';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Veuillez entrer un email valide';
+                            }
+                            return null;
+                          },
                         ),
-                      ],
-                      // Sélecteur de rôle toujours visible en mode bypass
-                      if (_bypassMode) ...[
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedRole,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              labelText: 'Sélectionnez un rôle',
-                            ),
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'admin',
-                                child: Text('Administrateur'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'teacher',
-                                child: Text('Enseignant'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'student',
-                                child: Text('Étudiant'),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedRole = value;
-                              });
-                            },
-                            validator: (value) =>
-                                value == null ? 'Veuillez sélectionner un rôle' : null,
-                          ),
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
                         ),
-                        const SizedBox(height: 20),
-                      ],
-
+                        child: TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: _inputDecoration('Mot de passe', Icons.lock),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer votre mot de passe';
+                            }
+                            if (value.length < 6) {
+                              return 'Le mot de passe doit contenir au moins 6 caractères';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
                       const SizedBox(height: 30),
                       SizedBox(
                         width: double.infinity,
@@ -246,39 +239,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderRadius: BorderRadius.circular(50),
                             ),
                           ),
-                          onPressed: _isLoading
-                              ? null
-                              : () async {
-                                  if (_bypassMode) {
-                                    await _handleBypassLogin(context);
-                                  } else {
-                                    if (_formKey.currentState!.validate()) {
-                                      setState(() => _isLoading = true);
-                                      try {
-                                        final authService =
-                                            Provider.of<AuthService>(context, listen: false);
-                                        final user = await authService.signInWithEmailAndPassword(
-                                          _emailController.text.trim(),
-                                          _passwordController.text.trim(),
-                                        );
-                                        setState(() => _isLoading = false);
-                                        if (user != null) {
-                                          Navigator.pushReplacementNamed(context, '/home');
-                                        }
-                                      } catch (e) {
-                                        setState(() => _isLoading = false);
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Erreur: ${e.toString()}')),
-                                        );
-                                      }
-                                    }
-                                  }
-                                },
+                          onPressed: _isLoading ? null : _login,
                           child: _isLoading
                               ? const CircularProgressIndicator(color: Colors.white)
-                              : Text(
-                                  _bypassMode ? 'Accéder directement' : 'Se connecter',
-                                  style: const TextStyle(
+                              : const Text(
+                                  'Se connecter',
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.white,
                                     letterSpacing: 1.2,
@@ -287,7 +253,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -295,32 +260,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => RegisterScreen()),
+                                MaterialPageRoute(builder: (_) => RegisterScreen()),
                               );
                             },
                             child: Text(
                               'Créer un compte',
                               style: TextStyle(
-                                  color: AppColors.primary, fontWeight: FontWeight.w600),
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-
-                      // Switch pour activer/désactiver le bypass TOUJOURS visible
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('Mode bypass'),
-                          Switch(
-                            value: _bypassMode,
-                            onChanged: (value) {
-                              setState(() {
-                                _bypassMode = value;
-                                _selectedRole = null;
-                              });
-                            },
                           ),
                         ],
                       ),
@@ -328,7 +277,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ],
-              
             ),
           ),
         ),

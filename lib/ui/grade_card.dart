@@ -34,8 +34,21 @@ class GradeCard extends StatelessWidget {
     }
   }
 
+  Color _getProgressColor(double value) {
+    if (value >= 0.8) {
+      return Colors.green;
+    } else if (value >= 0.5) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final double progress = grade.value! / 20;
+    final Color badgeColor = _getProgressColor(progress);
+
     return Card(
       elevation: 0.3,
       color: Colors.white,
@@ -45,21 +58,21 @@ class GradeCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // Badge Note
+            // Badge Note avec couleur dynamique selon la note
             Container(
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: _getStatusColor(grade.status).withOpacity(0.2),
+                color: badgeColor.withOpacity(0.15),
                 shape: BoxShape.circle,
               ),
               child: Center(
                 child: Text(
-                  grade.formattedValue,
+                  grade.formattedValue+'/20',
                   style: TextStyle(
-                    color: _getStatusColor(grade.status),
+                    color: badgeColor,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 11,
                   ),
                 ),
               ),

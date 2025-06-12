@@ -40,10 +40,7 @@ class AuthWrapper extends StatelessWidget {
             return TeacherHomeScreen();
           case UserRole.student:
             return StudentHomeScreen();
-          default:
-            return const Scaffold(
-              body: Center(child: Text("Rôle utilisateur inconnu")),
-            );
+         
         }
       },
     );
