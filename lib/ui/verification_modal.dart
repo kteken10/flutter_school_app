@@ -58,7 +58,7 @@ class _AdminVerificationModalState extends State<AdminVerificationModal> {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
-              color: AppColors.primary,
+              color: AppColors.secondary,
             ),
             textAlign: TextAlign.center,
           ),

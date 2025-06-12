@@ -29,7 +29,7 @@ class StudentCardInfo extends StatelessWidget {
   Color getClassColor(String className) {
     switch (className) {
       case 'L1':
-        return AppColors.primary;
+        return AppColors.secondary;
       case 'L2':
         return Colors.blue;
       case 'L3':
@@ -39,7 +39,7 @@ class StudentCardInfo extends StatelessWidget {
       case 'M2':
         return Colors.orange;
       default:
-        return AppColors.textSecondary;
+        return AppColors.textprimary;
     }
   }
 
@@ -93,7 +93,7 @@ class StudentCardInfo extends StatelessWidget {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: AppColors.textPrimary,
+                        color: AppColors.textprimary,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -101,7 +101,7 @@ class StudentCardInfo extends StatelessWidget {
                       "$subjectCount matières suivies",
                       style: const TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: AppColors.textprimary,
                       ),
                     ),
                     const SizedBox(height: 6),

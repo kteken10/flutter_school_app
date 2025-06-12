@@ -51,7 +51,7 @@ class CardNote extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: AppColors.secondary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -83,13 +83,13 @@ class CardNote extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.secondary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               note.toStringAsFixed(2),
               style: const TextStyle(
-                color: AppColors.primary,
+                color: AppColors.secondary,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -97,7 +97,7 @@ class CardNote extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           IconButton(
-            icon: const Icon(Icons.arrow_forward_ios, color: AppColors.primary, size: 22),
+            icon: const Icon(Icons.arrow_forward_ios, color: AppColors.secondary, size: 22),
             onPressed: onProfileTap,
             tooltip: "Voir le profil",
           ),

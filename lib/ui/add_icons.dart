@@ -11,12 +11,12 @@ class AddIcon extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: AppColors.primary,
+        color: AppColors.secondary,
         shape: BoxShape.circle,
         boxShadow: [
           // Ombre portée pour l'effet flottant
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.4),
+            color: AppColors.secondary.withOpacity(0.4),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 4),
@@ -33,8 +33,8 @@ class AddIcon extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppColors.primary.withOpacity(0.9),
-            AppColors.primary.withOpacity(1.0),
+            AppColors.secondary.withOpacity(0.9),
+            AppColors.secondary.withOpacity(1.0),
           ],
         ),
       ),

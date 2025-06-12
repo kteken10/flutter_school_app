@@ -36,7 +36,7 @@ class StudentCard extends StatelessWidget {
   Color getClassColor(String className) {
     switch (className) {
       case 'L1':
-        return AppColors.primary;
+        return AppColors.secondary;
       case 'L2':
         return Colors.blue;
       case 'L3':
@@ -46,7 +46,7 @@ class StudentCard extends StatelessWidget {
       case 'M2':
         return Colors.orange;
       default:
-        return AppColors.textSecondary;
+        return AppColors.textprimary;
     }
   }
 
@@ -54,7 +54,7 @@ class StudentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       color: Colors.white,
-      elevation: 0.5,
+      elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: InkWell(
         onTap: onProfileTap,
@@ -102,7 +102,7 @@ class StudentCard extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: AppColors.textprimary,
                             ),
                           ),
                         ),
@@ -148,7 +148,7 @@ class StudentCard extends StatelessWidget {
                                 Text(
                                   subjectNames[index],
                                   style: const TextStyle(
-                                    color: AppColors.primary,
+                                    color: AppColors.secondary,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -160,7 +160,7 @@ class StudentCard extends StatelessWidget {
                                   Text(
                                     grade.toStringAsFixed(1),
                                     style: const TextStyle(
-                                      color: AppColors.primary,
+                                      color: AppColors.secondary,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                     ),

@@ -63,6 +63,7 @@ class _SearchZoneState extends State<SearchZone> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
+      
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -103,14 +104,14 @@ class _SearchZoneState extends State<SearchZone> {
               width: 40,
               margin: const EdgeInsets.only(top: 8),
               child: IconButton(
-                icon: const Icon(Icons.camera_alt, size: 20, color: AppColors.textSecondary),
+                icon: const Icon(Icons.camera_alt, size: 20, color: AppColors.textprimary),
                 onPressed: widget.onCameraPressed,
                 padding: EdgeInsets.zero,
                 style: IconButton.styleFrom(
-                  backgroundColor: AppColors.textSecondary.withOpacity(0.7),
+                  backgroundColor: AppColors.textprimary.withOpacity(0.7),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(50),
-                    side: const BorderSide(color: AppColors.textSecondary, width: 1),
+                    side: const BorderSide(color: AppColors.textprimary, width: 1),
                   ),
                 ),
               ),
@@ -126,7 +127,7 @@ class _SearchZoneState extends State<SearchZone> {
     if (_showClearButton) {
       icons.add(
         IconButton(
-          icon: const Icon(Icons.clear, size: 20, color: AppColors.textSecondary),
+          icon: const Icon(Icons.clear, size: 20, color: AppColors.textprimary),
           onPressed: _onClearPressed,
           padding: EdgeInsets.zero,
         ),
@@ -136,7 +137,7 @@ class _SearchZoneState extends State<SearchZone> {
     if (widget.onMicPressed != null) {
       icons.add(
         IconButton(
-          icon: const Icon(Icons.mic, color: AppColors.textSecondary),
+          icon: const Icon(Icons.mic, color: AppColors.textprimary),
           onPressed: widget.onMicPressed,
           padding: EdgeInsets.zero,
         ),

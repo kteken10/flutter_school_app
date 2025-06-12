@@ -58,7 +58,7 @@ class _TeacherCardState extends State<TeacherCard>
       child: Text(
         label,
         style: const TextStyle(
-          color: AppColors.primary,
+          color: AppColors.secondary,
           fontWeight: FontWeight.w600,
           fontSize: 10,
         ),
@@ -71,7 +71,7 @@ class _TeacherCardState extends State<TeacherCard>
       label: Text(
         subject,
         style: const TextStyle(
-          color: AppColors.primary,
+          color: AppColors.secondary,
           fontWeight: FontWeight.w500,
           fontSize: 10,
         ),

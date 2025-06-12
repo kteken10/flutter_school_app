@@ -46,7 +46,7 @@ class PvCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: AppColors.textprimary,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -38,7 +38,7 @@ class TeacherCard extends StatelessWidget {
       case 'biologie':
         return Colors.teal;
       default:
-        return AppColors.primary;
+        return AppColors.secondary;
     }
   }
 
@@ -168,7 +168,7 @@ class TeacherCard extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.add_circle_outline,
-                        color: AppColors.primary),
+                        color: AppColors.secondary),
                     onPressed: onAddPressed,
                   ),
                 ],

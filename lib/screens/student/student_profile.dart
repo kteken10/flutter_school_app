@@ -2,10 +2,24 @@ import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
 
 import '../../models/user.dart';
-import '../teacher/profile_info.dart';
+import '../../ui/profile_info_card.dart';
 
 class StudentProfileScreen extends StatelessWidget {
   const StudentProfileScreen({super.key});
+
+  void _onEditProfile(BuildContext context) {
+    // TODO: Implémenter la logique de modification de profil
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Modifier le profil - fonctionnalité à implémenter")),
+    );
+  }
+
+  void _onLogout(BuildContext context) {
+    // TODO: Implémenter la logique de déconnexion
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Déconnexion - fonctionnalité à implémenter")),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +30,7 @@ class StudentProfileScreen extends StatelessWidget {
       lastName: 'Djappa',
       role: UserRole.student,
       email: 'patientdjappa@gmail.com',
-      studentId: '000000',
+      studentId: 'ETD 129873',
       className: 'Classe L1',
       department: 'Informatique',
       createdAt: DateTime(2023, 1, 1),
@@ -32,8 +46,8 @@ class StudentProfileScreen extends StatelessWidget {
             Center(
               child: CircleAvatar(
                 radius: 45,
-                backgroundColor: AppColors.primary.withOpacity(0.1),
-                child: const Icon(Icons.person, size: 45, color: AppColors.primary),
+                backgroundColor: AppColors.secondary.withOpacity(0.1),
+                child: const Icon(Icons.person, size: 45, color: AppColors.secondary),
               ),
             ),
             const SizedBox(height: 16),
@@ -52,95 +66,75 @@ class StudentProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
 
-            Text(
-              "Informations Académiques",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 10),
-            ProfileInfoCard(
-              icon: Icons.badge,
-              title: "Numéro étudiant",
-              subtitle: user.studentId ?? 'N/A',
-            ),
             ProfileInfoCard(
               icon: Icons.school,
-              title: "Classe",
-              subtitle: user.className ?? 'N/A',
-            ),
-            ProfileInfoCard(
-              icon: Icons.apartment,
-              title: "Département",
-              subtitle: user.department ?? 'N/A',
-            ),
-
-            const SizedBox(height: 30),
-            Text(
-              "Informations Personnelles",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 10),
-            ProfileInfoCard(
-              icon: Icons.email,
-              title: "Email",
-              subtitle: user.email,
-            ),
-            ProfileInfoCard(
-              icon: Icons.calendar_today,
-              title: "Compte créé le",
-              subtitle: '${user.createdAt.day.toString().padLeft(2, '0')}/'
-                  '${user.createdAt.month.toString().padLeft(2, '0')}/'
-                  '${user.createdAt.year}',
+              title: "Informations Académiques",
+              infos: [
+                InfoItem(label: "Numéro étudiant", value: user.studentId ?? 'N/A'),
+                InfoItem(label: "Classe", value: user.className ?? 'N/A'),
+                InfoItem(label: "Département", value: user.department ?? 'N/A'),
+              ],
             ),
 
             const SizedBox(height: 30),
 
-            // Bouton Modifier profil désactivé (ou retiré car pas de backend)
-            ElevatedButton.icon(
-              onPressed: null, // désactivé
-              icon: const Icon(Icons.edit),
-              label: const Text("Modifier le profil (désactivé)"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            ProfileInfoCard(
+              icon: Icons.person,
+              title: "Informations Personnelles",
+              infos: [
+                InfoItem(label: "Email", value: user.email),
+                InfoItem(
+                  label: "Compte créé le",
+                  value:
+                      '${user.createdAt.day.toString().padLeft(2, '0')}/'
+                      '${user.createdAt.month.toString().padLeft(2, '0')}/'
+                      '${user.createdAt.year}',
                 ),
-              ),
+              ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 30),
 
-            // Bouton Déconnexion (désactivé ou retiré, car pas d'auth)
-            ElevatedButton.icon(
-              onPressed: null, // désactivé
-              icon: const Icon(Icons.logout),
-              label: const Text("Déconnexion (désactivé)"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            Center(
-              child: Text(
-                "Mode Bypass : données locales affichées, modifications désactivées",
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
+          Row(
+  children: [
+    Expanded(
+      child: ElevatedButton.icon(
+        onPressed: () => _onEditProfile(context),
+        icon: const Icon(Icons.edit, color: Colors.white),
+        label: const Text(
+          "Modifier le profil",
+          style: TextStyle(color: Colors.white),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.secondary,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+      ),
+    ),
+    const SizedBox(width: 16),
+    Expanded(
+      child: ElevatedButton.icon(
+        onPressed: () => _onLogout(context),
+        icon: const Icon(Icons.logout, color: AppColors.secondary),
+        label: Text(
+          "Déconnexion",
+          style: TextStyle(color: AppColors.secondary),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+            side: BorderSide(color: AppColors.secondary,width: 0.1),
+          ),
+        ),
+      ),
+    ),
+  ],
+),
           ],
         ),
       ),

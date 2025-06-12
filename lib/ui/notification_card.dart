@@ -103,8 +103,8 @@ class NotificationCard extends StatelessWidget {
                                 style: theme.textTheme.titleSmall?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: isRead
-                                      ? AppColors.textPrimary
-                                      : AppColors.primary,
+                                      ? AppColors.textprimary
+                                      : AppColors.secondary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

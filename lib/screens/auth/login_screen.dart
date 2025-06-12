@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
       'password': '11111111',
       'role': 'student',
     },
-    'Eboa Pière': {
+    'eboa@yahoo.cm': {
       'password': '88888888',
       'role': 'teacher',
     },
@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       labelText: label,
       prefixIcon: Icon(
         icon,
-        color: AppColors.textSecondary.withOpacity(0.2),
+        color: AppColors.textprimary.withOpacity(0.2),
       ),
       filled: true,
       fillColor: Colors.white,
@@ -161,7 +161,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 const TeacherCardDeco(
-                  imagePath: 'assets/login_school.jpg',
+                 
+                  imagePaths: ['assets/login_school.jpg'],
                   withHorizontalMargin: false,
                 ),
                 const SizedBox(height: 30),
@@ -170,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: AppColors.textprimary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -179,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 14,
                     // ignore: deprecated_member_use
-                    color: AppColors.textSecondary.withOpacity(0.8),
+                    color: AppColors.textprimary.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(height: 40),
@@ -266,7 +267,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Text(
                               'Créer un compte',
                               style: TextStyle(
-                                color: AppColors.primary,
+                                color: AppColors.secondary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

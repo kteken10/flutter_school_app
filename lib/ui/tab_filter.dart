@@ -53,7 +53,7 @@ class _AcademicTabFilterState extends State<AcademicTabFilter> {
                   Text(
                     widget.tabs[index],
                     style: TextStyle(
-                      color: isSelected ? AppColors.primary : Colors.grey[700],
+                      color: isSelected ? AppColors.secondary : Colors.grey[700],
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -68,7 +68,7 @@ class _AcademicTabFilterState extends State<AcademicTabFilter> {
   }
 
   Icon getAcademicIcon(String tab, bool isSelected) {
-    Color iconColor = isSelected ? AppColors.primary : Colors.grey[700]!;
+    Color iconColor = isSelected ? AppColors.secondary : Colors.grey[700]!;
 
     switch (tab.toLowerCase()) {
  

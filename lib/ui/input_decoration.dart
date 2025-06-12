@@ -7,7 +7,7 @@ class InputDecorations {
     return InputDecoration(
       labelText: label,
       prefixIcon: icon != null 
-          ? Icon(icon, color: AppColors.textSecondary.withOpacity(0.2), size: 22) 
+          ? Icon(icon, color: AppColors.textprimary.withOpacity(0.2), size: 22) 
           : null,
       filled: true,
       fillColor: Colors.white,

@@ -65,7 +65,7 @@ class _FilePickerCardState extends State<FilePickerCard> with SingleTickerProvid
               return Icon(
                 Icons.cloud_upload_outlined,
                 size: _animation.value,
-                color: AppColors.primary,
+                color: AppColors.secondary,
               );
             },
           ),

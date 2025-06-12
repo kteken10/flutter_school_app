@@ -46,7 +46,7 @@ class SortFilterChips extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: AppColors.secondary,
             ),
           ),
           const SizedBox(height: 8),
@@ -65,9 +65,9 @@ class SortFilterChips extends StatelessWidget {
                         onSortChanged(option);
                       }
                     },
-                    selectedColor: AppColors.primary,
+                    selectedColor: AppColors.secondary,
                     labelStyle: TextStyle(
-                      color: selected ? Colors.white : AppColors.textPrimary,
+                      color: selected ? Colors.white : AppColors.textprimary,
                     ),
                     backgroundColor: Colors.grey[200],
                   ),

@@ -75,7 +75,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 const TeacherCardDeco(
-                  imagePath: 'assets/registerd_school.jpg',
+                 
+                  imagePaths: ['assets/registerd_school.jpg'],
+
                   withHorizontalMargin: true,
                 ),
                 const SizedBox(height: 16),

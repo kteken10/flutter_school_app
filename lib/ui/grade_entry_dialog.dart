@@ -35,7 +35,7 @@ class GradeFormField extends StatelessWidget {
             label,
             style: const TextStyle(
               fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+              color: AppColors.textprimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -197,7 +197,7 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        borderSide: const BorderSide(color: AppColors.secondary, width: 1.5),
       ),
       filled: true,
       fillColor: Colors.grey.shade50,
@@ -223,7 +223,7 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: AppColors.secondary,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -356,7 +356,7 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   child: ElevatedButton(
                     onPressed: _isSubmitting ? null : _submitGrade,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: AppColors.secondary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

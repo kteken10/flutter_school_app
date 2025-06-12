@@ -63,7 +63,7 @@ class StudentTranscriptScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Relevé de notes académique'),
-        backgroundColor: AppColors.primary,
+        backgroundColor: AppColors.secondary,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -105,7 +105,7 @@ class StudentTranscriptScreen extends StatelessWidget {
                                   '${(course['grade'] as double).toStringAsFixed(2)}',
                                   style: const TextStyle(color: Colors.white),
                                 ),
-                                backgroundColor: AppColors.primary,
+                                backgroundColor: AppColors.secondary,
                               ),
                             ],
                           ),

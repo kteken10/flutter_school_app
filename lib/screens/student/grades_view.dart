@@ -43,7 +43,7 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
           padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
           child: Row(
             children: [
-              PulsingAvatar(imagePath: userImageAsset),
+              // PulsingAvatar(imagePath: userImageAsset),
               const Spacer(),
                 YearSelectorDropdown(
                         years: availableYears,
@@ -58,7 +58,7 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
         children: [
         
         
-          TeacherCardDeco(imagePath: 'assets/teacher_picture.jpg'),
+          TeacherCardDeco(imagePaths: ['assets/registerd_school.jpg','student_black.jpg'],),
           const SizedBox(height: 16),
           Expanded(
             child: ListView(

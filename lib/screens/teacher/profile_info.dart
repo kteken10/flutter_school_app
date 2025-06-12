@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../constants/colors.dart';
 class ProfileInfoCard extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -13,7 +15,7 @@ class ProfileInfoCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 3,
       child: ListTile(
-        leading: Icon(icon, color: Theme.of(context).primaryColor),
+        leading: Icon(icon, color: AppColors.secondary),
         title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(subtitle, style: TextStyle(color: Colors.grey[700])),
       ),

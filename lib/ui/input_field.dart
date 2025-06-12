@@ -61,11 +61,11 @@ class InputField extends StatelessWidget {
                 horizontal: 16.0,
               ),
               hintText: hintText,
-              hintStyle: const TextStyle(color: AppColors.textSecondary),
+              hintStyle: const TextStyle(color: AppColors.textprimary),
               prefixIcon: prefixIcon ?? (showSearchIcon 
                   ? const Icon(
                       Icons.search_rounded,
-                      color: AppColors.textSecondary,
+                      color: AppColors.textprimary,
                       size: 24,
                     ) 
                   : null),

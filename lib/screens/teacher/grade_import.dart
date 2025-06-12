@@ -39,7 +39,7 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
         'Importer des notes',
         style: TextStyle(
           fontSize: 20,
-          color: AppColors.textPrimary,
+          color: AppColors.textprimary,
         ),
       ),
 
@@ -60,7 +60,10 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
 
         
 
-            const TeacherCardDeco(imagePath: 'assets/import_note.jpg'),
+            const TeacherCardDeco(
+             
+              imagePaths: ['assets/import_note.jpg'],
+            ),
 
             if (_importedPvs.isNotEmpty) ...[
               Padding(
@@ -72,7 +75,7 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
                     style: TextStyle(
                        fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
+                                    color: AppColors.secondary,
                     ),
                   ),
                 ),

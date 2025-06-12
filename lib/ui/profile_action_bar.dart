@@ -14,7 +14,7 @@ class ProfileActionButton extends StatelessWidget {
     required this.onPressed,
     required this.text,
     this.icon = Icons.arrow_forward_ios,
-    this.color = AppColors.primary,
+    this.color = AppColors.secondary,
     this.iconSize = 18,
     this.textStyle,
   });

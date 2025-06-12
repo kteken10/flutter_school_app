@@ -50,10 +50,10 @@ class GradeCard extends StatelessWidget {
     final Color badgeColor = _getProgressColor(progress);
 
     return Card(
-      elevation: 0.3,
+      elevation: 0,
       color: Colors.white,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -88,18 +88,18 @@ class GradeCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      color: AppColors.textprimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.person, size: 14, color: AppColors.textSecondary),
+                      Icon(Icons.person, size: 14, color: AppColors.textprimary),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           teacher.fullName,
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          style: const TextStyle(fontSize: 12, color: AppColors.textprimary),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -108,11 +108,11 @@ class GradeCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 14, color: AppColors.textSecondary),
+                      Icon(Icons.calendar_today, size: 14, color: AppColors.textprimary),
                       const SizedBox(width: 4),
                       Text(
                         DateFormatter.formatDate(publicationDate),
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: const TextStyle(fontSize: 12, color: AppColors.textprimary),
                       ),
                     ],
                   ),

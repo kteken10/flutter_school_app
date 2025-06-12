@@ -30,7 +30,7 @@ class YearSelectorDropdown extends StatelessWidget {
           icon: const Icon(Icons.arrow_drop_down, size: 20),
           elevation: 2,
           style: const TextStyle(
-            color: AppColors.primary,
+            color: AppColors.secondary,
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),

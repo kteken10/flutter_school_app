@@ -29,7 +29,7 @@ class AppColors {
   static const Color textPrimary = Color(0xFF212121); // Gris très foncé
 
   // Couleur de texte secondaire
-  static const Color textSecondary = Color(0xFF757575); // Gris moyen
+  static const Color textprimary = Color(0xFF757575); // Gris moyen
 
   // Fond de container clair
   static const Color containerBackground = Color(0xFFFAFAFA); 
