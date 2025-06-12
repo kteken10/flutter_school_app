@@ -29,8 +29,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> with SingleTicker
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..repeat(reverse: true); // Cloche qui oscille en boucle
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
   }
 
   @override
@@ -39,65 +39,72 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> with SingleTicker
     super.dispose();
   }
 
+  Widget animatedIcon(IconData iconData, {bool showBadge = false}) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (_, child) {
+        // Oscillation plus marquée : +/- 0.3 radians (environ 17°)
+        double angle = 0.3 * (1 - _controller.value * 2);
+        return Transform.rotate(
+          angle: angle,
+          child: Stack(
+            children: [
+              Icon(iconData, size: 28), // Taille légèrement augmentée pour visibilité
+              if (showBadge)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: const Text(
+                      '3',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<SalomonBottomBarItem> bottomNavItems = [
       SalomonBottomBarItem(
-        icon: const Icon(Icons.school),
+        icon: animatedIcon(Icons.school),
         title: const Text("Notes"),
         selectedColor: AppColors.secondary,
         unselectedColor: Colors.grey,
       ),
       SalomonBottomBarItem(
-        icon: const Icon(Icons.upload_file),
+        icon: animatedIcon(Icons.upload_file),
         title: const Text("Import"),
         selectedColor: AppColors.secondary,
         unselectedColor: Colors.grey,
       ),
       SalomonBottomBarItem(
-        icon: AnimatedBuilder(
-          animation: _controller,
-          builder: (_, child) {
-            return Transform.rotate(
-              angle: 0.2 * (1 - _controller.value * 2), // Rotation de -0.2 à 0.2 radians
-              child: Stack(
-                children: [
-                  const Icon(Icons.notifications),
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: const Text(
-                        '3',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+        icon: animatedIcon(Icons.notifications, showBadge: true),
         title: const Text("Notifications"),
         selectedColor: AppColors.secondary,
         unselectedColor: Colors.grey,
       ),
       SalomonBottomBarItem(
-        icon: const Icon(Icons.person),
+        icon: animatedIcon(Icons.person),
         title: const Text("Profil"),
         selectedColor: AppColors.secondary,
         unselectedColor: Colors.grey,
