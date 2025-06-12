@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schoop_app/constants/colors.dart';
 import '../../data/dummy_grade.dart';
-import '../../models/grade.dart';
 import '../../models/session.dart';
-import '../../models/subject.dart';
-import '../../models/user.dart';
 import '../../ui/grade_card.dart';
 import '../../ui/pulsing_avatar.dart';
 import '../../ui/teacher_card_deco.dart';
@@ -43,7 +40,7 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
           padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
           child: Row(
             children: [
-              // PulsingAvatar(imagePath: userImageAsset),
+              PulsingAvatar(imagePath: userImageAsset),
               const Spacer(),
                 YearSelectorDropdown(
                         years: availableYears,
@@ -58,7 +55,7 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
         children: [
         
         
-          TeacherCardDeco(imagePaths: ['assets/registerd_school.jpg','student_black.jpg'],),
+          TeacherCardDeco(imagePaths: ['assets/registerd_school.jpg','assets/student_black.jpg'],),
           const SizedBox(height: 16),
           Expanded(
             child: ListView(

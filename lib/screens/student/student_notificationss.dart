@@ -107,7 +107,7 @@ class StudentNotificationsScreen extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 64),
       itemCount: fakeNotifications.length,
       itemBuilder: (context, index) {
         final notif = fakeNotifications[index];
