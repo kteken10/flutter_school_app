@@ -169,9 +169,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   imagePaths: ['assets/login_school.jpg'],
                   withHorizontalMargin: false,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
               
-              
+                const SizedBox(height: 8),
                 Text(
                   ' Votre plateforme de gestion de note optimisée',
                   style: TextStyle(
@@ -182,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                      color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 40),
                 Form(
                   key: _formKey,
                   child: Column(
@@ -250,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     letterSpacing: 1.2,
                                     
                      fontFamily: 'Montserrat',
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                         ),
