@@ -33,7 +33,7 @@ class _GradeImportScreenState extends State<GradeImportScreen> {
   padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
   child: Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    crossAxisAlignment: CrossAxisAlignment.center, // CENTRER VERTICALEMENT
+    crossAxisAlignment: CrossAxisAlignment.center,
     children: [
       const Text(
         'Importer des notes',

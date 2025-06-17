@@ -39,6 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
+      labelStyle: TextStyle(  fontSize: 14,
+                     fontFamily: 'Montserrat',
+    fontWeight: FontWeight.w400),
       prefixIcon: Icon(
         icon,
         color: AppColors.textprimary.withOpacity(0.2),
@@ -148,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,34 +159,30 @@ class _LoginScreenState extends State<LoginScreen> {
                 Center(
                   child: Image.asset(
                     'assets/academic_logo.png',
-                    height: 100,
+                    height: 200,
+                    width: 250,
                   ),
                 ),
-                const SizedBox(height: 16),
+            
                 const TeacherCardDeco(
                  
                   imagePaths: ['assets/login_school.jpg'],
                   withHorizontalMargin: false,
                 ),
-                const SizedBox(height: 30),
-                Text(
-                  'Bienvenu sur !',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textprimary,
-                  ),
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 24),
+              
+              
                 Text(
                   ' Votre plateforme de gestion de note optimisée',
                   style: TextStyle(
                     fontSize: 14,
+                     fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w400,
                     // ignore: deprecated_member_use
-                    color: AppColors.textprimary.withOpacity(0.8),
+                     color: AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
                 Form(
                   key: _formKey,
                   child: Column(
@@ -249,6 +248,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     fontSize: 12,
                                     color: Colors.white,
                                     letterSpacing: 1.2,
+                                    
+                     fontFamily: 'Montserrat',
+    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                         ),
@@ -268,7 +270,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               'Créer un compte',
                               style: TextStyle(
                                 color: AppColors.secondary,
-                                fontWeight: FontWeight.w600,
+                              
+                                  fontSize: 14,
+                     fontFamily: 'Montserrat',
+     fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),

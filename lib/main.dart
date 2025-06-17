@@ -19,20 +19,20 @@ void main() async {
   FirebaseAuth.instance.setLanguageCode('fr');
   final classService = ClassService();
 
-   final classesToCreate = [
-     {'name': 'L1', 'department': 'Niveau 1'},
-     {'name': 'L2', 'department': 'Niveau 2'},
-     {'name': 'L3', 'department': 'Niveau 3'},
-     {'name': 'M1', 'department': 'Niveau Master 1'},
-     {'name': 'M2', 'department': 'Niveau Master 2'},
-   ];
+  final classesToCreate = [
+    {'name': 'L1', 'department': 'Niveau 1'},
+    {'name': 'L2', 'department': 'Niveau 2'},
+    {'name': 'L3', 'department': 'Niveau 3'},
+    {'name': 'M1', 'department': 'Niveau Master 1'},
+    {'name': 'M2', 'department': 'Niveau Master 2'},
+  ];
 
-   for (var classe in classesToCreate) {
-     bool exists = await classService.classExists(classe['name']!);
-     if (!exists) {
-       await classService.createClass(classe['name']!, classe['department']!);
-     }
-   }
+  for (var classe in classesToCreate) {
+    bool exists = await classService.classExists(classe['name']!);
+    if (!exists) {
+      await classService.createClass(classe['name']!, classe['department']!);
+    }
+  }
 
   // Création de l'admin par défaut
   await createDefaultAdmin();
@@ -48,23 +48,26 @@ class MyApp extends StatelessWidget {
     final emailService = EmailService(
       smtpServer: 'smtp.gmail.com',
       smtpUsername: 'patientdjappa@gmail.com',
-      smtpPassword: 'bjtp uswy idke kddq',);
+      smtpPassword: 'bjtp uswy idke kddq',
+    );
+
     return MultiProvider(
       providers: [
         Provider<AuthService>(
           create: (_) => AuthService(emailService: emailService),
-          
-        ),Provider<ClassService>(
-          create: (_) => ClassService()
-        ) 
+        ),
+        Provider<ClassService>(
+          create: (_) => ClassService(),
+        ),
       ],
       child: MaterialApp(
         title: 'Plateforme de résultats académiques',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          fontFamily: 'Montserrat', // ✅ Utilisation globale de la police Montserrat
+         
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: const LoginScreen(), // ou AuthWrapper() si tu veux gérer la connexion
+        home: const LoginScreen(),
       ),
     );
   }
