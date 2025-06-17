@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/colors.dart';
+import '../../models/user.dart';
 
 class GradeFormField extends StatelessWidget {
   final String label;
@@ -37,10 +38,18 @@ class GradeFormField extends StatelessWidget {
 
 class GradeEntryDialog extends StatefulWidget {
   final VoidCallback onGradeSubmitted;
+  final List<UserModel> students;
+  final List<String> classes;
+  final List<String> subjects;
+  final Function(UserModel, String, String, double, String) onSubmit;
 
   const GradeEntryDialog({
     super.key,
     required this.onGradeSubmitted,
+    required this.students,
+    required this.classes,
+    required this.subjects,
+    required this.onSubmit,
   });
 
   @override
@@ -53,26 +62,19 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
   final _commentController = TextEditingController();
 
   String? _selectedClass;
-  String? _selectedStudent;
+  UserModel? _selectedStudent;
   String? _selectedSubject;
-  String? _selectedSessionType;
+  String? _selectedSessionType = 'Contrôle Continu';
   bool _isSubmitting = false;
 
-  // Données préremplies
-  final List<String> _classes = ['L1', 'L2', 'L3', 'M1', 'M2'];
-  final List<String> _subjects = [
-    'Linux',
-    'Base de données',
-    'Algorithmique',
-    'Développement Web',
-    'Développement Mobile',
-    'Réseaux',
-    'Cloud Computing',
-    'DevOps',
-    'Intelligence Artificielle',
-    'Machine Learning',
-  ];
   final List<String> _sessionTypes = ['Contrôle Continu', 'Session Normale'];
+  List<UserModel> _filteredStudents = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredStudents = widget.students;
+  }
 
   @override
   void dispose() {
@@ -87,22 +89,36 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
     );
   }
 
+  void _filterStudentsByClass(String? classId) {
+    setState(() {
+      _selectedClass = classId;
+      _selectedStudent = null;
+      _filteredStudents = classId == null 
+          ? widget.students 
+          : widget.students.where((s) => s.className == classId).toList();
+    });
+  }
+
   void _submitGrade() {
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedClass == null || _selectedSubject == null || _selectedSessionType == null) {
+    if (_selectedStudent == null || _selectedSubject == null || _selectedSessionType == null) {
       _showError('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
     setState(() => _isSubmitting = true);
 
-    // Simuler un délai pour l'envoi
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
-      
-      widget.onGradeSubmitted();
-      Navigator.of(context).pop();
-    });
+    final grade = double.parse(_gradeController.text);
+    widget.onSubmit(
+      _selectedStudent!,
+      _selectedSubject!,
+      _selectedSessionType!,
+      grade,
+      _commentController.text,
+    );
+
+    widget.onGradeSubmitted();
+    Navigator.of(context).pop();
   }
 
   InputDecoration _buildInputDecoration() {
@@ -153,23 +169,27 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   label: 'Classe *',
                   child: DropdownButtonFormField<String>(
                     value: _selectedClass,
-                    items: _classes.map((c) => DropdownMenuItem(
+                    items: widget.classes.map((c) => DropdownMenuItem(
                       value: c,
                       child: Text(c),
                     )).toList(),
-                    onChanged: (value) => setState(() => _selectedClass = value),
+                    onChanged: _filterStudentsByClass,
                     decoration: _buildInputDecoration(),
                     validator: (value) => value == null ? 'Sélection requise' : null,
                   ),
                 ),
 
                 GradeFormField(
-                  label: 'Étudiant',
-                  child: TextFormField(
-                    onChanged: (value) => _selectedStudent = value,
-                    decoration: _buildInputDecoration().copyWith(
-                      hintText: 'Nom de l\'étudiant',
-                    ),
+                  label: 'Étudiant *',
+                  child: DropdownButtonFormField<UserModel>(
+                    value: _selectedStudent,
+                    items: _filteredStudents.map((student) => DropdownMenuItem(
+                      value: student,
+                      child: Text(student.fullName),
+                    )).toList(),
+                    onChanged: (student) => setState(() => _selectedStudent = student),
+                    decoration: _buildInputDecoration(),
+                    validator: (value) => value == null ? 'Sélection requise' : null,
                   ),
                 ),
 
@@ -177,7 +197,7 @@ class _GradeEntryDialogState extends State<GradeEntryDialog> {
                   label: 'Matière *',
                   child: DropdownButtonFormField<String>(
                     value: _selectedSubject,
-                    items: _subjects.map((s) => DropdownMenuItem(
+                    items: widget.subjects.map((s) => DropdownMenuItem(
                       value: s,
                       child: Text(s),
                     )).toList(),
