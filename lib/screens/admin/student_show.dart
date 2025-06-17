@@ -1,37 +1,82 @@
 import 'package:flutter/material.dart';
 import '../../models/user.dart';
-import '../../services/student_service.dart';
 import '../../ui/student_card_info.dart';
 
-class AdminStudentsScreen extends StatelessWidget {
+class AdminStudentsScreen extends StatefulWidget {
   const AdminStudentsScreen({super.key});
 
-  // Liste fictive d'étudiants pour mode bypass
-  List<UserModel> getFakeStudents() {
+  @override
+  State<AdminStudentsScreen> createState() => _AdminStudentsScreenState();
+}
+
+class _AdminStudentsScreenState extends State<AdminStudentsScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<UserModel> allStudents = [];
+  List<UserModel> filteredStudents = [];
+
+  @override
+  void initState() {
+    super.initState();
+    allStudents = getLocalStudents();
+    filteredStudents = allStudents;
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredStudents = allStudents.where((student) {
+        final fullName = "${student.firstName} ${student.lastName}".toLowerCase();
+        return fullName.contains(query);
+      }).toList();
+    });
+  }
+
+  List<UserModel> getLocalStudents() {
     return [
       UserModel(
-        id: 'bypass1',
-        firstName: 'Bypass',
-        lastName: 'Etudiant1',
+        id: 'et001',
+        firstName: 'Alice',
+        lastName: 'Dupont',
         role: UserRole.student,
-        email: 'bypass1@exemple.com',
-        studentId: '999001',
-        className: 'Classe Bypass A',
-        department: 'Département Fictif',
-        createdAt: DateTime.now(),
-        
+        email: 'alice.dupont@example.com',
+        studentId: '1001',
+        className: 'L1',
+        department: 'Informatique',
+        createdAt: DateTime(2023, 9, 1),
       ),
       UserModel(
-        id: 'bypass2',
-        firstName: 'Bypass',
-        lastName: 'Etudiant2',
+        id: 'et002',
+        firstName: 'Brice',
+        lastName: 'Ngoma',
         role: UserRole.student,
-        email: 'bypass2@exemple.com',
-        studentId: '999002',
-        className: 'Classe Bypass B',
-        department: 'Département Fictif',
-        createdAt: DateTime.now(),
-       
+        email: 'brice.ngoma@example.com',
+        studentId: '1002',
+        className: 'L2',
+        department: 'Mathématiques',
+        createdAt: DateTime(2023, 9, 1),
+      ),
+      UserModel(
+        id: 'et003',
+        firstName: 'Carla',
+        lastName: 'Mbappe',
+        role: UserRole.student,
+        email: 'carla.mbappe@example.com',
+        studentId: '1003',
+        className: 'M1',
+        department: 'Physique',
+        createdAt: DateTime(2023, 9, 1),
+      ),
+      UserModel(
+        id: 'et004',
+        firstName: 'David',
+        lastName: 'Kouassi',
+        role: UserRole.student,
+        email: 'david.kouassi@example.com',
+        studentId: '1004',
+        className: 'L3',
+        department: 'Chimie',
+        createdAt: DateTime(2023, 9, 1),
       ),
     ];
   }
@@ -39,47 +84,63 @@ class AdminStudentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<UserModel>>(
-        future: StudentService().getStudents(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          List<UserModel> students;
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            // Mode bypass : données fictives
-            students = getFakeStudents();
-          } else {
-            students = snapshot.data!;
-          }
-
-          if (students.isEmpty) {
-            return const Center(child: Text('Aucun étudiant trouvé'));
-          }
-
-          return ListView.builder(
-            itemCount: students.length,
-            itemBuilder: (context, index) {
-              final student = students[index];
-              return StudentCardInfo(
-                student: student,
-                subjectCount: student.subjectsDisplay.length,
-                onTap: () {
-                  // TODO : navigation vers profil étudiant
-                },
-              );
-            },
-          );
-        },
+      appBar: AppBar(
+        title: const Text('Liste des étudiants'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                labelText: 'Rechercher un étudiant',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Étudiants trouvés : ${filteredStudents.length}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          Expanded(
+            child: filteredStudents.isEmpty
+                ? const Center(child: Text('Aucun étudiant trouvé'))
+                : ListView.builder(
+                    itemCount: filteredStudents.length,
+                    itemBuilder: (context, index) {
+                      final student = filteredStudents[index];
+                      return StudentCardInfo(
+                        student: student,
+                        subjectCount: student.subjectsDisplay.length,
+                        onTap: () {
+                          // TODO: Naviguer vers le détail de l'étudiant
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO : Ajouter un nouvel étudiant
+          // TODO: Ajouter un nouvel étudiant localement
         },
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }

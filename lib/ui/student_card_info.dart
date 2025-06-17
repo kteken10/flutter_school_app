@@ -105,11 +105,12 @@ class StudentCardInfo extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    LinearProgressIndicator(
-                      value: progress,
-                      color: getProgressColor(progress!),
-                      backgroundColor: getProgressColor(progress!).withOpacity(0.3),
-                    ),
+                    if (progress != null)
+                      LinearProgressIndicator(
+                        value: progress,
+                        color: getProgressColor(progress!),
+                        backgroundColor: getProgressColor(progress!).withOpacity(0.3),
+                      ),
                   ],
                 ),
               ),

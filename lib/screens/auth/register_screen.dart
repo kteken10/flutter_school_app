@@ -8,7 +8,7 @@ import '../../ui/controller/register_controller.dart';
 import '../../ui/form_components.dart';
 import '../../ui/teacher_card_deco.dart';
 import '../../ui/input_field.dart';
-import '../../ui/verification_modal.dart';
+import '../../ui/admin_verification_modal.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -39,20 +39,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  Future<bool> _showAdminVerification(BuildContext context) async {
-    final result = await showDialog<Map<String, String>>(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const AdminVerificationModal(),
-    );
+ Future<bool> _showAdminVerification(BuildContext context) async {
+  final result = await showDialog<Map<String, String>?>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => const AdminVerificationModal(),
+  );
 
-    if (result != null) {
-      _adminEmailController.text = result['email']!;
-      _adminPassphraseController.text = result['passphrase']!;
-      return true;
-    }
-    return false;
+  if (result != null && result['email'] != null && result['passphrase'] != null) {
+    _adminEmailController.text = result['email']!;
+    _adminPassphraseController.text = result['passphrase']!;
+    return true;
   }
+  return false; // Dialogue annulé ou invalide
+}
+
 
   @override
   Widget build(BuildContext context) {
