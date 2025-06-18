@@ -8,12 +8,13 @@ class Grade {
   final String subjectId;
   final String sessionId;
   final ExamSessionType sessionType;
-  final double? value; // Nullable pour gérer les absences
+  final double? value;
   final GradeStatus status;
   final String? comment;
   final String teacherId;
   final DateTime dateRecorded;
-  final String classId; // Nouveau: Classe de l'étudiant
+  final String classId;
+  final String subjectImagePath; // Nouveau: Chemin de l'image de la matière
 
   Grade({
     required this.id,
@@ -27,6 +28,7 @@ class Grade {
     required this.teacherId,
     required this.dateRecorded,
     required this.classId,
+    required this.subjectImagePath, // Nouveau paramètre obligatoire
   }) : assert(
           ((status == GradeStatus.graded || status == GradeStatus.published) && value != null) ||
           (!(status == GradeStatus.graded || status == GradeStatus.published) && value == null),
@@ -46,6 +48,7 @@ class Grade {
       teacherId: map['teacherId'],
       dateRecorded: DateTime.parse(map['dateRecorded']),
       classId: map['classId'],
+      subjectImagePath: map['subjectImagePath'] ?? 'assets/subjects/default.png', // Valeur par défaut
     );
   }
 
@@ -62,23 +65,52 @@ class Grade {
       'teacherId': teacherId,
       'dateRecorded': dateRecorded.toIso8601String(),
       'classId': classId,
+      'subjectImagePath': subjectImagePath, // Inclus dans la sérialisation
     };
   }
 
-  // Méthode améliorée
+  // Formatage amélioré avec emoji pour plus de clarté
   String get formattedValue {
-    if ((status == GradeStatus.graded || status == GradeStatus.published) && value != null) {
-      return value!.toStringAsFixed(2);
-    } else if (status == GradeStatus.absent) {
-      return 'Absent';
-    } else if (status == GradeStatus.excused) {
-      return 'Excusé';
-    } else {
-      return '–';
+    switch (status) {
+      case GradeStatus.graded:
+      case GradeStatus.published:
+        return value != null ? '${value!.toStringAsFixed(1)}/20' : '–';
+      case GradeStatus.absent:
+        return '🚫 Absent';
+      case GradeStatus.excused:
+        return '⚠️ Excusé';
+      case GradeStatus.pending:
+        return '⏳ En attente';
     }
   }
 
+ 
+
+  // Texte abrégé pour l'affichage compact
+  String get shortStatus {
+    switch (status) {
+      case GradeStatus.graded:
+        return 'OK';
+      case GradeStatus.published:
+        return 'PUB';
+      case GradeStatus.absent:
+        return 'ABS';
+      case GradeStatus.excused:
+        return 'EXC';
+      case GradeStatus.pending:
+        return 'PEN';
+    }
+  }
+
+  // Type de session abrégé
+  String get shortSessionType {
+    return sessionType == ExamSessionType.controleContinu ? 'CC' : 'EX';
+  }
+
   bool get isValidForTeacher {
-    return status == GradeStatus.graded && value != null && value! >= 0 && value! <= 20;
+    return status == GradeStatus.graded && 
+           value != null && 
+           value! >= 0 && 
+           value! <= 20;
   }
 }

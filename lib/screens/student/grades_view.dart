@@ -34,24 +34,21 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // Ligne contenant l'avatar et le dropdown
+          // Section fixe (non défilante)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric( vertical: 8),
             child: SizedBox(
-              height: 80, // Hauteur fixe pour aligner verticalement
+              height: 80,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center, // Centrage vertical
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Avatar avec une largeur fixe pour maintenir l'alignement
                   SizedBox(
-                    width: 80, // Même largeur que le PulsingAvatar
+                    width: 80,
                     child: PulsingAvatar(imagePath: userImageAsset),
                   ),
-                  // Espace flexible entre les deux éléments
                   const Expanded(child: SizedBox()),
-                  // Dropdown avec une largeur fixe
                   SizedBox(
-                    width: 150, // Ajustez selon vos besoins
+                    width: 150,
                     child: YearSelectorDropdown(
                       years: availableYears,
                       selectedYear: selectedYear,
@@ -63,23 +60,31 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
             ),
           ),
           
-          TeacherCardDeco(
-            imagePaths: ['assets/student_black.jpg'],
-          ),
-          const SizedBox(height: 16),
+          // Section défilante
           Expanded(
-            child: ListView(
-              children: filteredGrades.map((grade) {
-                final subject = dummySubjects[grade.subjectId]!;
-                final teacher = dummyTeachers[grade.teacherId]!;
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TeacherCardDeco(
+                    imagePaths: ['assets/student_black.jpg'],
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    children: filteredGrades.map((grade) {
+                      final subject = dummySubjects[grade.subjectId]!;
+                      final teacher = dummyTeachers[grade.teacherId]!;
 
-                return GradeCard(
-                  grade: grade,
-                  subject: subject,
-                  teacher: teacher,
-                  publicationDate: grade.dateRecorded,
-                );
-              }).toList(),
+                      return GradeCard(
+                        grade: grade,
+                        subject: subject,
+                        teacher: teacher,
+                        publicationDate: grade.dateRecorded,
+                        subjectImagePath: grade.subjectImagePath
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

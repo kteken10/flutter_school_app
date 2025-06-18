@@ -3,14 +3,14 @@ import '../models/session.dart';
 import '../models/subject.dart';
 import '../models/user.dart';
 
-
 final String name = "Mme. Dupont";
-  final String email = "dupont.teacher@example.com";
-  final String profileImageUrl = "assets/teacher_profile.png";
-  final int subjectCount = 3;
-  final int classCount = 2;
-  final List<String> subjects = ["Math", "Physique", "Français"];
-  final List<String> classes = ["Classe A", "Classe B"];
+final String email = "dupont.teacher@example.com";
+final String photoUrlUrl = "assets/teacher_profile.png";
+final int subjectCount = 3;
+final int classCount = 2;
+final List<String> subjects = ["Math", "Physique", "Français"];
+final List<String> classes = ["Classe A", "Classe B"];
+
 final List<Grade> dummyGrades = [
   Grade(
     id: 'g1',
@@ -24,6 +24,7 @@ final List<Grade> dummyGrades = [
     sessionType: ExamSessionType.controleContinu,
     comment: 'Bonne maîtrise des commandes de base',
     dateRecorded: DateTime.now().subtract(const Duration(days: 10)),
+    subjectImagePath: 'assets/linux_logo.png',
   ),
   Grade(
     id: 'g2',
@@ -37,6 +38,7 @@ final List<Grade> dummyGrades = [
     sessionType: ExamSessionType.controleContinu,
     comment: 'Requêtes SQL bien maîtrisées',
     dateRecorded: DateTime.now().subtract(const Duration(days: 12)),
+    subjectImagePath: 'assets/Bd.jpg',
   ),
   Grade(
     id: 'g3',
@@ -50,6 +52,7 @@ final List<Grade> dummyGrades = [
     sessionType: ExamSessionType.controleContinu,
     comment: 'Très bon projet IA',
     dateRecorded: DateTime.now().subtract(const Duration(days: 20)),
+    subjectImagePath: 'assets/ai_logo.png',
   ),
   Grade(
     id: 'g4',
@@ -63,6 +66,7 @@ final List<Grade> dummyGrades = [
     sessionType: ExamSessionType.sessionNormale,
     comment: 'Modèles bien entraînés',
     dateRecorded: DateTime.now().subtract(const Duration(days: 25)),
+    subjectImagePath: 'assets/machine_learning_logo.png',
   ),
   Grade(
     id: 'g5',
@@ -76,15 +80,51 @@ final List<Grade> dummyGrades = [
     sessionType: ExamSessionType.controleContinu,
     comment: 'Bonne configuration des protocoles',
     dateRecorded: DateTime.now().subtract(const Duration(days: 8)),
+    subjectImagePath: 'assets/network_logo.jpg',
   ),
 ];
 
 final Map<String, Subject> dummySubjects = {
-  'sub1': Subject(id: 'sub1', name: 'Systèmes Linux', code: 'LINUX201', department: 'Informatique', credit: 3),
-  'sub2': Subject(id: 'sub2', name: 'Bases de Données', code: 'BD202', department: 'Informatique', credit: 4),
-  'sub3': Subject(id: 'sub3', name: 'Intelligence Artificielle', code: 'IA301', department: 'Informatique', credit: 5),
-  'sub4': Subject(id: 'sub4', name: 'Machine Learning', code: 'ML302', department: 'Informatique', credit: 5),
-  'sub5': Subject(id: 'sub5', name: 'Réseaux Informatiques', code: 'NET203', department: 'Informatique', credit: 3),
+  'sub1': Subject(
+    id: 'sub1', 
+    name: 'Systèmes Linux', 
+    code: 'LINUX201', 
+    department: 'Informatique', 
+    credit: 3,
+  
+  ),
+  'sub2': Subject(
+    id: 'sub2', 
+    name: 'Bases de Données', 
+    code: 'BD202', 
+    department: 'Informatique', 
+    credit: 4,
+   
+  ),
+  'sub3': Subject(
+    id: 'sub3', 
+    name: 'Intelligence Artificielle', 
+    code: 'IA301', 
+    department: 'Informatique', 
+    credit: 5,
+    
+  ),
+  'sub4': Subject(
+    id: 'sub4', 
+    name: 'Machine Learning', 
+    code: 'ML302', 
+    department: 'Informatique', 
+    credit: 5,
+ 
+  ),
+  'sub5': Subject(
+    id: 'sub5', 
+    name: 'Réseaux Informatiques', 
+    code: 'NET203', 
+    department: 'Informatique', 
+    credit: 3,
+   
+  ),
 };
 
 final Map<String, UserModel> dummyTeachers = {
@@ -95,6 +135,7 @@ final Map<String, UserModel> dummyTeachers = {
     email: 'dupont@ecole.com',
     role: UserRole.teacher,
     createdAt: DateTime.now().subtract(const Duration(days: 365)),
+    photoUrl: 'assets/teachers/teacher1.png', // Nouveau champ
   ),
   't2': UserModel(
     id: 't2',
@@ -103,6 +144,7 @@ final Map<String, UserModel> dummyTeachers = {
     email: 'martin@ecole.com',
     role: UserRole.teacher,
     createdAt: DateTime.now().subtract(const Duration(days: 365)),
+    photoUrl: 'assets/teachers/teacher2.png',
   ),
   't3': UserModel(
     id: 't3',
@@ -111,5 +153,6 @@ final Map<String, UserModel> dummyTeachers = {
     email: 'bernard@ecole.com',
     role: UserRole.teacher,
     createdAt: DateTime.now().subtract(const Duration(days: 365)),
+    photoUrl: 'assets/teachers/teacher3.png',
   ),
 };
