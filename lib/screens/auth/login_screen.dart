@@ -5,7 +5,7 @@ import '../student/student_home.dart';
 import '../teacher/teacher_home.dart';
 import 'register_screen.dart';
 import '../../constants/colors.dart';
-
+import 'package:flutter_flag_selector/flutter_flag_selector.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -148,6 +148,26 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+      
+        centerTitle: true,
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        actions: [
+          FlagSelector(
+           flagSelectorLanguageCode: 'fr',
+        
+
+           
+            onFlagSelectorCountryChanged: (flag) {
+              setState(() {
+               
+              });
+            },
+          ),
+        ],
+      ),
+
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
