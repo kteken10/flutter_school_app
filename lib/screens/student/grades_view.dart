@@ -7,7 +7,6 @@ import '../../ui/pulsing_avatar.dart';
 import '../../ui/teacher_card_deco.dart';
 import '../../ui/year_drop.dart';
 
-
 class GradesViewScreen extends StatefulWidget {
   const GradesViewScreen({super.key});
 
@@ -16,7 +15,6 @@ class GradesViewScreen extends StatefulWidget {
 }
 
 class _GradesViewScreenState extends State<GradesViewScreen> {
-  
   final String userImageAsset = 'assets/student_1.png';
   final List<String> availableYears = ['2023-2024', '2022-2023', '2021-2022'];
   String selectedYear = '2023-2024';
@@ -34,32 +32,43 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(100),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 40.0, 16.0, 16.0),
-          child: Row(
-            children: [
-              PulsingAvatar(imagePath: userImageAsset),
-              const Spacer(),
-                YearSelectorDropdown(
-                        years: availableYears,
-                        selectedYear: selectedYear,
-                        onChanged: (value) => setState(() => selectedYear = value!),
-                      ),
-            ],
-          ),
-        ),
-      ),
       body: Column(
         children: [
-        
-        
-          TeacherCardDeco(imagePaths: ['assets/registerd_school.jpg','assets/student_black.jpg'],),
+          // Ligne contenant l'avatar et le dropdown
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SizedBox(
+              height: 80, // Hauteur fixe pour aligner verticalement
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center, // Centrage vertical
+                children: [
+                  // Avatar avec une largeur fixe pour maintenir l'alignement
+                  SizedBox(
+                    width: 80, // Même largeur que le PulsingAvatar
+                    child: PulsingAvatar(imagePath: userImageAsset),
+                  ),
+                  // Espace flexible entre les deux éléments
+                  const Expanded(child: SizedBox()),
+                  // Dropdown avec une largeur fixe
+                  SizedBox(
+                    width: 150, // Ajustez selon vos besoins
+                    child: YearSelectorDropdown(
+                      years: availableYears,
+                      selectedYear: selectedYear,
+                      onChanged: (value) => setState(() => selectedYear = value!),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          TeacherCardDeco(
+            imagePaths: ['assets/student_black.jpg'],
+          ),
           const SizedBox(height: 16),
           Expanded(
             child: ListView(
-            
               children: filteredGrades.map((grade) {
                 final subject = dummySubjects[grade.subjectId]!;
                 final teacher = dummyTeachers[grade.teacherId]!;

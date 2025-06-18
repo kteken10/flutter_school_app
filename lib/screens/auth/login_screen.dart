@@ -6,11 +6,11 @@ import '../teacher/teacher_home.dart';
 import 'register_screen.dart';
 import '../../constants/colors.dart';
 import 'package:flutter_flag_selector/flutter_flag_selector.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _LoginScreenState createState() => _LoginScreenState();
 }
 
@@ -20,7 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
-  // Stockage des credentials utilisateurs : email -> {password, role}
   final Map<String, Map<String, String>> _users = {
     'patientdjappa@yahoo.com': {
       'password': '11111111',
@@ -39,9 +38,11 @@ class _LoginScreenState extends State<LoginScreen> {
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(  fontSize: 14,
-                     fontFamily: 'Montserrat',
-    fontWeight: FontWeight.w400),
+      labelStyle: TextStyle(
+        fontSize: 14,
+        fontFamily: 'Montserrat',
+        fontWeight: FontWeight.w400,
+      ),
       prefixIcon: Icon(
         icon,
         color: AppColors.textprimary.withOpacity(0.2),
@@ -86,15 +87,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final user = _users[email]!;
 
       if (user['password'] == password) {
-        // Authentification réussie, redirection selon rôle
         switch (user['role']) {
           case 'student':
             Navigator.pushReplacement(
-              // ignore: use_build_context_synchronously
               context,
               MaterialPageRoute(builder: (_) => const StudentHomeScreen()),
             );
-            // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Bienvenue Étudiant Djappa')),
             );
@@ -102,11 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
           case 'teacher':
             Navigator.pushReplacement(
-              // ignore: use_build_context_synchronously
               context,
               MaterialPageRoute(builder: (_) => const TeacherHomeScreen()),
             );
-            // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Bienvenue Enseignant Eboa Pière')),
             );
@@ -114,11 +110,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
           case 'admin':
             Navigator.pushReplacement(
-              // ignore: use_build_context_synchronously
               context,
               MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
             );
-            // ignore: use_build_context_synchronously
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Compte Démo connecté')),
             );
@@ -130,15 +124,11 @@ class _LoginScreenState extends State<LoginScreen> {
             );
         }
       } else {
-        // Mauvais mot de passe
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Mot de passe incorrect')),
         );
       }
     } else {
-      // Email non trouvé
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Utilisateur non trouvé')),
       );
@@ -148,26 +138,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-      
-        centerTitle: true,
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        actions: [
-          FlagSelector(
-           flagSelectorLanguageCode: 'fr',
-        
-
-           
-            onFlagSelectorCountryChanged: (flag) {
-              setState(() {
-               
-              });
-            },
-          ),
-        ],
-      ),
-
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
@@ -176,33 +146,46 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Image.asset(
-                    'assets/academic_logo.png',
-                    height: 200,
-                    width: 250,
+                FlagSelector(
+                    flagSelectorLanguageCode: 'fr',
+                    flagSelectorFlagWidth: 30,
+                    flagSelectorFlagHeight: 20,
+                    onFlagSelectorCountryChanged: (flag) {
+                      setState(() {});
+                    },
                   ),
-                ),
-            
-                const TeacherCardDeco(
+             
+                Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Image.asset(
+                        'assets/academic_logo.png',
+                        height: 160,
+                        width: 160
+                      ),
+                    ),
                  
+                  
+                       Text(
+                        'Votre plateforme de gestion de note optimisée',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                
+                    const SizedBox(height: 20),
+                  ],
+                ),
+                const TeacherCardDeco(
                   imagePaths: ['assets/login_school.jpg'],
                   withHorizontalMargin: false,
                 ),
-                const SizedBox(height: 16),
-              
-                const SizedBox(height: 8),
-                Text(
-                  ' Votre plateforme de gestion de note optimisée',
-                  style: TextStyle(
-                    fontSize: 14,
-                     fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w400,
-                    // ignore: deprecated_member_use
-                     color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 40),
+                 const SizedBox(height: 30),
                 Form(
                   key: _formKey,
                   child: Column(
@@ -248,13 +231,25 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 30),
-                      SizedBox(
+                      const SizedBox(height: 40),
+                      Container(
                         width: double.infinity,
                         height: 50,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.secondary.withOpacity(0.8),
+                              AppColors.secondary.withOpacity(0.9),
+                            ],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.secondary,
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(50),
                             ),
@@ -268,9 +263,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                     fontSize: 12,
                                     color: Colors.white,
                                     letterSpacing: 1.2,
-                                    
-                     fontFamily: 'Montserrat',
-    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Montserrat',
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                         ),
@@ -290,10 +284,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               'Créer un compte',
                               style: TextStyle(
                                 color: AppColors.secondary,
-                              
-                                  fontSize: 14,
-                     fontFamily: 'Montserrat',
-     fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
