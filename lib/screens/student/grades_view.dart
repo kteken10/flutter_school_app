@@ -32,7 +32,7 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
+      body: SafeArea(bottom: false, child: Column(
         children: [
           // Section fixe (non défilante)
           Padding(
@@ -88,7 +88,7 @@ class _GradesViewScreenState extends State<GradesViewScreen> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 }

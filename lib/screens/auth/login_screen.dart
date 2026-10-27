@@ -148,6 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 FlagSelector(
                     flagSelectorLanguageCode: 'fr',
+                    flagSelectorInitialCountry: 'fr',
                     flagSelectorFlagWidth: 30,
                     flagSelectorFlagHeight: 20,
                     onFlagSelectorCountryChanged: (flag) {

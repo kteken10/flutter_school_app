@@ -47,8 +47,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final emailService = EmailService(
       smtpServer: 'smtp.gmail.com',
-      smtpUsername: 'patientdjappa@gmail.com',
-      smtpPassword: 'bjtp uswy idke kddq',
+      // Identifiants SMTP à fournir par configuration (jamais dans le dépôt).
+      smtpUsername: '',
+      smtpPassword: '',
     );
 
     return MultiProvider(
@@ -61,6 +62,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+      debugShowCheckedModeBanner: false,
         title: 'Plateforme de résultats académiques',
         theme: ThemeData(
           fontFamily: 'Montserrat', // ✅ Utilisation globale de la police Montserrat
