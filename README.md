@@ -1,128 +1,82 @@
-# 📚 EduTrack - Gestion Scolaire 📊
+# EduTrack
 
-<p align="center">
-  <img alt="EduTrack Logo" src="./assets/icon.png" width="124px" style="border-radius:16px"/>
-</p>
+<p align="center"><img src="docs/banner.png" alt="EduTrack: school management app built with Flutter and Firebase" width="100%"></p>
 
-<p align="center">
-  <a href="https://flutter.dev/">
-    <img alt="Flutter" src="https://img.shields.io/badge/Flutter-v3.16-blue.svg?style=flat-square&logo=flutter" />
-  </a>
-  <a href="https://firebase.google.com/">
-    <img alt="Firebase" src="https://img.shields.io/badge/Firebase-12.4.6-FFCA28.svg?style=flat-square&logo=firebase" />
-  </a>
-  <img alt="License" src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" />
-  <img alt="Version" src="https://img.shields.io/badge/Version-1.0.0-blue.svg?style=flat-square" />
-</p>
+![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=black)
+![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS-0A2540)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-## 📖 Description
-Application mobile développée avec **Flutter** et **Firebase**, dédiée à la gestion académique des établissements scolaires. Elle permet aux enseignants et administrateurs de :
+A school management app for administrators, teachers and students: grades, transcripts and notifications, backed by Firebase.
 
-- Suivre les performances des étudiants
-- Gérer les évaluations et notes
-- Générer des rapports détaillés
-- Faciliter la communication entre les parties prenantes
+## Screens
 
-## ✨ Fonctionnalités Clés
+<p align="center"><img src="docs/tour.gif" width="260" alt="Tour of the app: sign in, grades, transcript, notifications, profile"></p>
 
-### 👨‍🎓 Gestion des Étudiants
-- Création et modification de profils étudiants
-- Historique académique (années/semestres)
-- Classement et statistiques par promotion
+| Sign in | Grades | Transcript | Notifications | Profile |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screens/sign-in.png" width="160" alt="Sign in screen"> | <img src="docs/screens/grades.png" width="160" alt="Grades screen"> | <img src="docs/screens/transcript.png" width="160" alt="Transcript screen"> | <img src="docs/screens/notifications.png" width="160" alt="Notifications screen"> | <img src="docs/screens/profile.png" width="160" alt="Profile screen"> |
 
-### 📝 Gestion des Notes
-- Interface intuitive pour saisir les notes
-- Coefficients personnalisables par matière
-- Calcul automatique des moyennes générales et spécifiques
-- Visualisation des performances via des graphiques dynamiques
+## Features
 
-### 📊 Tableaux de Bord
-- Vue enseignant : suivi des classes, notifications
-- Vue administrateur : gestion globale, alertes sur données manquantes
-- Exportation des données en PDF ou CSV
+**Administrators**
+- Overview of students and teachers, with their details.
+- Admin sign-up protected by a passphrase.
+- Notifications to users.
 
-### 🔐 Sécurité
-- Authentification Firebase (rôles : Admin / Enseignant / Étudiant)
-- Protection des données (chiffrement, règles de sécurité Firestore)
-- Historique et journalisation des activités sensibles
+**Teachers**
+- Grade entry per subject and session.
+- Import of grade files (Excel or CSV).
+- Reports, notifications and profile.
 
-## 🖼️ Captures d'Écran
-<p align="center">
-  <kbd>
-    <img src="./screenshots/login.png" width="200" alt="Écran de connexion"/>
-    <em>Connexion sécurisée</em>
-  </kbd>
-  <kbd>
-    <img src="./screenshots/dashboard.png" width="200" alt="Tableau de bord"/>
-    <em>Tableau de bord</em>
-  </kbd>
-  <kbd>
-    <img src="./screenshots/grades.png" width="200" alt="Saisie des notes"/>
-    <em>Saisie des notes</em>
-  </kbd>
-</p>
+**Students**
+- Grades per subject, with assessment type and date.
+- Transcript: overall average, credits, rank, results per session.
+- Notifications when new grades are published.
 
-## 🛠️ Architecture Technique
-```mermaid
-graph TD
-  A[Flutter Frontend] --> B[Firebase Auth]
-  A --> C[Firestore Database]
-  A --> D[Firebase Storage]
-  A --> E[Firebase Messaging]
-  C --> F[PDF/CSV Exports]
-  D --> G[Cloud Backups]
+**Across the app**
+- Firebase Authentication with role-based routing.
+- Push notifications (Firebase Cloud Messaging and local notifications).
+- Welcome email on account creation.
+- Phone number field with country selection, using [flutter_flag_selector](https://pub.dev/packages/flutter_flag_selector), my own package.
+
+## Tech stack
+
+- Flutter, Dart, Provider
+- Firebase: Authentication, Cloud Firestore, Storage, Cloud Messaging, App Check
+- [file_picker](https://pub.dev/packages/file_picker), [share_plus](https://pub.dev/packages/share_plus), [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications), [salomon_bottom_bar](https://pub.dev/packages/salomon_bottom_bar), [mailer](https://pub.dev/packages/mailer)
+
+```
+lib/
+├── models/       users, grades, subjects…
+├── services/     auth, Firestore, files, notifications, email
+├── wrappers/     role-based routing after sign-in
+├── screens/
+│   ├── auth/     sign in, sign up
+│   ├── admin/
+│   ├── teacher/
+│   └── student/
+└── ui/           reusable widgets and controllers
 ```
 
-### 📦 Dépendances Principales
-| Package Flutter | Utilisation |
-|-----------------|------------|
-| firebase_core | Initialisation Firebase |
-| firebase_auth | Authentification utilisateur |
-| cloud_firestore | Base de données temps réel |
-| firebase_storage | Sauvegarde de fichiers |
-| firebase_messaging | Notifications push |
-| flutter_local_notifications | Notifications locales |
-| file_picker | Importation de fichiers |
-| path_provider | Accès fichiers locaux |
-| share_plus | Partage de fichiers |
-| multi_select_flutter | Sélections multiples |
-| flutter_staggered_animations | Animations d’UI |
-| salomon_bottom_bar | Barre de navigation personnalisée |
+Firestore collections: `users`, `classes`, `subjects`, `sessions`, `grades`, `notifications`, `reports`, `admin_logs`.
 
-## 🚀 Installation
+## Getting started
 
-### Cloner le projet :
-```bash
-git clone https://github.com/votre-repo/edutrack.git
-cd edutrack
-```
+1. Create a Firebase project and enable Authentication (email and password), Cloud Firestore, Storage and Cloud Messaging.
+2. Register the Android app and replace `android/app/google-services.json` with yours (and add `ios/Runner/GoogleService-Info.plist` for iOS).
+3. Run:
 
-### Installer les dépendances :
 ```bash
 flutter pub get
-```
-
-### Configurer Firebase :
-1. Créer un projet Firebase
-2. Ajouter les fichiers `google-services.json` (Android) et `GoogleService-Info.plist` (iOS)
-3. Vérifier que les règles Firestore sont sécurisées
-
-### Lancer l'application :
-```bash
 flutter run
 ```
 
-## 🤝 Contribution
-1. Forker le projet
-2. Créer une branche : `git checkout -b feature/ma-feature`
-3. Commiter vos changements : `git commit -m "Ajout de ma feature"`
-4. Pousser la branche : `git push origin feature/ma-feature`
-5. Ouvrir une Pull Request
+## License
 
-## 📄 Licence
-Distribué sous licence **MIT**. Voir le fichier `LICENSE` pour plus d’informations.
+MIT, see [LICENSE](LICENSE).
 
-## ✉️ Contact
-**Dissang Kevin** - dissangfrancis@yahoo.com  
-Lien du projet : [Projetc Link](https://github.com/kteken10/flutter_school_app)
+## Author
 
+**Dissang Kevin** · Mobile AI Engineer
+[Portfolio](https://dissangkevin.work) · [GitHub](https://github.com/kteken10)
