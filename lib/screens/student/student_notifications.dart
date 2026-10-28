@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../constants/colors.dart';
 import '../../ui/notification_card.dart';
-
 
 class StudentNotificationsScreen extends StatelessWidget {
   const StudentNotificationsScreen({super.key});
@@ -77,33 +77,56 @@ class StudentNotificationsScreen extends StatelessWidget {
      
     ];
 
-    if (fakeNotifications.isEmpty) {
-      return const Center(child: Text('Aucune notification'));
-    }
+    // Les plus récentes en premier.
+    fakeNotifications.sort((a, b) => (b['date'] as DateTime).compareTo(a['date'] as DateTime));
+    final unread = fakeNotifications.where((n) => n['isRead'] == false).length;
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: fakeNotifications.length,
-      itemBuilder: (context, index) {
-        final notif = fakeNotifications[index];
-
-        return NotificationCard(
-          title: notif['title'] ?? 'Notification',
-          description: notif['message'] ?? '',
-          dateTime: notif['date'],
-          icon: _getNotificationIcon(notif['type']),
-          isRead: notif['isRead'],
-          onTap: () {
-            // Simuler une action
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Notification: ${notif['title']}')),
-            );
-          },
-          onDelete: () {
-            // Tu peux ajouter une logique de suppression locale ici si nécessaire
-          },
-        );
-      },
+    // Même en-tête que le relevé de notes : titre, sous-titre, zone sûre.
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        bottom: false,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(4, 16, 4, 24),
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Notifications',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                unread == 0 ? 'Tout est lu' : '$unread non lues',
+                style: const TextStyle(fontSize: 14, color: AppColors.textprimary),
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (fakeNotifications.isEmpty)
+              const Padding(
+                padding: EdgeInsets.only(top: 80),
+                child: Center(child: Text('Aucune notification')),
+              ),
+            for (final notif in fakeNotifications)
+              NotificationCard(
+                title: notif['title'] ?? 'Notification',
+                description: notif['message'] ?? '',
+                dateTime: notif['date'],
+                icon: _getNotificationIcon(notif['type']),
+                isRead: notif['isRead'],
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Notification : ${notif['title']}')),
+                  );
+                },
+                onDelete: () {},
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -115,6 +138,14 @@ class StudentNotificationsScreen extends StatelessWidget {
         return Icons.warning;
       case 'general':
         return Icons.info;
+      case 'reminder':
+        return Icons.assignment_late_outlined;
+      case 'calendar':
+        return Icons.event_outlined;
+      case 'message':
+        return Icons.chat_bubble_outline;
+      case 'update':
+        return Icons.system_update_outlined;
       default:
         return Icons.notifications;
     }
